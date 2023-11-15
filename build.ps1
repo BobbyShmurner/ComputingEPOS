@@ -1,0 +1,1 @@
+dotnet run --project "$PSScriptRoot/Backend/Backend.csproj"
