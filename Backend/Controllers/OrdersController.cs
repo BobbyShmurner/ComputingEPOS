@@ -16,77 +16,107 @@ namespace ComputingEPOS.Backend.Controllers;
 public class OrdersController : ControllerBase {
     private readonly IOrdersService m_Service;
     private readonly IOrderItemsService m_OrderItemsService;
+    private readonly ITransactionsService m_TransactionsService;
 
-    public OrdersController(IOrdersService service, IOrderItemsService orderItemsService) {
+    public OrdersController(IOrdersService service, IOrderItemsService orderItemsService, ITransactionsService transactionsService) {
          m_Service = service;
          m_OrderItemsService = orderItemsService;
+         m_TransactionsService = transactionsService;
     }
 
-    // GET: api/Orders
+    // GET: api/Orders?closed=false
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
-        => await m_Service.GetOrders();
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<Order>>> GetOrders(bool? closed = null) =>
+        await m_Service.GetOrders(closed);
 
     // GET: api/Orders/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Order>> GetOrder(int id) {
-        Order? order = await m_Service.GetOrder(id);
-        return order != null ? order : NotFound();
-    }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Order>> GetOrder(int id) =>
+        await m_Service.GetOrder(id);
+
+    // GET: api/Orders/5/Cost
+    [HttpGet("{id}/Cost")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<decimal>> GetOrderCost(int id) =>
+        await m_Service.GetOrderCost(id, m_OrderItemsService);
+
+    // GET: api/Orders/5/AmountDue
+    [HttpGet("{id}/AmountDue")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<decimal>> GetAmountDueForOrder(int id) =>
+        await m_Service.GetAmountDueForOrder(id, m_TransactionsService, m_OrderItemsService);
 
     // GET: api/Orders/FromOrderNum
     [HttpGet("FromOrderNum")]
-    public async Task<ActionResult<Order>> GetOrderFromOrderNum([Required]int orderNum, bool todayOnly = true) {
-       int? orderId = await m_Service.GetOrderIdFromOrderNum(orderNum, todayOnly);
-       if (orderId == null) return NotFound();
-
-       return await GetOrder(orderId.Value);
-    }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Order>> GetOrderFromOrderNum([Required]int orderNum, bool todayOnly = true) =>
+       await m_Service.GetOrderFromOrderNum(orderNum, todayOnly);
 
     // GET: api/Orders/5/OrderItems
     [HttpGet("{id}/OrderItems")]
-    public async Task<ActionResult<IEnumerable<OrderItem>>> GetOrderItems(int id)
-        => await m_Service.GetOrderItems(id, m_OrderItemsService);
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int id) =>
+        await m_Service.GetOrderItems(id, m_OrderItemsService);
+
+    // GET: api/Orders/5/Transactions
+    [HttpGet("{id}/Transactions")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<Transaction>>> GetOrderTransactions(int id) =>
+        await m_Service.GetOrderTransactions(id, m_TransactionsService);
 
     // PUT: api/Orders/5
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Order>> PutOrder(int id, Order order) {
         if (id != order.OrderID) return BadRequest(); 
-        
-        Order? updatedOrder = await m_Service.PutOrder(order);
-        return updatedOrder != null ? updatedOrder : NotFound();
+        return await m_Service.PutOrder(order);
     }
 
-    // POST: api/Orders/5/CloseCheck
+    // POST: api/Orders/5/CloseCheck?force=false
     [HttpPost("{id}/CloseCheck")]
-    public async Task<ActionResult<Order>> PostCloseCheck(int id) {
-        Order? updatedOrder = await m_Service.CloseCheck(id, false);
-        return updatedOrder != null ? updatedOrder : NotFound();
-    }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<Order>> PostCloseCheck(int id, bool force = false) =>
+        force
+            ? await m_Service.ForceCloseCheck(id)
+            : await m_Service.CloseCheck(id, m_TransactionsService, m_OrderItemsService);
 
-    // POST: api/Orders/5/ForceCloseCheck
-    [HttpPost("{id}/ForceCloseCheck")]
-    public async Task<ActionResult<Order>> PostForceCloseCheck(int id) {
-        Order? updatedOrder = await m_Service.CloseCheck(id, true);
-        return updatedOrder != null ? updatedOrder : NotFound();
-    }
+    // POST: api/Orders/5/Finalise
+    [HttpPost("{id}/Finalise")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Order>> PostFinaliseOrder(int id) =>
+        await m_Service.FinaliseOrder(id);
 
     // POST: api/Orders
     [HttpPost]
-    public async Task<ActionResult<Order>> PostOrder(Order order)  {
-        Order? newOrder = await m_Service.PostOrder(order);
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<ActionResult<Order>> PostOrder(Order order) {
+        ActionResult<Order> newOrderRes = await m_Service.PostOrder(order);
+        if (newOrderRes.Result != null) return newOrderRes.Result;
+        Order newOrder = newOrderRes.Value!;
+
         return CreatedAtAction(nameof(GetOrder), new { id = newOrder.OrderID }, newOrder);
     }
 
     // POST: api/Orders/ForceCloseAllChecks
     [HttpPost("ForceCloseAllChecks")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> PostForceCloseAllChecks() =>
-        await m_Service.ForceCloseAllChecks() ? Ok() : Problem("Failed to force close all open checks.");
+        await m_Service.ForceCloseAllChecks();
 
     // DELETE: api/Orders/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteOrder(int id) {
-        if (!await m_Service.DeleteOrder(id)) return NotFound();
-        return Ok();
-    }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteOrder(int id) =>
+        await m_Service.DeleteOrder(id);
 }

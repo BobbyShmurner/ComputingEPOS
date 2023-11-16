@@ -15,44 +15,69 @@ namespace ComputingEPOS.Backend.Controllers;
 public class OrderItemsController : ControllerBase {
     private readonly IOrderItemsService m_Service;
 	private readonly IOrdersService m_OrdersService;
+	private readonly IStockService m_StockService;
 
-	public OrderItemsController(IOrderItemsService service, IOrdersService ordersService) {
+	public OrderItemsController(IOrderItemsService service, IOrdersService ordersService, IStockService stockService) {
 		 m_Service = service;
+		 m_StockService = stockService;
 		 m_OrdersService = ordersService;
 	}
 
 	// GET: api/OrderItems
 	[HttpGet]
-	public async Task<ActionResult<IEnumerable<OrderItem>>> GetOrderItems(int? orderId = null)
-		=> await m_Service.GetOrderItems(orderId);
+    [ProducesResponseType(StatusCodes.Status200OK)]
+	public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int? orderId = null) =>
+		await m_Service.GetOrderItems(orderId);
 
 	// GET: api/OrderItems/5
 	[HttpGet("{id}")]
-	public async Task<ActionResult<OrderItem>> GetOrderItem(int id) {
-		OrderItem? orderItem = await m_Service.GetOrderItem(id);
-		return orderItem != null ? orderItem : NotFound();
-	}
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<OrderItem>> GetOrderItem(int id) =>
+		await m_Service.GetOrderItem(id);
+
+    // GET: api/OrderItems/5/Order
+	[HttpGet("{id}/Order")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<Order>> GetOrder(int id) =>
+		await m_Service.GetOrder(id, m_OrdersService);
+
+    // GET: api/OrderItems/5/Stock
+	[HttpGet("{id}/Stock")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<Stock>> GetStock(int id) =>
+		await m_Service.GetStock(id, m_StockService);
 
 	// PUT: api/OrderItems/5
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<OrderItem>> PutOrderItem(int id, OrderItem orderItem) {
-        if (id != orderItem.OrderItemID) return BadRequest(); 
-        
-        OrderItem? updatedOrderItem = await m_Service.PutOrderItem(orderItem);
-        return updatedOrderItem != null ? updatedOrderItem : NotFound();
+        if (orderItem.OrderItemID != id) return BadRequest();
+        return await m_Service.PutOrderItem(orderItem, m_StockService);
     }
 
     // POST: api/OrderItems
     [HttpPost]
-    public async Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem)  {
-        OrderItem? newOrderItem = await m_Service.PostOrderItem(orderItem);
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem) {
+        ActionResult<OrderItem> newOrderItemRes = await m_Service.PostOrderItem(orderItem, m_StockService);
+        if (newOrderItemRes.Result != null) return newOrderItemRes.Result;
+        OrderItem newOrderItem = newOrderItemRes.Value!;
+
         return CreatedAtAction(nameof(GetOrderItem), new { id = newOrderItem.OrderItemID }, newOrderItem);
     }
 
     // DELETE: api/OrderItems/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteOrderItem(int id) {
-        if (!await m_Service.DeleteOrderItem(id)) return NotFound();
-        return Ok();
-    }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteOrderItem(int id) =>
+        await m_Service.DeleteOrderItem(id);
 }

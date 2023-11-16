@@ -15,41 +15,43 @@ public class TransactionsService : ITransactionsService {
 
     public TransactionsService(BaseDbContext context) =>  _context = context;
 
-    public async Task<List<Transaction>> GetTransactions(int? orderId) {
+    public async Task<ActionResult<List<Transaction>>> GetTransactions(int? orderId) {
         if (orderId == null) return await _context.Transactions.ToListAsync();
         return await _context.Transactions.Where(x => x.OrderID == orderId).ToListAsync();
     }
 
-    public async Task<Transaction?> GetTransaction(int id) 
-        => await _context.Transactions.FindAsync(id);
+    public async Task<ActionResult<Transaction>> GetTransaction(int id) {
+        Transaction? transaction = await _context.Transactions.FindAsync(id);
+        return transaction != null ? transaction : new NotFoundResult();
+    }
 
-    public async Task<Transaction?> PutTransaction(Transaction transaction) {
+    public async Task<ActionResult<Transaction>> PutTransaction(Transaction transaction) {
         _context.Entry(transaction).State = EntityState.Modified;
 
         try {
             await _context.SaveChangesAsync();
         } catch (DbUpdateConcurrencyException) {
-            if (!await TransactionExists(transaction.TransactionID)) return null;
+            if (!await TransactionExists(transaction.TransactionID)) return new NotFoundResult();
             else throw;
         }
 
         return transaction;
     }
 
-    public async Task<Transaction> PostTransaction(Transaction transaction)  {
+    public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction) {
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
         return transaction;
     }
 
-    public async Task<bool> DeleteTransaction(int id) {
-        Transaction? transaction = await _context.Transactions.FindAsync(id);
-        if (transaction == null) return false;
+    public async Task<IActionResult> DeleteTransaction(int id) {
+        ActionResult<Transaction> transactionRes = await GetTransaction(id);
+        if (transactionRes.Result != null) return transactionRes.Result;
 
-        _context.Transactions.Remove(transaction);
+        _context.Transactions.Remove(transactionRes.Value!);
         await _context.SaveChangesAsync();
 
-        return true;
+        return new OkResult();
     }
 
     public async Task<bool> TransactionExists(int id) => 

@@ -21,36 +21,42 @@ public class TransactionsController : ControllerBase {
 
     // GET: api/Transactions
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions(int? orderId = null)
-        => await m_Service.GetTransactions(orderId);
+	[ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<Transaction>>> GetTransactions(int? orderId = null) =>
+        await m_Service.GetTransactions(orderId);
 
     // GET: api/Transactions/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Transaction>> GetTransaction(int id) {
-        Transaction? transaction = await m_Service.GetTransaction(id);
-        return transaction != null ? transaction : NotFound();
-    }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Transaction>> GetTransaction(int id) =>
+        await m_Service.GetTransaction(id);
 
     // PUT: api/Transactions/5
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Transaction>> PutTransaction(int id, Transaction transaction) {
         if (id != transaction.TransactionID) return BadRequest(); 
-        
-        Transaction? updatedTransaction = await m_Service.PutTransaction(transaction);
-        return updatedTransaction != null ? updatedTransaction : NotFound();
+        return await m_Service.PutTransaction(transaction);
     }
 
     // POST: api/Transactions
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction)  {
-        Transaction? newTransaction = await m_Service.PostTransaction(transaction);
+        ActionResult<Transaction> newTransactionRes = await m_Service.PostTransaction(transaction);
+        if (newTransactionRes.Result != null) return newTransactionRes.Result;
+        Transaction newTransaction = newTransactionRes.Value!;
+        
         return CreatedAtAction(nameof(GetTransaction), new { id = newTransaction.TransactionID }, newTransaction);
     }
 
     // DELETE: api/Transactions/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTransaction(int id) {
-        if (!await m_Service.DeleteTransaction(id)) return NotFound();
-        return Ok();
-    }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteTransaction(int id) =>
+        await m_Service.DeleteTransaction(id);
 }

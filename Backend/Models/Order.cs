@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ComputingEPOS.Backend.Attributes;
+using ComputingEPOS.Backend.Services;
 
 namespace ComputingEPOS.Backend.Models;
 
@@ -15,15 +16,17 @@ public class Order {
 	[Required]
 	public int EmployeeID { get; set; }
 
+	public int? ParentOrderID { get; set; } = null;
+
 	[Required]
 	[Range(1, 999)]
-	public int OrderNum { get; set; } = 1;
+	public int? OrderNum { get; set; } = 1;
 
 	[Range(0, DAY_IN_SECONDS)]
-	public float? OrderDuration { get; set; } = null;
+	public double? OrderDuration { get; set; } = null;
 
 	[Range(0, DAY_IN_SECONDS)]
-	public float? PrepDuration { get; set; } = null;
+	public double? PrepDuration { get; set; } = null;
 
 	[DateNotInFuture]
 	[DataType(DataType.DateTime)]

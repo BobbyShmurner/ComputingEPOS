@@ -4,15 +4,16 @@ using ComputingEPOS.Backend.Models;
 namespace ComputingEPOS.Backend.Services;
 
 public interface IOrderItemsService {
-    public Task<List<OrderItem>> GetOrderItems(int? orderId);
-    public Task<OrderItem?> GetOrderItem(int id);
-    public Task<Order?> GetOrder(int id, IOrdersService ordersService);
+    public Task<ActionResult<List<OrderItem>>> GetOrderItems(int? orderId);
+    public Task<ActionResult<OrderItem>> GetOrderItem(int id);
+    public Task<ActionResult<Order>> GetOrder(int id, IOrdersService ordersService);
+    public Task<ActionResult<Stock>> GetStock(int id, IStockService stockService);
 
-    public Task<OrderItem?> PutOrderItem(OrderItem orderItem);
+    public Task<ActionResult<OrderItem>> PutOrderItem(OrderItem orderItem, IStockService stockService);
 
-    public Task<OrderItem> PostOrderItem(OrderItem orderItem);
+    public Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem, IStockService stockService);
 
-    public Task<bool> DeleteOrderItem(int id);
+    public Task<IActionResult> DeleteOrderItem(int id);
 
     public Task<bool> OrderItemExists(int id);
 }
