@@ -18,6 +18,7 @@ public interface IOrdersService {
     public Task<ActionResult<Order>> FinaliseOrder(int id);
     public Task<ActionResult<Order>> CloseCheck(int id, ITransactionsService transactionsService, IOrderItemsService orderItemsService);
     public Task<ActionResult<Order>> ForceCloseCheck(int id);
+    public Task<ActionResult<Order>> CompleteOrder(int id);
     public Task<IActionResult> ForceCloseAllChecks();
 
     public Task<IActionResult> DeleteOrder(int id);

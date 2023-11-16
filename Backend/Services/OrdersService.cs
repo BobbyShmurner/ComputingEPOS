@@ -81,6 +81,15 @@ public class OrdersService : IOrdersService {
         return await PutOrder(order);
     }
 
+    public async Task<ActionResult<Order>> CompleteOrder(int id) {
+        ActionResult<Order> orderResult = await GetOrder(id);
+        if (orderResult.Result != null) return orderResult.Result!;
+        Order order = orderResult.Value!;
+
+        order.PrepDuration = (DateTime.Now - order.Date).TotalSeconds - order.OrderDuration;
+        return await PutOrder(order);
+    }
+
     public async Task<ActionResult<Order>> ForceCloseCheck(int id)
         => await CloseCheck_Internal(id, true, null, null);
 

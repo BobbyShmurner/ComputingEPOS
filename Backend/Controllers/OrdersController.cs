@@ -96,6 +96,13 @@ public class OrdersController : ControllerBase {
     public async Task<ActionResult<Order>> PostFinaliseOrder(int id) =>
         await m_Service.FinaliseOrder(id);
 
+    // POST: api/Orders/5/Complete
+    [HttpPost("{id}/Complete")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Order>> PostCompleteOrder(int id) =>
+        await m_Service.CompleteOrder(id);
+
     // POST: api/Orders
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
