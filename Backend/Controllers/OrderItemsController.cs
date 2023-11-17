@@ -61,17 +61,35 @@ public class OrderItemsController : ControllerBase {
         return await m_Service.PutOrderItem(orderItem, m_StockService);
     }
 
+    // // POST: api/OrderItems
+    // [HttpPost]
+    // [ProducesResponseType(StatusCodes.Status201Created)]
+    // [ProducesResponseType(StatusCodes.Status404NotFound)]
+    // [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    // public async Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem) {
+    //     ActionResult<OrderItem> newOrderItemRes = await m_Service.PostOrderItem(orderItem, m_StockService);
+    //     if (newOrderItemRes.Result != null) return newOrderItemRes.Result;
+    //     OrderItem newOrderItem = newOrderItemRes.Value!;
+
+    //     return CreatedAtAction(nameof(GetOrderItems), new { id = newOrderItem.OrderItemID }, newOrderItem);
+    // }
+
     // POST: api/OrderItems
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem) {
-        ActionResult<OrderItem> newOrderItemRes = await m_Service.PostOrderItem(orderItem, m_StockService);
-        if (newOrderItemRes.Result != null) return newOrderItemRes.Result;
-        OrderItem newOrderItem = newOrderItemRes.Value!;
+    public async Task<ActionResult<List<OrderItem>>> PostOrderItems(ICollection<OrderItem> orderItems) {
+        List<OrderItem> newOrderItems = new();
 
-        return CreatedAtAction(nameof(GetOrderItem), new { id = newOrderItem.OrderItemID }, newOrderItem);
+        foreach (OrderItem orderItem in orderItems) {
+            ActionResult<OrderItem> newOrderItemRes = await m_Service.PostOrderItem(orderItem, m_StockService);
+            if (newOrderItemRes.Result != null) return newOrderItemRes.Result;
+            
+            newOrderItems.Add(newOrderItemRes.Value!);
+        }
+
+        return CreatedAtAction(nameof(GetOrderItems), newOrderItems);
     }
 
     // DELETE: api/OrderItems/5

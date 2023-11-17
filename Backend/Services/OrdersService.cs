@@ -17,10 +17,11 @@ public class OrdersService : IOrdersService {
 
     public OrdersService(BaseDbContext context) =>  _context = context;
 
-    public async Task<ActionResult<List<Order>>> GetOrders(bool? closed) {
-		if (closed == null) return await _context.Orders.ToListAsync();
-        return await _context.Orders.Where(x => x.IsClosed == closed).ToListAsync();
-    }
+    public async Task<ActionResult<List<Order>>> GetOrders(bool? closed, int? parentId) =>
+        await _context.Orders.Where(x
+            => (closed == null || x.IsClosed == closed)
+            && (parentId == null || x.ParentOrderID == parentId)
+        ).ToListAsync();
 
     public async Task<ActionResult<Order>> GetOrder(int id) {
 		Order? order = await _context.Orders.FindAsync(id);
@@ -33,6 +34,49 @@ public class OrdersService : IOrdersService {
             .LastOrDefaultAsync(x => x.OrderNum == orderNum && (!todayOnly || x.Date.Date == DateTime.Today));
 
         return order != null ? order : new NotFoundResult();
+    }
+
+    public async Task<ActionResult<Order?>> GetParentOrder(int id) {
+		ActionResult<Order> orderResult = await GetOrder(id);
+        if (orderResult.Result != null) return orderResult.Result!;
+        Order order = orderResult.Value!;
+
+        if (order.ParentOrderID == null) return new ActionResult<Order?>(value: null);
+
+        ActionResult<Order> parentOrderResult = await GetOrder(order.ParentOrderID.Value);
+        if (parentOrderResult.Result != null) return parentOrderResult.Result!;
+        return parentOrderResult.Value;
+    }
+
+    public async Task<ActionResult<List<Order>>> GetChildOrders(int id) {
+		ActionResult<Order> orderResult = await GetOrder(id);
+        if (orderResult.Result != null) return orderResult.Result!;
+        Order order = orderResult.Value!;
+
+        return await GetOrders(closed: null, parentId: order.OrderID);
+    }
+
+    public async Task<ActionResult<List<Order>>> GetAllRelatedOrders(int id) {
+        Order parentOrder;
+
+        if (await IsChildOrder(id)) {
+            ActionResult<Order?> parentOrderRes = await GetParentOrder(id);
+            if (parentOrderRes.Result != null) return parentOrderRes.Result;
+            if (parentOrderRes.Value == null)
+                return new ProblemResult($"Order {id} has no parent, despite IsChildOrder({id}) returning true.");
+
+            parentOrder = parentOrderRes.Value;
+        } else {
+            ActionResult<Order> parentOrderRes = await GetOrder(id);
+            if (parentOrderRes.Result != null) return parentOrderRes.Result;
+            parentOrder = parentOrderRes.Value!;
+        }
+
+        ActionResult<List<Order>> childOrdersRes = await GetChildOrders(parentOrder.OrderID);
+        if (childOrdersRes.Result != null) return childOrdersRes.Result;
+        
+        childOrdersRes.Value!.Add(parentOrder);
+        return childOrdersRes.Value!;
     }
 
     public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int id, IOrderItemsService orderItemsService)
@@ -65,7 +109,14 @@ public class OrdersService : IOrdersService {
         return order;
     }
 
-    public async Task<ActionResult<Order>> PostOrder(Order order) {
+    public async Task<ActionResult<Order>> PostOrder(Order order, int? parentId) {
+        if (parentId != null) order.ParentOrderID = parentId;
+        if (order.ParentOrderID != null) {
+            if (!await OrderExists(order.ParentOrderID.Value)) return new NotFoundResult();
+            if (await IsChildOrder(order.ParentOrderID.Value))
+                return new ForbiddenProblemResult($"Order {order.ParentOrderID.Value} is a child order, and cannot be a parent order. Try using it's parent instead.");
+        }
+
         _context.Orders.Add(order);
 
         await _context.SaveChangesAsync();
@@ -138,6 +189,9 @@ public class OrdersService : IOrdersService {
 
     public async Task<bool> OrderExists(int id) => 
         await _context.Orders.AnyAsync(e => e.OrderID == id);
+
+    public async Task<bool> IsChildOrder(int id) =>
+        await _context.Orders.AnyAsync(e => e.OrderID == id && e.ParentOrderID != null);
 
     public async Task<ActionResult<decimal>> GetAmountDueForOrder(int id, ITransactionsService transactionsService, IOrderItemsService orderItemsService) {
         ActionResult<Order> orderResult = await GetOrder(id);

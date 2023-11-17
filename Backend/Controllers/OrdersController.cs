@@ -24,11 +24,11 @@ public class OrdersController : ControllerBase {
          m_TransactionsService = transactionsService;
     }
 
-    // GET: api/Orders?closed=false
+    // GET: api/Orders?closed=false&parentId=5
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<Order>>> GetOrders(bool? closed = null) =>
-        await m_Service.GetOrders(closed);
+    public async Task<ActionResult<List<Order>>> GetOrders(bool? closed = null, int? parentId = null) =>
+        await m_Service.GetOrders(closed, parentId);
 
     // GET: api/Orders/5
     [HttpGet("{id}")]
@@ -36,6 +36,27 @@ public class OrdersController : ControllerBase {
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Order>> GetOrder(int id) =>
         await m_Service.GetOrder(id);
+
+    // GET: api/Orders/5/Parent
+    [HttpGet("{id}/Parent")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Order?>> GetParentOrder(int id) =>
+        await m_Service.GetParentOrder(id);
+
+    // GET: api/Orders/5/Parent
+    [HttpGet("{id}/Parent")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<Order>>> GetChildOrders(int id) =>
+        await m_Service.GetChildOrders(id);
+
+    // GET: api/Orders/5/AllRelated
+    [HttpGet("{id}/AllRelated")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<Order>>> GetAllRelatedOrders(int id) =>
+        await m_Service.GetAllRelatedOrders(id);
 
     // GET: api/Orders/5/Cost
     [HttpGet("{id}/Cost")]
@@ -103,11 +124,16 @@ public class OrdersController : ControllerBase {
     public async Task<ActionResult<Order>> PostCompleteOrder(int id) =>
         await m_Service.CompleteOrder(id);
 
-    // POST: api/Orders
+    // POST: api/Orders?parentId=5
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<Order>> PostOrder(Order order) {
-        ActionResult<Order> newOrderRes = await m_Service.PostOrder(order);
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Order>> PostOrder(Order order, int? parentId = null) {
+        if (order.ParentOrderID != null && parentId != null && order.ParentOrderID != parentId)
+            return BadRequest("Missmatched Parent IDs");
+
+        ActionResult<Order> newOrderRes = await m_Service.PostOrder(order, parentId);
         if (newOrderRes.Result != null) return newOrderRes.Result;
         Order newOrder = newOrderRes.Value!;
 
