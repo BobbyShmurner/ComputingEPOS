@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace ComputingEPOS.Backend.Attributes;
+namespace ComputingEPOS.Attributes;
 
 public class CompareToMethodAttribute : CompareToBaseAttribute {
     public CompareToMethodAttribute(Func<object?, ValidationContext, (object, bool)> getOther, ComparisonOperator comparisonOperator) {

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ComputingEPOS.Backend.Models;
+using ComputingEPOS.Models;
 
 namespace ComputingEPOS.Backend.Services;
 

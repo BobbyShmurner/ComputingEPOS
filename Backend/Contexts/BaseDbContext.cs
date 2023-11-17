@@ -1,7 +1,7 @@
-using ComputingEPOS.Backend.Models;
+using ComputingEPOS.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ComputingEPOS.Backend.Models;
+namespace ComputingEPOS.Models;
 
 public abstract class BaseDbContext : DbContext {
     public BaseDbContext(DbContextOptions options) : base(options) {}

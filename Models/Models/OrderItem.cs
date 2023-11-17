@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace ComputingEPOS.Backend.Models;
+namespace ComputingEPOS.Models;
 
 [Table("OrderItems")]
 public class OrderItem {

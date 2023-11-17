@@ -1,4 +1,4 @@
-using ComputingEPOS.Backend.Models;
+using ComputingEPOS.Models;
 using ComputingEPOS.Backend.Services;
 
 namespace ComputingEPOS.Backend;

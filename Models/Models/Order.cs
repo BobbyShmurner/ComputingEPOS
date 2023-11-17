@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using ComputingEPOS.Backend.Attributes;
-using ComputingEPOS.Backend.Services;
+using ComputingEPOS.Attributes;
 
-namespace ComputingEPOS.Backend.Models;
+namespace ComputingEPOS.Models;
 
 
 [Table("Orders")]

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ComputingEPOS.Backend.Models;
+using ComputingEPOS.Models;
 using ComputingEPOS.Backend.Services;
 
 namespace ComputingEPOS.Backend.Controllers;

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace ComputingEPOS.Backend.Attributes;
+namespace ComputingEPOS.Attributes;
 
 public enum ComparisonOperator {
 	Equal,

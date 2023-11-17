@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ComputingEPOS.Backend.Models;
+namespace ComputingEPOS.Models;
 
 [Table("Menus")]
 public class Menu {
