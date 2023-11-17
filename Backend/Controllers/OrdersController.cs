@@ -44,8 +44,8 @@ public class OrdersController : ControllerBase {
     public async Task<ActionResult<Order?>> GetParentOrder(int id) =>
         await m_Service.GetParentOrder(id);
 
-    // GET: api/Orders/5/Parent
-    [HttpGet("{id}/Parent")]
+    // GET: api/Orders/5/ChildOrders
+    [HttpGet("{id}/ChildOrders")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<Order>>> GetChildOrders(int id) =>
