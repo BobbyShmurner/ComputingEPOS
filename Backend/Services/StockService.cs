@@ -49,7 +49,7 @@ public class StockService : IStockService {
 		Stock stock = stockRes.Value!;
 
 		if (stock.Quantity + delta < 0f)
-			return new ProblemResult($"Stock cannot be negative. (Current: {stock.Quantity}, Delta: {delta})", statusCode: 403);
+			return new ForbiddenProblemResult($"Stock cannot be negative. (Current: {stock.Quantity}, Delta: {delta})");
 
 		stock.Quantity += delta;
 		return await PutStock(stock);

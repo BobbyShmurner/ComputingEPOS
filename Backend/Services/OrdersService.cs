@@ -107,9 +107,9 @@ public class OrdersService : IOrdersService {
             decimal amountDue = amountDueResult.Value!;
 
             if (amountDue > 0)
-                return new ProblemResult($"Order must be fully paid for before closing. ({amountDue} due)", statusCode: 403);
+                return new ForbiddenProblemResult($"Order must be fully paid for before closing. ({amountDue} due)");
             if (amountDue < 0)
-                return new ProblemResult($"Change must be given before closing. ({-amountDue} change due)", statusCode: 403);
+                return new ForbiddenProblemResult($"Change must be given before closing. ({-amountDue} change due)");
         }
 
         order.IsClosed = true;
