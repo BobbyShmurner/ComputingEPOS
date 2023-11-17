@@ -1,1 +1,1 @@
-dotnet run --project "$PSScriptRoot/Backend/Backend.csproj"
+dotnet run --project "$PSScriptRoot/Backend/ComputingEPOS.Backend.csproj"
