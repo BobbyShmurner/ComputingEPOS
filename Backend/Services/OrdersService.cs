@@ -125,7 +125,7 @@ public class OrdersService : IOrdersService {
 
     public async Task<ActionResult<Order>> FinaliseOrder(int id) {
         ActionResult<Order> orderResult = await GetOrder(id);
-        if (orderResult.Result != null) return orderResult.Result!;
+        if (orderResult.Result != null) return orderResult.Result;
         Order order = orderResult.Value!;
 
         order.OrderDuration = (DateTime.Now - order.Date).TotalSeconds;
