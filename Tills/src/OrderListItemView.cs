@@ -20,6 +20,13 @@ public class OrderListItemView {
     public MainWindow Window { get; private set; }
     public List<OrderListItemView> Children { get; private set; } = new();
     public OrderListItemView? Parent { get; private set; }
+    public OrderListItemView? RootParent
+    {  get {
+            if (Parent == null) return null;
+            if (Manager.RootItems.Contains(Parent)) return Parent;
+            return Parent.RootParent;
+        }
+    }
 
     public OrderListItem Item { get; private set; }
     public OrderManager Manager { get; private set; }

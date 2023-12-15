@@ -13,26 +13,14 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 public class Menu {
-    public struct MenuItem
-    {
-        public OrderListItem item;
-        public string text;
-
-        public MenuItem(OrderListItem item, string text)
-        {
-            this.item = item;
-            this.text = text;
-        }
-    }
-
     public string Name { get; private set; }
 
-    public MenuItem?[,] Items { get; private set; } = new MenuItem?[0, 0];
+    public MenuButton?[,] Items { get; private set; } = new MenuButton?[0, 0];
 
     public int Rows { get; private set; }
     public int Columns { get; private set; }
 
-    public Menu(string name, MenuItem?[,] items)
+    public Menu(string name, MenuButton?[,] items)
     {
         Name = name;
         Items = items;
@@ -44,7 +32,7 @@ public class Menu {
 
     void ResizeOrdersArray()
     {
-        MenuItem?[,] newArray = new MenuItem?[Rows, Columns];
+        MenuButton?[,] newArray = new MenuButton?[Rows, Columns];
 
         int minRows = Math.Min(Rows, Items.GetLength(0));
         int minCols = Math.Min(Columns, Items.GetLength(1));

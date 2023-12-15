@@ -29,26 +29,31 @@ namespace ComputingEPOS.Tills
         {
             InitializeComponent();
 
-            var addCheeseItem = new OrderListItem("Add Cheese", 0.2M);
             var badItem = new OrderListItem("Bad :(");
+            var goodItem = new OrderListItem("Good :)");
 
-            var testItem = new OrderListItem("Test Burger", 6.9M, [addCheeseItem]);
-            var testItemNoCheese = new OrderListItem("Test Burger", 6.9M);
-            var testItemWorst = new OrderListItem("Test Burger", 6.9M, [addCheeseItem, badItem]);
+            var addCheeseItem = new OrderListItem("Add Cheese", 0.2M);
+            var addBadCheeseItem = addCheeseItem.NewFrom(badItem);
+            var addGoodCheeseItem = addCheeseItem.NewFrom(goodItem);
 
-            Menu.MenuItem?[,] menuItems = {
-                { new(testItem, "Test Item"), new(addCheeseItem, "Cheese") },
-                { new(testItem, "Test Item But Better"), new(addCheeseItem, "Cheese But Better") },
-                { new(testItemNoCheese, "Test Item But No Cheese"), null },
-                { new(testItemWorst, "Test Item But Worse :("), new(addCheeseItem, "Cheese But Worse :(") },
+            var testItem = new OrderListItem("Test Burger", 6.9M);
+            var testItemCheese = testItem.NewFrom(addCheeseItem);
+            var testItemGood = testItem.NewFrom(goodItem);
+            var testItemWorst = testItem.NewFrom(badItem, addBadCheeseItem);
+
+            MenuButton?[,] menuItems = {
+                { new BasicMenuButton(testItem, "Test Item"), new SubItemMenuButton(addCheeseItem, "Cheese") },
+                { new BasicMenuButton(testItemGood, "Test Item But Better"), new SubItemMenuButton(addGoodCheeseItem, "Cheese But Better") },
+                { new BasicMenuButton(testItemCheese, "Test Item With Cheese"), null },
+                { new BasicMenuButton(testItemWorst, "Test Item But Worse :("), new SubItemMenuButton(addBadCheeseItem, "Cheese But Worse :(") },
             };
 
             Menu testMenu = new Menu("Test", menuItems);
 
             var burgerItem = new OrderListItem("Burger", 5.99M);
 
-            Menu.MenuItem?[,] burgerMenuItems = {
-                { new(burgerItem, "Burger :)") },
+            MenuButton?[,] burgerMenuItems = {
+                { new BasicMenuButton(burgerItem, "Burger :)") },
             };
 
             OrderManager = new(this);

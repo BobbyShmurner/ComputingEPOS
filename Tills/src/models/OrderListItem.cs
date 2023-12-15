@@ -12,14 +12,28 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 public class OrderListItem {
-    public string Text { get; private set; }
-    public decimal? Price { get; private set; }
+    // Text cannot be null, so if m_Text is null, the base item cannot be.
+    string? m_Text;
+    public string Text => m_Text ?? BaseItem!.Text;
+
+    // Price can actually be null, so there might not be a base item.
+    decimal? m_Price;
+    public decimal? Price => m_Price ?? BaseItem?.Price; 
+
+    public OrderListItem? BaseItem { get; private set; }
     public List<OrderListItem> Children { get; private set; }
 
-    public OrderListItem(string text, decimal? price = null, List<OrderListItem>? children = null)
-    {
-        Text = text;
-        Price = price;
-        Children = children ?? new();
+    public OrderListItem(OrderListItem baseItem, params OrderListItem[] children) {
+        BaseItem = baseItem;
+        Children = children.ToList();
     }
+
+    public OrderListItem(string text, decimal? price = null, params OrderListItem[] children)
+    {
+        m_Text = text;
+        m_Price = price;
+        Children = children.ToList();
+    }
+
+    public OrderListItem NewFrom(params OrderListItem[] children) => new(this, children);
 }

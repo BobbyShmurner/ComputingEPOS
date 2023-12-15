@@ -66,7 +66,7 @@ public class MenuManager {
         }
     }
 
-    public Menu CreateMenu(string name, Menu.MenuItem?[,] items)
+    public Menu CreateMenu(string name, MenuButton?[,] items)
     {
         Menu menu = new Menu(name, items);
         RegisterMenu(menu);
@@ -99,24 +99,21 @@ public class MenuManager {
         for (int row = 0; row < menu.Items.GetLength(0); row++) {
             for (int column = 0; column < menu.Items.GetLength(1); column++) {
                 var item = menu.Items[row, column];
-                if (!item.HasValue) continue;
+                if (item == null) continue;
 
-                SetItemButton(row, column, item.Value);
+                SetItemButton(row, column, item);
             }
         }
     }
 
-    void SetItemButton(int row, int column, Menu.MenuItem item)
+    void SetItemButton(int row, int column, MenuButton item)
     {
         if (row >= Rows) throw new IndexOutOfRangeException();
         if (column >= Columns) throw new IndexOutOfRangeException();
         if (CurrentMenu == null) throw new ArgumentNullException();
 
-        var button = new Button();
+        var button = item.CreateButton(this);
         Buttons.Add(button);
-
-        button.Click += (_, _) => OrderManager.AddOrder(item.item);
-        button.Content = item.text;
 
         Grid.SetRow(button, row);
         Grid.SetColumn(button, column);

@@ -29,6 +29,8 @@ public class OrderManager
         }
     }
 
+    public event Action<OrderListItemView?> OnSelectionChanged;
+
     decimal m_Total = 0;
     public decimal Total {
         get => m_Total;
@@ -52,7 +54,6 @@ public class OrderManager
         if (item.Price.HasValue) Total += item.Price.Value;
         if (parent == null) RootItems.Add(view);
 
-        SelectItem(view);
         return view;
     }
 
@@ -88,18 +89,22 @@ public class OrderManager
         while (RootItems.Count > 0) RemoveOrder(RootItems[0]);
     }
 
-    public void DeselectItem()
+    public void DeselectItem(bool fireEvent = true)
     {
         RootItems.ForEach(item => item.RecursivlyHideBorder());
         Selected = null;
+
+        if (fireEvent) OnSelectionChanged?.Invoke(null);
     }
 
     public void SelectItem(OrderListItemView? view)
     {
-        DeselectItem();
+        DeselectItem(false);
         if (view == null) return;
 
         view.Selected = true;
         Selected = view;
+
+        OnSelectionChanged?.Invoke(Selected);
     }
 }
