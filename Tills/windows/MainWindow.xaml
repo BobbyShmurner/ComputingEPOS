@@ -162,7 +162,7 @@
                     </StackPanel.Resources>
                     <Label >Till 1</Label>
                     <Label>Employee Name</Label>
-                    <Label>00:00 AM</Label>
+                    <Label Content="{Binding Time.CurrentTime}" ContentStringFormat="hh:mm tt"/>
                 </StackPanel>
             </Grid>
         </Border>

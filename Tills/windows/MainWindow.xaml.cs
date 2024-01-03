@@ -24,10 +24,14 @@ namespace ComputingEPOS.Tills
         public const int SCROLL_AMOUNT = 100;
 
         public OrderManager OrderManager { get; private set; }
+        public TimeDisplay Time { get; private set; }
 
         public MainWindow()
         {
             InitializeComponent();
+
+            Time = new TimeDisplay();
+            this.DataContext = this;
 
             var badItem = new OrderListItem("Bad :(");
             var goodItem = new OrderListItem("Good :)");
