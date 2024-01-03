@@ -1,0 +1,22 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ComputingEPOS.Models;
+
+[Table("MenuButtons")]
+public class MenuButton {
+	[Key]
+	public int MenuButtonID { get; set; }
+
+	[Required]
+	[EnumDataType(typeof(MenuButtonTypes))]
+	public string? ButtonType { get; set; } = MenuButtonTypes.Basic.ToString();
+
+	[Required]
+	public string JsonData { get; set; } = "{}";
+
+	enum MenuButtonTypes {
+		Basic,
+		SubItem
+	}
+}

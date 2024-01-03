@@ -9,8 +9,11 @@ public class Menu {
 	public int MenuID { get; set; }
 
 	[Required]
-	public string JsonData { get; set; } = "{}";
+	public string Name { get; set; } = "Menu";
 
 	[DataType(DataType.DateTime)]
 	public DateTime Date { get; set; }
+
+	public int? Rows { get; set; }
+	public int? Columns { get; set; }
 }

@@ -11,6 +11,7 @@ static class Program {
         builder.Services.AddDbContext<BaseDbContext, NoForeignDbContext>();
         
         // Add services to the container.
+        builder.Services.AddScoped<IMenusService, MenusService>();
         builder.Services.AddScoped<IStockService, StockService>();
         builder.Services.AddScoped<IOrdersService, OrdersService>();
         builder.Services.AddScoped<IOrderItemsService, OrderItemsService>();
