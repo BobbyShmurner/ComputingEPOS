@@ -15,27 +15,16 @@ namespace ComputingEPOS.Tills;
 
 public class BasicMenuButton : MenuButton
 {
-    public string DisplayText { get; protected set; }
     public OrderListItem Item { get; protected set; }
-    public Button? button { get; protected set; }
 
     public BasicMenuButton(OrderListItem item, string? displayText = null)
-    {
+        : base(displayText ?? item.Text) {
         Item = item;
-        DisplayText = displayText ?? Item.Text;
     }
 
-    public override Button CreateButton(MenuManager menuManager)
+    protected override void OnClick(object sender, RoutedEventArgs e, MenuManager menuManager)
     {
-        button = new();
-
-        button.Content = DisplayText;
-        button.Click += (_, _) =>
-        {
-            var view = menuManager.OrderManager.AddOrder(Item);
-            menuManager.OrderManager.SelectItem(view);
-        };
-
-        return button;
+        var view = menuManager.OrderManager.AddOrder(Item);
+        menuManager.OrderManager.SelectItem(view);
     }
 }

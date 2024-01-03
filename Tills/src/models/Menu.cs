@@ -20,12 +20,12 @@ public class Menu {
     public int Rows { get; private set; }
     public int Columns { get; private set; }
 
-    public Menu(string name, MenuButton?[,] items)
+    public Menu(string name, MenuButton?[,] items, int? rows = null, int? columns = null)
     {
         Name = name;
         Items = items;
-        Rows = items.GetLength(0);
-        Columns = items.GetLength(1);
+        Rows = rows ?? items.GetLength(0);
+        Columns = columns ?? items.GetLength(1);
 
         ResizeOrdersArray();
     }

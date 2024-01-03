@@ -52,7 +52,7 @@ namespace ComputingEPOS.Tills
                 { new BasicMenuButton(testItemWorst, "Test Item But Worse :("), new SubItemMenuButton(addBadCheeseItem, "Cheese But Worse :(") },
             };
 
-            Menu testMenu = new Menu("Test", menuItems);
+            Menu testMenu = new Menu("Test", menuItems, 5, 5);
 
             var burgerItem = new OrderListItem("Burger", 5.99M);
 

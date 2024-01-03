@@ -18,21 +18,17 @@ public class SubItemMenuButton : BasicMenuButton
 
     public SubItemMenuButton(OrderListItem item, string? displayText = null) : base(item, displayText) { }
 
-    public override Button CreateButton(MenuManager menuManager)
-    {
-        button = new();
-
-        button.Content = DisplayText;
-        button.Click += (_, _) =>
-        {
-            var parent = menuManager.OrderManager.Selected?.RootParent ?? menuManager.OrderManager.Selected;
-            var view = menuManager.OrderManager.AddOrder(Item, parent);
-            menuManager.OrderManager.SelectItem(parent);
-        };
+    protected override Button PostCreateButton(Button button, MenuManager menuManager) {
         menuManager.OrderManager.OnSelectionChanged += OnSelectionChanged;
-
         OnSelectionChanged(menuManager.OrderManager.Selected);
+
         return button;
+    }
+
+    protected override void OnClick(object sender, RoutedEventArgs e, MenuManager menuManager) {
+        var parent = menuManager.OrderManager.Selected?.RootParent ?? menuManager.OrderManager.Selected;
+        menuManager.OrderManager.AddOrder(Item, parent);
+        menuManager.OrderManager.SelectItem(parent);
     }
 
     void OnSelectionChanged(OrderListItemView? selection) => button!.IsEnabled = selection != null;
