@@ -39,16 +39,6 @@ namespace ComputingEPOS.Tills
             OrderManager = new(this);
 
             MenuManager = MenuManager.CreateTestMenus(this);
-            MainViewManager.RegisterView(MenuManager, MenuManager.ViewName);
-
-            var testButton = new Button();
-            testButton.Content = "Hi :)";
-
-            var testButtonView = new ButtonView(this, 3, 3);
-            testButtonView.SetButton(testButton, 1, 1);
-            MainViewManager.RegisterView(testButtonView, "test");
-
-            MainViewManager.ShowView("test");
         }
 
         #region ScaleValue Dependency Property
