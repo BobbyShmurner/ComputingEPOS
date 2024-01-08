@@ -24,6 +24,8 @@ namespace ComputingEPOS.Tills
         public const int SCROLL_AMOUNT = 100;
 
         public OrderManager OrderManager { get; private set; }
+        public MenuManager MenuManager{ get; private set; }
+        public MainViewManager MainViewManager { get; private set; }
         public TimeDisplay Time { get; private set; }
 
         public MainWindow()
@@ -33,36 +35,20 @@ namespace ComputingEPOS.Tills
             Time = new TimeDisplay();
             this.DataContext = this;
 
-            var badItem = new OrderListItem("Bad :(");
-            var goodItem = new OrderListItem("Good :)");
-
-            var addCheeseItem = new OrderListItem("Add Cheese", 0.2M);
-            var addBadCheeseItem = addCheeseItem.NewFrom(badItem);
-            var addGoodCheeseItem = addCheeseItem.NewFrom(goodItem);
-
-            var testItem = new OrderListItem("Test Burger", 6.9M);
-            var testItemCheese = testItem.NewFrom(addCheeseItem);
-            var testItemGood = testItem.NewFrom(goodItem);
-            var testItemWorst = testItem.NewFrom(badItem, addBadCheeseItem);
-
-            MenuButton?[,] menuItems = {
-                { new BasicMenuButton(testItem, "Test Item"), new SubItemMenuButton(addCheeseItem, "Cheese") },
-                { new BasicMenuButton(testItemGood, "Test Item But Better"), new SubItemMenuButton(addGoodCheeseItem, "Cheese But Better") },
-                { new BasicMenuButton(testItemCheese, "Test Item With Cheese"), null },
-                { new BasicMenuButton(testItemWorst, "Test Item But Worse :("), new SubItemMenuButton(addBadCheeseItem, "Cheese But Worse :(") },
-            };
-
-            Menu testMenu = new Menu("Test", menuItems, 5, 5);
-
-            var burgerItem = new OrderListItem("Burger", 5.99M);
-
-            MenuButton?[,] burgerMenuItems = {
-                { new BasicMenuButton(burgerItem, "Burger :)") },
-            };
-
+            MainViewManager = new(this);
             OrderManager = new(this);
-            MenuManager menuManager = new(this, OrderManager, testMenu);
-            Menu burgerMenu = menuManager.CreateMenu("Burgers", burgerMenuItems);
+
+            MenuManager = MenuManager.CreateTestMenus(this);
+            MainViewManager.RegisterView(MenuManager, MenuManager.ViewName);
+
+            var testButton = new Button();
+            testButton.Content = "Hi :)";
+
+            var testButtonView = new ButtonView(this, 3, 3);
+            testButtonView.SetButton(testButton, 1, 1);
+            MainViewManager.RegisterView(testButtonView, "test");
+
+            MainViewManager.ShowView("test");
         }
 
         #region ScaleValue Dependency Property

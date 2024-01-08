@@ -35,5 +35,6 @@ public class OrderListItem {
         Children = children.ToList();
     }
 
-    public OrderListItem NewFrom(params OrderListItem[] children) => new(this, children);
+    public OrderListItem NewWithChildren(params OrderListItem[] children) => new(this, children);
+    public OrderListItem NewFrom(string text, decimal priceDelta) => new(text, (Price ?? 0) + priceDelta, Children.ToArray());
 }
