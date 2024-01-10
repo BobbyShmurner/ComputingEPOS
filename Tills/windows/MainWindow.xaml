@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ComputingEPOS.Tills"
+        xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
         x:Name="mainWindow"
         mc:Ignorable="d"
         Title="Till" Width="800" Height="600">
@@ -65,7 +66,7 @@
                         </Grid.RowDefinitions>
                         <Border BorderBrush="DimGray" BorderThickness="0, 0, 0, 1">
                             <DockPanel>
-                                <Button IsEnabled="{Binding OrderManager.IsOrderLocked}" DockPanel.Dock="Right" Padding="5" Height="40" Margin="0,0,5,0" Click="Button_Clear">Clear</Button>
+                                <Button IsEnabled="{c:Binding !OrderManager.IsOrderLocked}" DockPanel.Dock="Right" Padding="5" Height="40" Margin="0,0,5,0" Click="Button_Clear">Clear</Button>
                                 <Border Background="White" BorderBrush="DimGray" BorderThickness="1" Height="40" Margin="5,0" Padding="5">
                                     <TextBlock VerticalAlignment="Center" FontSize="16" DockPanel.Dock="Left">Order #1</TextBlock>
                                 </Border>
@@ -111,6 +112,7 @@
                         <Style TargetType="{x:Type Button}">
                             <Setter Property="FontSize" Value="16"/>
                             <Setter Property="Margin" Value="2"/>
+                            <Setter Property="Padding" Value="2"/>
                         </Style>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -140,9 +142,11 @@
                         <Button Grid.Row="1" Grid.Column="3"><TextBlock>£10</TextBlock></Button>
                         <Button Grid.Row="1" Grid.Column="4"><TextBlock>£20</TextBlock></Button>
 
-                        <Button Grid.Row="2" Grid.Column="1"><TextBlock>Chip Pin</TextBlock></Button>
-                        <Button Grid.Row="2" Grid.Column="2"><TextBlock>Exact Amount</TextBlock></Button>
-                        <Button Grid.Row="2" Grid.Column="3"><TextBlock>Next £ Up</TextBlock></Button>
+                        <Button Grid.Row="2" Grid.Column="0"><TextBlock>Cash</TextBlock></Button>
+                        <Button Grid.Row="2" Grid.Column="1"><TextBlock>Exact Amount</TextBlock></Button>
+                        <Button Grid.Row="2" Grid.Column="2"><TextBlock>Round Up To Next £</TextBlock></Button>
+                        <Button Grid.Row="2" Grid.Column="3"><TextBlock>Chip Pin<LineBreak/>All</TextBlock></Button>
+                        <Button Grid.Row="2" Grid.Column="4"><TextBlock>Chip Pin Specific</TextBlock></Button>
                     </Grid>
                 </Grid>
                 <Border Grid.Column="1" Grid.Row="2" BorderBrush="DimGray" BorderThickness="0, 1, 0, 1">
@@ -172,10 +176,10 @@
                                 </Style>
                             </StackPanel.Resources>
 
-                            <Button Click="CheckoutButton_Click">
+                            <Button IsEnabled="{c:Binding !OrderManager.IsOrderLocked}" Click="CheckoutButton_Click">
                                 <TextBlock>Sit<LineBreak/>In</TextBlock>
                             </Button>
-                            <Button Click="CheckoutButton_Click">
+                            <Button IsEnabled="{c:Binding !OrderManager.IsOrderLocked}" Click="CheckoutButton_Click">
                                 <TextBlock>Take<LineBreak/>Away</TextBlock>
                             </Button>
                         </StackPanel>
