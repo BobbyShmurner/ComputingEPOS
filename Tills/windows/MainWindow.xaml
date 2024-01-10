@@ -31,8 +31,8 @@
                     <RowDefinition Height="60"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="280"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="520"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="1" BorderBrush="DimGray" BorderThickness="0, 1, 0, 1">
                     <Grid>
@@ -68,7 +68,7 @@
                             <DockPanel>
                                 <Button IsEnabled="{c:Binding !OrderManager.IsOrderLocked}" DockPanel.Dock="Right" Padding="5" Height="40" Margin="0,0,5,0" Click="Button_Clear">Clear</Button>
                                 <Border Background="White" BorderBrush="DimGray" BorderThickness="1" Height="40" Margin="5,0" Padding="5">
-                                    <TextBlock VerticalAlignment="Center" FontSize="16" DockPanel.Dock="Left">Order #1</TextBlock>
+                                    <TextBlock VerticalAlignment="Center" FontSize="16" DockPanel.Dock="Left" Text="{Binding OrderManager.OrderNumber, StringFormat=Order #{0}}"/>
                                 </Border>
                             </DockPanel>
                         </Border>
@@ -92,7 +92,15 @@
                                                 <Button Click="Orders_SV_Down" Grid.Column="1" Margin="5" FontSize="16">Down</Button>
                                             </Grid>
                                             <DockPanel>
-                                                <TextBlock x:Name="Text_Total" DockPanel.Dock="Right">£0.00</TextBlock>
+                                                <TextBlock DockPanel.Dock="Right" Text="{c:Binding OrderManager.SubTotal, StringFormat=£{0:n2}}" />
+                                                <TextBlock>Subtotal</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <TextBlock x:Name="Text_Tax" DockPanel.Dock="Right" Text="{Binding OrderManager.Tax, StringFormat=£{0:n2}}" />
+                                                <TextBlock>Tax</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,10,0,0">
+                                                <TextBlock x:Name="Text_Total" DockPanel.Dock="Right" Text="{Binding OrderManager.Total, StringFormat=£{0:n2}}" />
                                                 <TextBlock>Total</TextBlock>
                                             </DockPanel>
                                         </StackPanel>
@@ -124,10 +132,10 @@
                     </Grid>
                     <Grid x:Name="Grid_MenuButtonsPaymentView" Margin="10">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="1.25*"/>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="0.75*"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -136,6 +144,19 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" VerticalAlignment="Center">
+                            <TextBlock FontSize="24">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="Order #{0} - {1}">
+                                        <Binding Path="OrderManager.OrderNumber" />
+                                        <Binding Path="OrderManager.CheckoutTypePretty" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <TextBlock FontSize="18" Text="{c:Binding OrderManager.Total, StringFormat=Total: £{0:n2}}" />
+                            <TextBlock FontSize="18" Text="{c:Binding OrderManager.Outstanding, StringFormat=Outstanding: £{0:n2}}" />
+                        </StackPanel>
+                        
                         <Button Grid.Row="1" Grid.Column="0"><TextBlock>£1</TextBlock></Button>
                         <Button Grid.Row="1" Grid.Column="1"><TextBlock>£2</TextBlock></Button>
                         <Button Grid.Row="1" Grid.Column="2"><TextBlock>£5</TextBlock></Button>
@@ -143,9 +164,9 @@
                         <Button Grid.Row="1" Grid.Column="4"><TextBlock>£20</TextBlock></Button>
 
                         <Button Grid.Row="2" Grid.Column="0"><TextBlock>Cash</TextBlock></Button>
-                        <Button Grid.Row="2" Grid.Column="1"><TextBlock>Exact Amount</TextBlock></Button>
+                        <Button Grid.Row="2" Grid.Column="1"><TextBlock>Cash<LineBreak/>Exact</TextBlock></Button>
                         <Button Grid.Row="2" Grid.Column="2"><TextBlock>Round Up To Next £</TextBlock></Button>
-                        <Button Grid.Row="2" Grid.Column="3"><TextBlock>Chip Pin<LineBreak/>All</TextBlock></Button>
+                        <Button Grid.Row="2" Grid.Column="3"><TextBlock>Chip Pin</TextBlock></Button>
                         <Button Grid.Row="2" Grid.Column="4"><TextBlock>Chip Pin Specific</TextBlock></Button>
                     </Grid>
                 </Grid>
@@ -176,10 +197,10 @@
                                 </Style>
                             </StackPanel.Resources>
 
-                            <Button IsEnabled="{c:Binding !OrderManager.IsOrderLocked}" Click="CheckoutButton_Click">
+                            <Button Click="SitInButton_Click">
                                 <TextBlock>Sit<LineBreak/>In</TextBlock>
                             </Button>
-                            <Button IsEnabled="{c:Binding !OrderManager.IsOrderLocked}" Click="CheckoutButton_Click">
+                            <Button Click="TakeAwayButton_Click">
                                 <TextBlock>Take<LineBreak/>Away</TextBlock>
                             </Button>
                         </StackPanel>

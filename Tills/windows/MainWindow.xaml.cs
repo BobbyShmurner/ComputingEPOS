@@ -134,7 +134,8 @@ namespace ComputingEPOS.Tills
         private void DeleteButton_Click(object sender, RoutedEventArgs e) => OrderManager.RemoveSelectedOrder();
         private void ModifyButton_Click(object sender, RoutedEventArgs e) { }
 
-        private void CheckoutButton_Click(object sender, RoutedEventArgs e) => OrderManager.PayForOrder();
+        private void SitInButton_Click(object sender, RoutedEventArgs e) => OrderManager.CheckoutOrder(CheckoutType.SitIn);
+        private void TakeAwayButton_Click(object sender, RoutedEventArgs e) => OrderManager.CheckoutOrder(CheckoutType.TakeAway);
 
         private void FunctionsButton_Click(object sender, RoutedEventArgs e) { }
 

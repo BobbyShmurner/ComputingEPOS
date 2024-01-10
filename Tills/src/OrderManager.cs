@@ -12,7 +12,28 @@ using System.Windows.Media;
 
 namespace ComputingEPOS.Tills;
 
+public enum CheckoutType
+{
+    SitIn,
+    TakeAway
+}
+
+public static class CheckoutTypeExtensions
+{
+    public static string ToPrettyString(this CheckoutType checkoutType)
+    {
+        switch (checkoutType)
+        {
+            case CheckoutType.SitIn: return "Sit In";
+            case CheckoutType.TakeAway: return "Take Away";
+            default: return checkoutType.ToString();
+        }
+    }
+}
+
 public class OrderManager : INotifyPropertyChanged {
+    
+
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action<OrderListItemView?>? OnSelectionChanged;
 
@@ -50,9 +71,39 @@ public class OrderManager : INotifyPropertyChanged {
         set
         {
             m_Total = value;
-            Window.Text_Total.Text = $"£{m_Total:0.00}";
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Total)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SubTotal)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Tax)));
         }
     }
+
+    int m_OrderNumber = 1;
+    public int OrderNumber {
+        get => m_OrderNumber;
+        set
+        {
+            m_OrderNumber = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber)));
+        }
+    }
+
+    CheckoutType? m_CheckoutType;
+    public CheckoutType? CheckoutType
+    {
+        get => m_CheckoutType;
+        set
+        {
+            m_CheckoutType = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutType)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutTypePretty)));
+        }
+    }
+
+    public string CheckoutTypePretty => CheckoutType?.ToPrettyString() ?? "None";
+
+    public decimal SubTotal => Total * 0.8M;
+    public decimal Tax => Total * 0.2M;
+    public decimal Outstanding => 0M;
 
     public OrderManager(MainWindow window)
     {
@@ -113,7 +164,8 @@ public class OrderManager : INotifyPropertyChanged {
         if (fireEvent) OnSelectionChanged?.Invoke(null);
     }
 
-    public void PayForOrder() {
+    public void CheckoutOrder(CheckoutType checkoutType) {
+        CheckoutType = checkoutType;
         LockOrder();
         OrderMenuManager.ShowPaymentScreen();
     }
