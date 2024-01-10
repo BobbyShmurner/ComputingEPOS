@@ -22,22 +22,20 @@ public abstract class MenuButton
         DisplayText = displayText;
     }
 
-    public Button CreateButton(MenuManager menuManager) {
+    public Button CreateButton(MainWindow window) {
         button = new();
 
         TextBlock textBlock = new TextBlock();
         textBlock.Text = DisplayText;
-        textBlock.TextWrapping = TextWrapping.Wrap;
-        textBlock.TextAlignment = TextAlignment.Center;
 
         button.Content = textBlock;
-        button.Click += (sender, e) => OnClick(sender, e, menuManager);
+        button.Click += (sender, e) => OnClick(sender, e, window);
 
-        button = PostCreateButton(button, menuManager);
+        button = PostCreateButton(button, window);
         return button;
     }
 
-    protected virtual Button PostCreateButton(Button button, MenuManager menuManager) => button;
+    protected virtual Button PostCreateButton(Button button, MainWindow window) => button;
 
-    protected abstract void OnClick(object sender, RoutedEventArgs e, MenuManager menuManager);
+    protected abstract void OnClick(object sender, RoutedEventArgs e, MainWindow window);
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -11,25 +12,37 @@ using System.Windows.Media;
 
 namespace ComputingEPOS.Tills;
 
-public class OrderManager
-{
+public class OrderManager : INotifyPropertyChanged {
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public event Action<OrderListItemView?>? OnSelectionChanged;
+
     public MainWindow Window { get; private set; }
+    public OrderMenuManager OrderMenuManager => Window.OrderMenuManager;
 
-    public List<OrderListItemView> RootItems { get; private set; } = new();
-    public Dictionary<OrderListItem, OrderListItemView> Views = new();
+    public List<OrderListItemView> RootItems { get; private set; } = [];
+    public OrderListItemView? Selected { get; private set; }
+    public Dictionary<OrderListItem, OrderListItemView> Views = [];
 
-    OrderListItemView? m_Selected = null;
-    public OrderListItemView? Selected
-    {
-        get => m_Selected;
+    bool m_IsItemSelected = false;
+    public bool IsItemSelected {
+        get => m_IsItemSelected;
         private set
         {
-            m_Selected = value;
-            Window.EnableButtonsWhenItemSelected = m_Selected != null;
+            m_IsItemSelected = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsItemSelected)));
         }
     }
 
-    public event Action<OrderListItemView?> OnSelectionChanged;
+    bool m_IsOrderLocked = false;
+    public bool IsOrderLocked
+    {
+        get => m_IsOrderLocked;
+        private set
+        {
+            m_IsOrderLocked = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOrderLocked)));
+        }
+    }
 
     decimal m_Total = 0;
     public decimal Total {
@@ -44,11 +57,14 @@ public class OrderManager
     public OrderManager(MainWindow window)
     {
         Window = window;
+
+        OnSelectionChanged += (itemView) => IsItemSelected = itemView != null;
+        OrderMenuManager.OnMenuChanged += menu => IsOrderLocked = menu != null;
     }
 
     public OrderListItemView AddOrder(OrderListItem item, OrderListItemView? parent = null)
     {
-        var view = new OrderListItemView(this, Window, item, parent != null ? parent : null);
+        var view = new OrderListItemView(this, Window, item, parent);
         Views[item] = view;
 
         if (item.Price.HasValue) Total += item.Price.Value;
@@ -97,14 +113,34 @@ public class OrderManager
         if (fireEvent) OnSelectionChanged?.Invoke(null);
     }
 
+    public void PayForOrder() {
+        LockOrder();
+        OrderMenuManager.ShowPaymentScreen();
+    }
+
+    public void LockOrder()
+    {
+        IsOrderLocked = true;
+        DeselectItem();
+    }
+
+    public void UnlockOrder()
+    {
+        IsOrderLocked = false;
+        SelectLastItem();
+    }
+
     public void SelectItem(OrderListItemView? view)
     {
         DeselectItem(false);
         if (view == null) return;
+        if (IsOrderLocked) return;
 
         view.Selected = true;
         Selected = view;
 
         OnSelectionChanged?.Invoke(Selected);
     }
+
+    public void SelectLastItem() => SelectItem(RootItems.LastOrDefault());
 }

@@ -22,9 +22,9 @@ public class BasicMenuButton : MenuButton
         Item = item;
     }
 
-    protected override void OnClick(object sender, RoutedEventArgs e, MenuManager menuManager)
+    protected override void OnClick(object sender, RoutedEventArgs e, MainWindow window)
     {
-        var view = menuManager.OrderManager.AddOrder(Item);
-        menuManager.OrderManager.SelectItem(view);
+        var view = window.OrderManager.AddOrder(Item);
+        window.OrderManager.SelectItem(view);
     }
 }

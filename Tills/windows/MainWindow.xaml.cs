@@ -24,9 +24,10 @@ namespace ComputingEPOS.Tills
         public const int SCROLL_AMOUNT = 100;
 
         public OrderManager OrderManager { get; private set; }
-        public MenuManager MenuManager{ get; private set; }
-        public MainViewManager MainViewManager { get; private set; }
+        public OrderMenuManager OrderMenuManager { get; private set; }
         public TimeDisplay Time { get; private set; }
+
+        public ViewManager RootViewManager { get; private set; }
 
         public MainWindow()
         {
@@ -35,10 +36,10 @@ namespace ComputingEPOS.Tills
             Time = new TimeDisplay();
             this.DataContext = this;
 
-            MainViewManager = new(this);
+            OrderMenuManager = OrderMenuManager.CreateTestMenus(this);
             OrderManager = new(this);
 
-            MenuManager = MenuManager.CreateTestMenus(this);
+            RootViewManager = new(this, Grid_MainViewContainer);
         }
 
         #region ScaleValue Dependency Property
@@ -114,13 +115,6 @@ namespace ComputingEPOS.Tills
 
         #endregion
 
-        public static readonly DependencyProperty EnableButtonsWhenItemSelectedProperty = DependencyProperty.Register("EnableButtonsWhenItemSelected", typeof(bool), typeof(MainWindow), new UIPropertyMetadata(false));
-        public bool EnableButtonsWhenItemSelected
-        {
-            get => (bool)GetValue(EnableButtonsWhenItemSelectedProperty);
-            set => SetValue(EnableButtonsWhenItemSelectedProperty, value);
-        }
-
         private void Root_SizeChanged(object sender, EventArgs e) => CalculateScale();
 
         private void CalculateScale()
@@ -139,6 +133,10 @@ namespace ComputingEPOS.Tills
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e) => OrderManager.RemoveSelectedOrder();
         private void ModifyButton_Click(object sender, RoutedEventArgs e) { }
+
+        private void CheckoutButton_Click(object sender, RoutedEventArgs e) => OrderManager.PayForOrder();
+
+        private void FunctionsButton_Click(object sender, RoutedEventArgs e) { }
 
         private void OrderItemsEmptyFillButton_Click(object sender, RoutedEventArgs e) => OrderManager.DeselectItem();
     }

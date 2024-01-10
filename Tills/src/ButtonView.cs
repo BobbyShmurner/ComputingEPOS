@@ -12,14 +12,14 @@ using System.Xml.Linq;
 
 namespace ComputingEPOS.Tills;
 
-public class ButtonView : IMainView
+public class ButtonView
 {
     public MainWindow Window { get; private set; }
     public Grid Grid { get; private set; }
 
     public UIElement ViewElement => Grid!;
 
-    public List<Button> Buttons { get; private set; } = new();
+    public List<Button> Buttons { get; private set; } = [];
 
     int m_Rows;
     public int Rows
@@ -70,8 +70,10 @@ public class ButtonView : IMainView
     {
         Grid.Margin = new(5);
 
-        Style style = new Style();
-        style.TargetType = typeof(Button);
+        Style style = new() {
+            TargetType = typeof(Button)
+        };
+
         style.Setters.Add(new Setter(Button.FontSizeProperty, 16d));
         style.Setters.Add(new Setter(Button.MarginProperty, new Thickness(2)));
         Grid.Resources.Add(typeof(Button), style);

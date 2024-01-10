@@ -11,16 +11,22 @@ using System.Windows.Media;
 
 namespace ComputingEPOS.Tills;
 
-public class MenuManager {
+public class OrderMenuManager {
+    public Action<Menu?>? OnMenuChanged;
+    public Action? OnShowPaymentScreen;
+
     public MainWindow Window { get; private set; }
-    public Grid Grid => Window.Grid_MenuItems;
-    public OrderManager OrderManager { get; private set; }
+    public Grid Root => Window.Grid_MenuButtons;
+    public Grid MenuView => Window.Grid_MenuButtonsOrderView;
+    public Grid PaymentView => Window.Grid_MenuButtonsPaymentView;
+    public OrderManager OrderManager => Window.OrderManager;
+    public ViewManager MenuViewManager { get; private set; }
 
     public Menu? CurrentMenu { get; private set; }
 
-    public List<Menu> RegisteredMenus { get; private set; } = new();
+    public List<Menu> RegisteredMenus { get; private set; } = [];
 
-    public List<Button> Buttons { get; private set; } = new();
+    public List<Button> Buttons { get; private set; } = [];
 
     int m_Rows;
     public int Rows
@@ -30,7 +36,7 @@ public class MenuManager {
         {
             m_Rows = value;
 
-            var RowDefinitions = Grid.RowDefinitions;
+            var RowDefinitions = MenuView.RowDefinitions;
             RowDefinitions.Clear();
 
             for (int i = 0; i < m_Rows; i++)
@@ -46,7 +52,7 @@ public class MenuManager {
         {
             m_Columns = value;
 
-            var ColumnDefinitions = Grid.ColumnDefinitions;
+            var ColumnDefinitions = MenuView.ColumnDefinitions;
             ColumnDefinitions.Clear();
 
             for (int i = 0; i < m_Columns; i++)
@@ -54,7 +60,7 @@ public class MenuManager {
         }
     }
 
-    public static MenuManager CreateTestMenus(MainWindow window)
+    public static OrderMenuManager CreateTestMenus(MainWindow window)
     {
         // Burger Menu
 
@@ -68,10 +74,10 @@ public class MenuManager {
         var doubleBaconBurgerItem = doubleBurgerItem.NewFrom("Dbl Bacon Burger", 0.5M);
         var doubleBaconCheeseBurgerItem = doubleBurgerItem.NewFrom("Dbl Bacon Cheese Burger", 1M);
 
-        var chickenBurgerItem = new OrderListItem("Chic Burger", 5.99M);
-        var chickenCheeseBurgerItem = chickenBurgerItem.NewFrom("Chic Cheese Burger", 0.5M);
-        var chickenBaconBurgerItem = chickenBurgerItem.NewFrom("Chic Bacon Burger", 0.5M);
-        var chickenBaconCheeseBurgerItem = chickenBurgerItem.NewFrom("Chic Bacon Cheese Burger", 1M);
+        var chickenBurgerItem = new OrderListItem("Chick Burger", 5.99M);
+        var chickenCheeseBurgerItem = chickenBurgerItem.NewFrom("Chick Cheese Burger", 0.5M);
+        var chickenBaconBurgerItem = chickenBurgerItem.NewFrom("Chick Bacon Burger", 0.5M);
+        var chickenBaconCheeseBurgerItem = chickenBurgerItem.NewFrom("Chick Bacon Cheese Burger", 1M);
 
         var hawaiianBurgerItem = burgerItem.NewFrom("Hawaiian Burger", 2M);
         var tacoBurgerItem = burgerItem.NewFrom("Taco Burger", 1.5M);
@@ -85,8 +91,8 @@ public class MenuManager {
             { new BasicMenuButton(baconCheeseBurgerItem),   new BasicMenuButton(doubleBaconCheeseBurgerItem),   new BasicMenuButton(chickenBaconCheeseBurgerItem),  new BasicMenuButton(slawBurgerItem) },
         };
 
-        Menu burgerMenu = new Menu("Burgers", burgerMenuItems, 4, 4);
-        MenuManager menuManager = new(window, window.OrderManager, burgerMenu);
+        Menu burgerMenu = new("Burgers", burgerMenuItems, 4, 4);
+        OrderMenuManager menuManager = new(window, burgerMenu);
 
         // Chicken Menu
 
@@ -102,11 +108,11 @@ public class MenuManager {
         return menuManager;
     }
 
-    public MenuManager(MainWindow window, OrderManager orderManager, Menu? startingMenu = null)
+    public OrderMenuManager(MainWindow window, Menu? startingMenu = null)
     {
         Window = window;
-        OrderManager = orderManager;
         CurrentMenu = startingMenu;
+        MenuViewManager = new(window, Root);
 
         if (startingMenu != null)
         {
@@ -117,7 +123,7 @@ public class MenuManager {
 
     public Menu CreateMenu(string name, MenuButton?[,] items, int? rows = null, int? columns = null)
     {
-        Menu menu = new Menu(name, items, rows, columns);
+        Menu menu = new(name, items, rows, columns);
         RegisterMenu(menu);
 
         return menu;
@@ -128,22 +134,32 @@ public class MenuManager {
         if (RegisteredMenus.Contains(menu)) return;
         RegisteredMenus.Add(menu);
 
-        Button button = new();
-        button.Content = menu.Name;
-        button.Click += (_, _) => ShowMenu(menu);
+        Button button = new() {
+            Content = menu.Name
+        };
+        button.Click += (_, _) =>
+        {
+            ShowMenu(menu);
+            OrderManager.UnlockOrder();
+        };
 
         Window.SP_MenuList.Children.Add(button);
     }
 
     public void ShowMenu(Menu? menu)
     {
-        Buttons.ForEach(b => Grid.Children.Remove(b));
+        MenuViewManager.ShowView(MenuView);
+
+        Buttons.ForEach(b => MenuView.Children.Remove(b));
         CurrentMenu = menu;
 
         Rows = menu?.Rows ?? 0;
         Columns = menu?.Columns ?? 0;
 
-        if (menu == null) return;
+        if (menu == null) {
+            OnMenuChanged?.Invoke(null);
+            return;
+        }
 
         for (int row = 0; row < menu.Items.GetLength(0); row++) {
             for (int column = 0; column < menu.Items.GetLength(1); column++) {
@@ -153,20 +169,27 @@ public class MenuManager {
                 SetItemButton(row, column, item);
             }
         }
+
+        OnMenuChanged?.Invoke(menu);
+    }
+
+    public void ShowPaymentScreen()
+    {
+        MenuViewManager.ShowView(PaymentView);
+        OnShowPaymentScreen?.Invoke();
     }
 
     void SetItemButton(int row, int column, MenuButton item)
     {
         if (row >= Rows) throw new IndexOutOfRangeException();
         if (column >= Columns) throw new IndexOutOfRangeException();
-        if (CurrentMenu == null) throw new ArgumentNullException();
 
-        var button = item.CreateButton(this);
+        var button = item.CreateButton(Window);
         Buttons.Add(button);
 
         Grid.SetRow(button, row);
         Grid.SetColumn(button, column);
 
-        Window.Grid_MenuItems.Children.Add(button);
+        MenuView.Children.Add(button);
     }
 }

@@ -12,4 +12,8 @@
     <ProjectReference Include="..\Models\ComputingEPOS.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="src\Interfaces\" />
+  </ItemGroup>
+
 </Project>
