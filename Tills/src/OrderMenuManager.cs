@@ -96,14 +96,26 @@ public class OrderMenuManager {
 
         // Chicken Menu
 
+
         MenuButton?[,] chickenMenuItems = {
-            { new BasicMenuButton(chickenBurgerItem),             new BasicMenuButton(hawaiianBurgerItem) },
-            { new BasicMenuButton(chickenCheeseBurgerItem),       new BasicMenuButton(tacoBurgerItem) },
-            { new BasicMenuButton(chickenBaconBurgerItem),        new BasicMenuButton(sloppyBurgerItem) },
-            { new BasicMenuButton(chickenBaconCheeseBurgerItem),  new BasicMenuButton(slawBurgerItem) },
+            { new BasicMenuButton(chickenBurgerItem),             },
+            { new BasicMenuButton(chickenCheeseBurgerItem),       },
+            { new BasicMenuButton(chickenBaconBurgerItem),        },
+            { new BasicMenuButton(chickenBaconCheeseBurgerItem),  },
         };
 
         menuManager.CreateMenu("Chicken", chickenMenuItems, 4, 4);
+
+        // eeb
+
+        var glutenItem = new OrderListItem("Gluten Free", 1000000M);
+        var burbgereItem = new OrderListItem("burbgere", 5.99M, [glutenItem]);
+
+        MenuButton?[,] eebMenuItems = {
+            { new EbbMenuButton(burbgereItem, fontSize: 75),             },
+        };
+
+        menuManager.CreateMenu("menu but nyo french", eebMenuItems);
 
         return menuManager;
     }
@@ -134,8 +146,11 @@ public class OrderMenuManager {
         if (RegisteredMenus.Contains(menu)) return;
         RegisteredMenus.Add(menu);
 
+        TextBlock textBlock = new TextBlock();
+        textBlock.Text = menu.Name;
+
         Button button = new() {
-            Content = menu.Name
+            Content = textBlock
         };
         button.Click += (_, _) =>
         {
