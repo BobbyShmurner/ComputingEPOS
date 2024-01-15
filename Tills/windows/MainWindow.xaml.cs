@@ -41,12 +41,9 @@ namespace ComputingEPOS.Tills
             this.Width = 1200;
             this.Height = 900;
 
-            Client.Instance.OnRequestException += _ => Dispatcher.Invoke(() => RootViewManager.ShowView(ConnectionScreen));
+            
 
-            Task.Run(async () => {
-                var response = await Client.GetAsync("api/ping");
-                Trace.WriteLine(response.StatusCode);
-            });
+            ConnectionScreen.Ping();
         }
 
         #region ScaleValue Dependency Property

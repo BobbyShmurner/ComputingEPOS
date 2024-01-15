@@ -177,7 +177,7 @@
                 </Button>
             </Grid>
         </Grid>
-        <Border Grid.Column="1" Grid.Row="2" BorderBrush="DimGray" BorderThickness="0, 1, 0, 1">
+        <Border Grid.Column="1" Grid.Row="2" BorderBrush="DimGray" BorderThickness="0, 1, 0, 0">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <StackPanel.Resources>

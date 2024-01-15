@@ -47,8 +47,8 @@
                             <Setter Property="BorderBrush" Value="Gray"/>
                         </Style>
                     </StackPanel.Resources>
-                    <Label >Till 1</Label>
                     <Label>Bobby</Label>
+                    <Label >Till 1</Label>
                     <Label Content="{Binding Time.CurrentTime}" ContentStringFormat="hh:mm tt"/>
                 </StackPanel>
             </Grid>

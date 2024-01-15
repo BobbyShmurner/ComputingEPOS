@@ -16,5 +16,8 @@ public class RootController : ControllerBase {
     // GET: api/ping
     [HttpGet("Ping")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult Ping() => Ok();
+    public ActionResult Ping() {
+        Console.WriteLine("Ping!");
+        return Ok("Pong!");
+    }
 }
