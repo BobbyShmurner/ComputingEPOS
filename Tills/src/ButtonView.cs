@@ -14,7 +14,7 @@ namespace ComputingEPOS.Tills;
 
 public class ButtonView
 {
-    public MainWindow Window { get; private set; }
+    public MenuView Menu { get; private set; }
     public Grid Grid { get; private set; }
 
     public UIElement ViewElement => Grid!;
@@ -53,9 +53,9 @@ public class ButtonView
         }
     }
 
-    public ButtonView(MainWindow window, int? rows = null, int? columns = null)
+    public ButtonView(MenuView menu, int? rows = null, int? columns = null)
     {
-        Window = window;
+        Menu = menu;
         Grid = new Grid();
 
         if (rows != null) Rows = rows.Value;

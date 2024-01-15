@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ComputingEPOS.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,20 +23,21 @@ public abstract class MenuButton
         DisplayText = displayText;
     }
 
-    public Button CreateButton(MainWindow window) {
+    public Button CreateButton(MenuView menu) {
         button = new();
 
-        TextBlock textBlock = new TextBlock();
-        textBlock.Text = DisplayText;
+        TextBlock textBlock = new TextBlock {
+            Text = DisplayText
+        };
 
         button.Content = textBlock;
-        button.Click += (sender, e) => OnClick(sender, e, window);
+        button.Click += (sender, e) => OnClick(sender, e, menu);
 
-        button = PostCreateButton(button, window);
+        button = PostCreateButton(button, menu);
         return button;
     }
 
-    protected virtual Button PostCreateButton(Button button, MainWindow window) => button;
+    protected virtual Button PostCreateButton(Button button, MenuView menu) => button;
 
-    protected abstract void OnClick(object sender, RoutedEventArgs e, MainWindow window);
+    protected abstract void OnClick(object sender, RoutedEventArgs e, MenuView menu);
 }

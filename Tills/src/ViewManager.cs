@@ -14,15 +14,13 @@ namespace ComputingEPOS.Tills;
 
 public class ViewManager
 {
-    public MainWindow Window { get; private set; }
     public Grid Root { get; private set; }
     public FrameworkElement? CurrentView { get; private set; }
 
     public event Action<FrameworkElement?, FrameworkElement?>? OnViewChanged;
 
-    public ViewManager(MainWindow window, Grid rootElement)
+    public ViewManager(Grid rootElement)
     {
-        Window = window;
         Root = rootElement;
 
         Init();
@@ -32,8 +30,8 @@ public class ViewManager
         foreach (FrameworkElement child in Root.Children) {
             if (CurrentView == null)
             {
-                if (child.Visibility != Visibility.Visible) continue;
-                CurrentView = child;
+                if (child.Visibility == Visibility.Visible)
+                    CurrentView = child;
             } else
             {
                 child.Visibility = Visibility.Collapsed;
@@ -67,7 +65,6 @@ public class ViewManager
         foreach (FrameworkElement child in Root.Children) {
             child.Visibility = child.Name.ToLower().Trim() == viewName ? Visibility.Visible : Visibility.Collapsed;
             if (child.Visibility == Visibility.Visible) {
-                Trace.WriteLine("Found it!");
                 CurrentView = child;
                 OnViewChanged?.Invoke(CurrentView, oldView);
 

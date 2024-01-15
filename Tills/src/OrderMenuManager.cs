@@ -15,11 +15,11 @@ public class OrderMenuManager {
     public Action<Menu?>? OnMenuChanged;
     public Action? OnShowPaymentScreen;
 
-    public MainWindow Window { get; private set; }
-    public Grid Root => Window.Grid_MenuButtons;
-    public Grid MenuView => Window.Grid_MenuButtonsOrderView;
-    public Grid PaymentView => Window.Grid_MenuButtonsPaymentView;
-    public OrderManager OrderManager => Window.OrderManager;
+    public MenuView Menu { get; private set; }
+    public Grid Root => Menu.Grid_MenuButtons;
+    public Grid MenuView => Menu.Grid_MenuButtonsOrderView;
+    public Grid PaymentView => Menu.Grid_MenuButtonsPaymentView;
+    public OrderManager OrderManager => Menu.OrderManager;
     public ViewManager MenuViewManager { get; private set; }
 
     public Menu? CurrentMenu { get; private set; }
@@ -60,7 +60,7 @@ public class OrderMenuManager {
         }
     }
 
-    public static OrderMenuManager CreateTestMenus(MainWindow window)
+    public static OrderMenuManager CreateTestMenus(MenuView menu)
     {
         // Burger Menu
 
@@ -92,7 +92,7 @@ public class OrderMenuManager {
         };
 
         Menu burgerMenu = new("Burgers", burgerMenuItems, 4, 4);
-        OrderMenuManager menuManager = new(window, burgerMenu);
+        OrderMenuManager menuManager = new(menu, burgerMenu);
 
         // Chicken Menu
 
@@ -120,11 +120,11 @@ public class OrderMenuManager {
         return menuManager;
     }
 
-    public OrderMenuManager(MainWindow window, Menu? startingMenu = null)
+    public OrderMenuManager(MenuView menu, Menu? startingMenu = null)
     {
-        Window = window;
+        Menu = menu;
         CurrentMenu = startingMenu;
-        MenuViewManager = new(window, Root);
+        MenuViewManager = new(Root);
 
         if (startingMenu != null)
         {
@@ -158,7 +158,7 @@ public class OrderMenuManager {
             OrderManager.UnlockOrder();
         };
 
-        Window.SP_MenuList.Children.Add(button);
+        Menu.SP_MenuList.Children.Add(button);
     }
 
     public void ShowMenu(Menu? menu)
@@ -199,7 +199,7 @@ public class OrderMenuManager {
         if (row >= Rows) throw new IndexOutOfRangeException();
         if (column >= Columns) throw new IndexOutOfRangeException();
 
-        var button = item.CreateButton(Window);
+        var button = item.CreateButton(Menu);
         Buttons.Add(button);
 
         Grid.SetRow(button, row);

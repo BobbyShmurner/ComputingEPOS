@@ -22,9 +22,9 @@ public class EbbMenuButton : BasicMenuButton
         FontSize = fontSize;
     }
 
-    protected override Button PostCreateButton(Button button, MainWindow window)
+    protected override Button PostCreateButton(Button button, MenuView menu)
     {
-        button = base.PostCreateButton(button, window);
+        button = base.PostCreateButton(button, menu);
         TextBlock text = (TextBlock)button.Content;
         text.FontFamily = new FontFamily("Comic Sans MS");
         text.FontSize = FontSize;
@@ -32,9 +32,9 @@ public class EbbMenuButton : BasicMenuButton
         return button;
     }
 
-    protected override void OnClick(object sender, RoutedEventArgs e, MainWindow window)
+    protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu)
     {
-        var view = window.OrderManager.AddOrder(Item);
-        window.OrderManager.SelectItem(view);
+        var view = menu.OrderManager.AddOrder(Item);
+        menu.OrderManager.SelectItem(view);
     }
 }

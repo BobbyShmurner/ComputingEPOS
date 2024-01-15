@@ -37,8 +37,8 @@ public class OrderManager : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action<OrderListItemView?>? OnSelectionChanged;
 
-    public MainWindow Window { get; private set; }
-    public OrderMenuManager OrderMenuManager => Window.OrderMenuManager;
+    public MenuView Menu { get; private set; }
+    public OrderMenuManager OrderMenuManager => Menu.OrderMenuManager;
 
     public List<OrderListItemView> RootItems { get; private set; } = [];
     public OrderListItemView? Selected { get; private set; }
@@ -105,9 +105,9 @@ public class OrderManager : INotifyPropertyChanged {
     public decimal Tax => Total * 0.2M;
     public decimal Outstanding => 0M;
 
-    public OrderManager(MainWindow window)
+    public OrderManager(MenuView menu)
     {
-        Window = window;
+        Menu = menu;
 
         OnSelectionChanged += (itemView) => IsItemSelected = itemView != null;
         OrderMenuManager.OnMenuChanged += menu => IsOrderLocked = menu != null;
@@ -115,7 +115,7 @@ public class OrderManager : INotifyPropertyChanged {
 
     public OrderListItemView AddOrder(OrderListItem item, OrderListItemView? parent = null)
     {
-        var view = new OrderListItemView(this, Window, item, parent);
+        var view = new OrderListItemView(this, Menu, item, parent);
         Views[item] = view;
 
         if (item.Price.HasValue) Total += item.Price.Value;

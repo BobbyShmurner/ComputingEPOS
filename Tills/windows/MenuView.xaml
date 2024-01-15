@@ -1,0 +1,217 @@
+﻿<UserControl x:Class="ComputingEPOS.Tills.MenuView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ComputingEPOS.Tills"
+             xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+             mc:Ignorable="d" 
+             d:DesignHeight="570" d:DesignWidth="800">
+    <Grid x:Name="Grid_MenuView" Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="520"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="1" BorderBrush="DimGray" BorderThickness="0, 1, 0, 1">
+            <Grid>
+                <StackPanel Orientation="Horizontal" x:Name="SP_MenuList" HorizontalAlignment="Left">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Margin" Value="5, 5, 0, 5"/>
+                            <Setter Property="Width" Value="60"/>
+                        </Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="TextAlignment" Value="Center"/>
+                        </Style>
+                    </StackPanel.Resources>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Margin" Value="0, 5, 5, 5"/>
+                            <Setter Property="Width" Value="60"/>
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <Button>Vouchers</Button>
+                    <Button Click="FunctionsButton_Click">Functions</Button>
+                    <Button>Logout</Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Border Grid.RowSpan="3" Background="LightGray" BorderBrush="DimGray" BorderThickness="0, 1, 1, 0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="59"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border BorderBrush="DimGray" BorderThickness="0, 0, 0, 1">
+                    <DockPanel>
+                        <Button IsEnabled="{c:Binding !OrderManager.IsOrderLocked}" DockPanel.Dock="Right" Padding="5" Height="40" Margin="0,0,5,0" Click="Button_Clear">Clear</Button>
+                        <Border Background="White" BorderBrush="DimGray" BorderThickness="1" Height="40" Margin="5,0" Padding="5">
+                            <TextBlock VerticalAlignment="Center" FontSize="16" DockPanel.Dock="Left" Text="{Binding OrderManager.OrderNumber, StringFormat=Order #{0}}"/>
+                        </Border>
+                    </DockPanel>
+                </Border>
+                <Border Grid.Row="1" Background="White" BorderBrush="DimGray" BorderThickness="1" Margin="5">
+                    <DockPanel>
+                        <DockPanel.Resources>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="FontSize" Value="16"/>
+                                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                            </Style>
+                        </DockPanel.Resources>
+                        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="DimGray">
+                            <Border Padding="5">
+                                <StackPanel>
+                                    <Grid x:Name="OrderScrollButtons" Visibility="{Binding ShowScrollButtons}" Height="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Click="Orders_SV_Up" Grid.Column="0" Margin="5" FontSize="16">Up</Button>
+                                        <Button Click="Orders_SV_Down" Grid.Column="1" Margin="5" FontSize="16">Down</Button>
+                                    </Grid>
+                                    <DockPanel>
+                                        <TextBlock DockPanel.Dock="Right" Text="{c:Binding OrderManager.SubTotal, StringFormat=£{0:n2}}" />
+                                        <TextBlock>Subtotal</TextBlock>
+                                    </DockPanel>
+                                    <DockPanel>
+                                        <TextBlock x:Name="Text_Tax" DockPanel.Dock="Right" Text="{Binding OrderManager.Tax, StringFormat=£{0:n2}}" />
+                                        <TextBlock>Tax</TextBlock>
+                                    </DockPanel>
+                                    <DockPanel Margin="0,10,0,0">
+                                        <TextBlock x:Name="Text_Total" DockPanel.Dock="Right" Text="{Binding OrderManager.Total, StringFormat=£{0:n2}}" />
+                                        <TextBlock>Total</TextBlock>
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+                        <ScrollViewer ScrollChanged="SV_Orders_ScrollChanged" x:Name="SV_Orders" DockPanel.Dock="Top" VerticalScrollBarVisibility="Hidden" Padding="0,5,0,0">
+                            <DockPanel x:Name="DP_OrderItems">
+                                <Button Opacity="0" x:Name="OrderItemsEmptyFillButton" Click="OrderItemsEmptyFillButton_Click"></Button>
+                            </DockPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Border>
+        <Grid x:Name="Grid_MenuButtons" Grid.Row="1" Grid.Column="1">
+            <Grid.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="FontSize" Value="16"/>
+                    <Setter Property="Margin" Value="2"/>
+                    <Setter Property="Padding" Value="2"/>
+                </Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="TextWrapping" Value="Wrap"/>
+                    <Setter Property="TextAlignment" Value="Center"/>
+                </Style>
+            </Grid.Resources>
+            <Grid x:Name="Grid_MenuButtonsOrderView" Margin="5">
+
+            </Grid>
+            <Grid x:Name="Grid_MenuButtonsPaymentView" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.25*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="0.75*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" VerticalAlignment="Center">
+                    <TextBlock FontSize="24">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="Order #{0} - {1}">
+                                <Binding Path="OrderManager.OrderNumber" />
+                                <Binding Path="OrderManager.CheckoutTypePretty" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock FontSize="18" Text="{c:Binding OrderManager.Total, StringFormat=Total: £{0:n2}}" />
+                    <TextBlock FontSize="18" Text="{c:Binding OrderManager.Outstanding, StringFormat=Outstanding: £{0:n2}}" />
+                </StackPanel>
+
+                <Button Grid.Row="1" Grid.Column="0">
+                    <TextBlock>£1</TextBlock>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="1">
+                    <TextBlock>£2</TextBlock>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="2">
+                    <TextBlock>£5</TextBlock>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="3">
+                    <TextBlock>£10</TextBlock>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="4">
+                    <TextBlock>£20</TextBlock>
+                </Button>
+
+                <Button Grid.Row="2" Grid.Column="0">
+                    <TextBlock>Cash</TextBlock>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="1">
+                    <TextBlock>Cash<LineBreak/>Exact</TextBlock>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="2">
+                    <TextBlock>Round Up To Next £</TextBlock>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="3">
+                    <TextBlock>Chip Pin</TextBlock>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="4">
+                    <TextBlock>Chip Pin Specific</TextBlock>
+                </Button>
+            </Grid>
+        </Grid>
+        <Border Grid.Column="1" Grid.Row="2" BorderBrush="DimGray" BorderThickness="0, 1, 0, 1">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Margin" Value="5, 5, 0, 5"/>
+                            <Setter Property="Width" Value="60"/>
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="ModifyButton" Click="ModifyButton_Click">Modify</Button>
+                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="DeleteButton" Click="DeleteButton_Click">Delete</Button>
+                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="ComboButton">Combo</Button>
+                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="UpsizeButton" FontSize="28" Width="30">↑</Button>
+                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="DownsizeButton" FontSize="28" Width="30">↓</Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Margin" Value="0, 5, 5, 5"/>
+                            <Setter Property="Width" Value="60"/>
+                        </Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextAlignment" Value="Center"/>
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <Button Click="SitInButton_Click">
+                        <TextBlock>Sit<LineBreak/>In</TextBlock>
+                    </Button>
+                    <Button Click="TakeAwayButton_Click">
+                        <TextBlock>Take<LineBreak/>Away</TextBlock>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

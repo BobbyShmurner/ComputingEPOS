@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ComputingEPOS.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,7 +18,7 @@ public class OrderListItemView {
     const int BASE_INDENT = 5;
     const int PRICE_GAP = 5;
 
-    public MainWindow Window { get; private set; }
+    public MenuView Menu { get; private set; }
     public List<OrderListItemView> Children { get; private set; } = new();
     public OrderListItemView? Parent { get; private set; }
     public OrderListItemView? RootParent
@@ -80,8 +81,8 @@ public class OrderListItemView {
     TextBlock priceText;
     Border border;
 
-    public OrderListItemView(OrderManager manager, MainWindow window, OrderListItem item, OrderListItemView? parent = null) {
-        Window = window;
+    public OrderListItemView(OrderManager manager, MenuView menu, OrderListItem item, OrderListItemView? parent = null) {
+        Menu = menu;
         Parent = parent;
         Manager = manager;
 
@@ -115,7 +116,7 @@ public class OrderListItemView {
         Price = Item.Price;
 
         if (Parent != null) Parent.stackPanel.Children.Add(border);
-        else Window.DP_OrderItems.Children.Insert(Window.DP_OrderItems.Children.Count - 1, border);
+        else Menu.DP_OrderItems.Children.Insert(Menu.DP_OrderItems.Children.Count - 1, border);
 
         Item.Children.ForEach(c => Manager.AddOrder(c, this));
         border.BringIntoView();
@@ -143,7 +144,7 @@ public class OrderListItemView {
         }
         else
         {
-            Window.DP_OrderItems.Children.Remove(border);
+            Menu.DP_OrderItems.Children.Remove(border);
         }
     }
 

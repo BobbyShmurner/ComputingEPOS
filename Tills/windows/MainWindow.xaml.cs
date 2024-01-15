@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
+using ComputingEPOS.Tills.Api;
+using System.Windows.Threading;
 
 namespace ComputingEPOS.Tills
 {
@@ -23,8 +25,6 @@ namespace ComputingEPOS.Tills
     {
         public const int SCROLL_AMOUNT = 100;
 
-        public OrderManager OrderManager { get; private set; }
-        public OrderMenuManager OrderMenuManager { get; private set; }
         public TimeDisplay Time { get; private set; }
 
         public ViewManager RootViewManager { get; private set; }
@@ -36,10 +36,17 @@ namespace ComputingEPOS.Tills
             Time = new TimeDisplay();
             this.DataContext = this;
 
-            OrderMenuManager = OrderMenuManager.CreateTestMenus(this);
-            OrderManager = new(this);
+            RootViewManager = new(Grid_MainViewContainer);
 
-            RootViewManager = new(this, Grid_MainViewContainer);
+            this.Width = 1200;
+            this.Height = 900;
+
+            Client.Instance.OnRequestException += _ => Dispatcher.Invoke(() => RootViewManager.ShowView(ConnectionScreen));
+
+            Task.Run(async () => {
+                var response = await Client.GetAsync("api/ping");
+                Trace.WriteLine(response.StatusCode);
+            });
         }
 
         #region ScaleValue Dependency Property
@@ -75,70 +82,15 @@ namespace ComputingEPOS.Tills
         }
         #endregion
 
-        #region ShowScrollButtons Dependency Property
-        public static readonly DependencyProperty ShowScrollButtonsProperty = DependencyProperty.Register("ShowScrollButtons", typeof(Visibility), typeof(MainWindow), new UIPropertyMetadata(Visibility.Collapsed, new PropertyChangedCallback(OnShowScrollButtonsChanged), new CoerceValueCallback(OnCoerceShowScrollButtons)));
-
-        private static object OnCoerceShowScrollButtons(DependencyObject o, object value)
-        {
-            if (o == null) return value;
-            MainWindow mainWindow = (MainWindow)o;
-            return mainWindow.OnCoerceShowScrollButtons((Visibility)value);
-        }
-
-        private static void OnShowScrollButtonsChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            if (o == null) return;
-            MainWindow mainWindow = (MainWindow)o;
-
-            mainWindow.OnShowScrollButtonsChanged((Visibility)e.OldValue, (Visibility)e.NewValue);
-        }
-
-        protected virtual Visibility OnCoerceShowScrollButtons(Visibility value)
-        {
-            return value;
-        }
-
-        protected virtual void OnShowScrollButtonsChanged(Visibility oldValue, Visibility newValue) {
-            OrderManager.Selected?.BringIntoView();
-        }
-
-        public Visibility ShowScrollButtons
-        {
-            get => (Visibility)GetValue(ShowScrollButtonsProperty);
-            set => SetValue(ShowScrollButtonsProperty, value);
-        }
-
-        private void SV_Orders_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            ShowScrollButtons = e.ViewportHeight > e.ExtentHeight ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        #endregion
-
         private void Root_SizeChanged(object sender, EventArgs e) => CalculateScale();
 
         private void CalculateScale()
         {
-            double yScale = ActualHeight / 600f;
             double xScale = ActualWidth / 800f;
+            double yScale = ActualHeight / 600f;
             double value = Math.Min(xScale, yScale);
 
             ScaleValue = (double)OnCoerceScaleValue(mainWindow, value);
         }
-
-        private void Orders_SV_Up(object sender, RoutedEventArgs e) => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset - SCROLL_AMOUNT);
-        private void Orders_SV_Down(object sender, RoutedEventArgs e) => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset + SCROLL_AMOUNT);
-
-        private void Button_Clear(object sender, RoutedEventArgs e) => OrderManager.DeleteAll();
-
-        private void DeleteButton_Click(object sender, RoutedEventArgs e) => OrderManager.RemoveSelectedOrder();
-        private void ModifyButton_Click(object sender, RoutedEventArgs e) { }
-
-        private void SitInButton_Click(object sender, RoutedEventArgs e) => OrderManager.CheckoutOrder(CheckoutType.SitIn);
-        private void TakeAwayButton_Click(object sender, RoutedEventArgs e) => OrderManager.CheckoutOrder(CheckoutType.TakeAway);
-
-        private void FunctionsButton_Click(object sender, RoutedEventArgs e) { }
-
-        private void OrderItemsEmptyFillButton_Click(object sender, RoutedEventArgs e) => OrderManager.DeselectItem();
     }
 }
