@@ -78,6 +78,18 @@ public class OrdersController : ControllerBase {
     public async Task<ActionResult<Order>> GetOrderFromOrderNum([Required]int orderNum, bool todayOnly = true) =>
        await m_Service.GetOrderFromOrderNum(orderNum, todayOnly);
 
+    // GET: api/Orders/Latest
+    [HttpGet("Latest")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<Order?>> GetLatestOrder() =>
+       await m_Service.GetLatestOrder();
+
+    // GET: api/Orders/NextOrderNum
+    [HttpGet("NextOrderNum")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<int>> GetNextOrderNum() =>
+       await m_Service.GetNextOrderNum();
+
     // GET: api/Orders/5/OrderItems
     [HttpGet("{id}/OrderItems")]
     [ProducesResponseType(StatusCodes.Status200OK)]

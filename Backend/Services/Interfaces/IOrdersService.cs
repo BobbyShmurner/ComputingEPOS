@@ -6,6 +6,8 @@ namespace ComputingEPOS.Backend.Services;
 public interface IOrdersService {
     public Task<ActionResult<List<Order>>> GetOrders(bool? closed, int? parentId);
     public Task<ActionResult<Order>> GetOrder(int id);
+    public Task<ActionResult<Order?>> GetLatestOrder();
+    public Task<ActionResult<int>> GetNextOrderNum();
     public Task<ActionResult<Order>> GetOrderFromOrderNum(int orderNum, bool todayOnly);
     public Task<ActionResult<Order?>> GetParentOrder(int id);
     public Task<ActionResult<List<Order>>> GetChildOrders(int id);

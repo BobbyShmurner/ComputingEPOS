@@ -208,4 +208,22 @@ public class OrdersService : IOrdersService {
 
         return amountDue;
     }
+
+    public async Task<ActionResult<Order?>> GetLatestOrder() {
+        try {
+            Order? order = await _context.Orders.OrderBy(order => order.Date).LastOrDefaultAsync();
+            return new ActionResult<Order?>(value: order);
+        } catch {
+            return new StatusCodeResult(500);
+        }
+    }
+
+    public async Task<ActionResult<int>> GetNextOrderNum() {
+        ActionResult<Order?> orderResult = await GetLatestOrder();
+        if (orderResult.Result != null) return orderResult.Result!;
+        Order order = orderResult.Value!;
+
+        if (order.Date.Date == DateTime.Today) return order.OrderNum.HasValue ? order.OrderNum.Value + 1 : 0;
+        else return 1;
+    }
 }
