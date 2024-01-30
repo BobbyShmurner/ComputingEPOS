@@ -13,18 +13,18 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 
-public class BasicMenuButton : MenuButton
+public class PremadeItemMenuButton : MenuButton
 {
     public OrderListItem Item { get; protected set; }
 
-    public BasicMenuButton(OrderListItem item, string? displayText = null)
+    public PremadeItemMenuButton(OrderListItem item, string? displayText = null)
         : base(displayText ?? item.Text) {
         Item = item;
     }
 
     protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu)
     {
-        var view = menu.OrderManager.AddOrder(Item);
+        var view = menu.OrderManager.AddOrderItem(Item);
         menu.OrderManager.SelectItem(view);
     }
 }

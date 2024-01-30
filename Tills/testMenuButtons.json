@@ -1,0 +1,25 @@
+[
+	{
+		"menu_item_id": 1,
+		"display_text": "Burger",
+		"price": 4.99,
+		"stock": [
+			{
+				"stock_id": 1,
+				"quantity": 1
+			}
+		]
+	},
+	{
+		"menu_item_id": 2,
+		"display_text": "Cheese Burger",
+		"price_mod": 0.5,
+		"base_menu_item": 1,
+		"stock": [
+			{
+				"stock_id": 2,
+				"quantity": 1
+			}
+		]
+	}
+]

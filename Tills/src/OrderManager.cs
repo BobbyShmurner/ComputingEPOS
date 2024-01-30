@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ComputingEPOS.Models;
+using ComputingEPOS.Tills.Api;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -32,7 +34,7 @@ public static class CheckoutTypeExtensions
 }
 
 public class OrderManager : INotifyPropertyChanged {
-    
+
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action<OrderListItemView?>? OnSelectionChanged;
@@ -77,15 +79,19 @@ public class OrderManager : INotifyPropertyChanged {
         }
     }
 
-    int m_OrderNumber = 1;
-    public int OrderNumber {
-        get => m_OrderNumber;
+    decimal m_AmountPaid = 0;
+    public decimal AmountPaid
+    {
+        get => m_AmountPaid;
         set
         {
-            m_OrderNumber = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber)));
+            m_AmountPaid = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AmountPaid)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Outstanding)));
         }
     }
+
+    public int OrderNumber => CurrentOrder?.OrderNum ?? 0;
 
     CheckoutType? m_CheckoutType;
     public CheckoutType? CheckoutType
@@ -103,7 +109,19 @@ public class OrderManager : INotifyPropertyChanged {
 
     public decimal SubTotal => Total * 0.8M;
     public decimal Tax => Total * 0.2M;
-    public decimal Outstanding => 0M;
+    public decimal Outstanding => Total - AmountPaid;
+
+
+    Order? m_CurrentOrder;
+    public Order? CurrentOrder
+    {
+        get => m_CurrentOrder;
+        set
+        {
+            m_CurrentOrder = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber)));
+        }
+    }
 
     public OrderManager(MenuView menu)
     {
@@ -111,9 +129,25 @@ public class OrderManager : INotifyPropertyChanged {
 
         OnSelectionChanged += (itemView) => IsItemSelected = itemView != null;
         OrderMenuManager.OnMenuChanged += menu => IsOrderLocked = menu != null;
+
+        NextOrder();
     }
 
-    public OrderListItemView AddOrder(OrderListItem item, OrderListItemView? parent = null)
+    public void NextOrder() =>
+        Task.Run(async() => {
+            while (true) {
+                try
+                {
+                    CurrentOrder = await Orders.Create();
+                    break;
+                } catch
+                {
+                    continue;
+                }
+            }
+     });
+
+    public OrderListItemView AddOrderItem(OrderListItem item, OrderListItemView? parent = null)
     {
         var view = new OrderListItemView(this, Menu, item, parent);
         Views[item] = view;
@@ -124,7 +158,7 @@ public class OrderManager : INotifyPropertyChanged {
         return view;
     }
 
-    public OrderListItemView? GetNextOrderForSelection(OrderListItemView view)
+    public OrderListItemView? GetNextOrderItemForSelection(OrderListItemView view)
     {
         if (view.Parent != null) return view.Parent;
         int index = RootItems.IndexOf(view);
@@ -135,25 +169,31 @@ public class OrderManager : INotifyPropertyChanged {
         return null;
     }
 
-    public void RemoveSelectedOrder() {
+    public async void RemoveSelectedOrderItem() {
         if (Selected == null) return;
-        OrderListItemView? nextSelection = GetNextOrderForSelection(Selected);
+        OrderListItemView? nextSelection = GetNextOrderItemForSelection(Selected);
 
-        RemoveOrder(Selected);
-        SelectItem(nextSelection);
+        await RemoveOrderItem(Selected);
+        await Menu.Dispatcher.BeginInvoke(() => SelectItem(nextSelection));
     }
 
-    public void RemoveOrder(OrderListItemView view)
+    public async Task RemoveOrderItem(OrderListItemView view)
     {
-        if (view.Parent == null) RootItems.Remove(view);
-        if (view.Price.HasValue) Total -= view.Price.Value;
+        if (view.Item.OrderItem != null)
+            await OrderItems.Delete(view.Item.OrderItem);
 
-        view.Remove();
+        await Menu.Dispatcher.BeginInvoke(() =>
+        {
+            if (view.Parent == null) RootItems.Remove(view);
+            if (view.Price.HasValue) Total -= view.Price.Value;
+
+            view.Remove();
+        });
     }
 
-    public void DeleteAll()
+    public async Task DeleteAllItems()
     {
-        while (RootItems.Count > 0) RemoveOrder(RootItems[0]);
+        while (RootItems.Count > 0) await RemoveOrderItem(RootItems[0]);
     }
 
     public void DeselectItem(bool fireEvent = true)
@@ -165,10 +205,21 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     public void CheckoutOrder(CheckoutType checkoutType) {
-        CheckoutType = checkoutType;
         LockOrder();
-        OrderMenuManager.ShowPaymentScreen();
+        CheckoutType = checkoutType;
+
+        Task.Run(async () =>
+        {
+            await FetchAmountPaid();
+            await Menu.Dispatcher.BeginInvoke(() =>
+            {
+                OrderMenuManager.ShowPaymentScreen();
+            });
+        });
     }
+
+    public async Task FetchAmountPaid() =>
+        AmountPaid = (await Orders.GetAmountPaid(CurrentOrder)).Value;
 
     public void LockOrder()
     {

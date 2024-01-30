@@ -13,5 +13,6 @@ namespace ComputingEPOS.Tills
     /// </summary>
     public partial class App : Application
     {
+        
     }
 }

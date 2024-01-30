@@ -9,13 +9,16 @@ public class MenuButton {
 	public int MenuButtonID { get; set; }
 
 	[Required]
+	public int MenuID { get; set; }
+
+	[Required]
 	[EnumDataType(typeof(MenuButtonTypes))]
 	public string? ButtonType { get; set; } = MenuButtonTypes.Basic.ToString();
 
 	[Required]
 	public string JsonData { get; set; } = "{}";
 
-	enum MenuButtonTypes {
+	public enum MenuButtonTypes {
 		Basic,
 		SubItem
 	}

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ComputingEPOS.Models;
 using ComputingEPOS.Backend.Results;
+using System.Text.Json;
 
 namespace ComputingEPOS.Backend.Services;
 
@@ -84,13 +85,25 @@ public class OrderItemsService : IOrderItemsService {
         return orderItem;
     }
 
-    public async Task<IActionResult> DeleteOrderItem(int id) {
+    public async Task<IActionResult> DeleteOrderItem(int id, IStockService stockService) {
+        using var transaction = m_Context.Database.BeginTransaction();
+
         ActionResult<OrderItem> itemResult = await GetOrderItem(id);
         if (itemResult.Result != null) return itemResult.Result;
         OrderItem orderItem = itemResult.Value!;
 
+        ActionResult<Stock> stockRes = await stockService.GetStock(orderItem.StockID);
+        if (stockRes.Result != null) return stockRes.Result;
+        Stock stock = stockRes.Value!;
+
+        ActionResult<Stock> stockUpdateRes = await stockService.UpdateStockQuantity(orderItem.StockID, orderItem.Quantity);
+        if (stockUpdateRes.Result != null) return stockUpdateRes.Result;
+
+        Console.WriteLine($"Removing OrderItem ID: {orderItem.OrderItemID}, passed ID: {id}");
+
         m_Context.OrderItems.Remove(orderItem);
         await m_Context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return new OkResult();
     }

@@ -49,15 +49,16 @@ public partial class ConnectionScreen : UserControl {
     }
 
     public void Ping() {
-        Trace.WriteLine("Ping!");
         Task.Run(async () => {
             try {
-                var response = await Client.GetAsync("api/ping");
-                response.EnsureSuccessStatusCode();
+                Trace.WriteLine("Ping!");
+                var response = await Client.GetAsync<string>("api/ping");
+                Trace.WriteLine(response);
 
                 if (!ConnectionUp) SetConnectionUp();
             } catch {
                 SetConnectionDown();
+                throw;
             }
         });
     }

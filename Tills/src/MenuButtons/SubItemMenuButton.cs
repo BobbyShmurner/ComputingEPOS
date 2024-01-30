@@ -13,7 +13,7 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 
-public class SubItemMenuButton : BasicMenuButton
+public class SubItemMenuButton : PremadeItemMenuButton
 {
 
     public SubItemMenuButton(OrderListItem item, string? displayText = null) : base(item, displayText) { }
@@ -27,7 +27,7 @@ public class SubItemMenuButton : BasicMenuButton
 
     protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu) {
         var parent = menu.OrderManager.Selected?.RootParent ?? menu.OrderManager.Selected;
-        menu.OrderManager.AddOrder(Item, parent);
+        menu.OrderManager.AddOrderItem(Item, parent);
         menu.OrderManager.SelectItem(parent);
     }
 

@@ -118,21 +118,20 @@ public class OrderListItemView {
         if (Parent != null) Parent.stackPanel.Children.Add(border);
         else Menu.DP_OrderItems.Children.Insert(Menu.DP_OrderItems.Children.Count - 1, border);
 
-        Item.Children.ForEach(c => Manager.AddOrder(c, this));
+        Item.Children.ForEach(c => Manager.AddOrderItem(c, this));
         border.BringIntoView();
     }
 
     void OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        Trace.WriteLine(Text);
         if (!Selected) Manager.SelectItem(this);
         else Manager.DeselectItem();
     }
 
-    public void Remove() {
+    public async void Remove() {
         while (Children.Count > 0)
         {
-            Manager.RemoveOrder(Children[0]);
+            await Manager.RemoveOrderItem(Children[0]);
         }
 
         if (Manager.Selected == this) Manager.DeselectItem();

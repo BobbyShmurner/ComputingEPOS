@@ -17,7 +17,6 @@ public class Order {
 
 	public int? ParentOrderID { get; set; } = null;
 
-	[Required]
 	[Range(1, 999)]
 	public int? OrderNum { get; set; } = 1;
 

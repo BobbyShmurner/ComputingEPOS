@@ -13,7 +13,7 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 
-public class EbbMenuButton : BasicMenuButton
+public class EbbMenuButton : PremadeItemMenuButton
 {
     public double FontSize { get; private set; }
 
@@ -34,7 +34,7 @@ public class EbbMenuButton : BasicMenuButton
 
     protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu)
     {
-        var view = menu.OrderManager.AddOrder(Item);
+        var view = menu.OrderManager.AddOrderItem(Item);
         menu.OrderManager.SelectItem(view);
     }
 }

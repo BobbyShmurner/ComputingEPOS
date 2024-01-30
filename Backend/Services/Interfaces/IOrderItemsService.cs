@@ -13,7 +13,7 @@ public interface IOrderItemsService {
 
     public Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem, IStockService stockService);
 
-    public Task<IActionResult> DeleteOrderItem(int id);
+    public Task<IActionResult> DeleteOrderItem(int id, IStockService stockService);
 
     public Task<bool> OrderItemExists(int id);
 }

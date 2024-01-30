@@ -97,5 +97,5 @@ public class OrderItemsController : ControllerBase {
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteOrderItem(int id) =>
-        await m_Service.DeleteOrderItem(id);
+        await m_Service.DeleteOrderItem(id, m_StockService);
 }

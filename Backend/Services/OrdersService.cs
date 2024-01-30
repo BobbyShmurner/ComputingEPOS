@@ -110,6 +110,13 @@ public class OrdersService : IOrdersService {
     }
 
     public async Task<ActionResult<Order>> PostOrder(Order order, int? parentId) {
+        if (order.OrderNum == null)
+        {
+            ActionResult<int> orderNumResult = await GetNextOrderNum();
+            if (orderNumResult.Result != null) return orderNumResult.Result;
+            order.OrderNum = orderNumResult.Value!;
+        }
+
         if (parentId != null) order.ParentOrderID = parentId;
         if (order.ParentOrderID != null) {
             if (!await OrderExists(order.ParentOrderID.Value)) return new NotFoundResult();
@@ -153,7 +160,7 @@ public class OrdersService : IOrdersService {
         Order order = orderResult.Value!;
 
         if (!forced) {
-            ActionResult<decimal> amountDueResult = await GetAmountDueForOrder(order.OrderID, transactionsService!, orderItemsService!);
+            ActionResult<decimal> amountDueResult = await GetAmountDue(order.OrderID, transactionsService!, orderItemsService!);
             if (amountDueResult.Result != null) return amountDueResult.Result!;
             decimal amountDue = amountDueResult.Value!;
 
@@ -193,20 +200,30 @@ public class OrdersService : IOrdersService {
     public async Task<bool> IsChildOrder(int id) =>
         await _context.Orders.AnyAsync(e => e.OrderID == id && e.ParentOrderID != null);
 
-    public async Task<ActionResult<decimal>> GetAmountDueForOrder(int id, ITransactionsService transactionsService, IOrderItemsService orderItemsService) {
+    public async Task<ActionResult<decimal>> GetAmountPaid(int id, ITransactionsService transactionsService) {
         ActionResult<Order> orderResult = await GetOrder(id);
         if (orderResult.Result != null) return orderResult.Result!;
         Order order = orderResult.Value!;
 
-        ActionResult<decimal> amountDueResult = await GetOrderCost(id, orderItemsService);
-        if (amountDueResult.Result != null) return amountDueResult.Result!;
-        decimal amountDue = amountDueResult.Value!;
+        decimal amountPaid = 0;
 
         ActionResult<List<Transaction>> transactionsResult = await GetOrderTransactions(id, transactionsService);
         if (transactionsResult.Result != null) return transactionsResult.Result!;
-        transactionsResult.Value!.ForEach(x => amountDue -= x.AmountPaid);
+        transactionsResult.Value!.ForEach(x => amountPaid += x.AmountPaid);
 
-        return amountDue;
+        return amountPaid;
+    }
+
+    public async Task<ActionResult<decimal>> GetAmountDue(int id, ITransactionsService transactionsService, IOrderItemsService orderItemsService) {
+        ActionResult<decimal> orderCostResult = await GetOrderCost(id, orderItemsService);
+        if (orderCostResult.Result != null) return orderCostResult.Result!;
+        decimal orderCost = orderCostResult.Value!;
+
+        ActionResult<decimal> amountPaidResult = await GetAmountPaid(id, transactionsService);
+        if (amountPaidResult.Result != null) return amountPaidResult.Result!;
+        decimal amountPaid = amountPaidResult.Value!;
+
+        return orderCost - amountPaid;
     }
 
     public async Task<ActionResult<Order?>> GetLatestOrder() {
@@ -223,7 +240,7 @@ public class OrdersService : IOrdersService {
         if (orderResult.Result != null) return orderResult.Result!;
         Order order = orderResult.Value!;
 
-        if (order.Date.Date == DateTime.Today) return order.OrderNum.HasValue ? order.OrderNum.Value + 1 : 0;
+        if (order.Date.Date == DateTime.Today) return order.OrderNum.HasValue && order.OrderNum.Value != 99 ? order.OrderNum.Value + 1 : 1;
         else return 1;
     }
 }

@@ -64,12 +64,19 @@ public class OrdersController : ControllerBase {
     public async Task<ActionResult<decimal>> GetOrderCost(int id) =>
         await m_Service.GetOrderCost(id, m_OrderItemsService);
 
+    // GET: api/Orders/5/AmountPaid
+    [HttpGet("{id}/AmountPaid")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<decimal>> GetAmountPaid(int id) =>
+        await m_Service.GetAmountPaid(id, m_TransactionsService);
+
     // GET: api/Orders/5/AmountDue
     [HttpGet("{id}/AmountDue")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<decimal>> GetAmountDueForOrder(int id) =>
-        await m_Service.GetAmountDueForOrder(id, m_TransactionsService, m_OrderItemsService);
+    public async Task<ActionResult<decimal>> GetAmountDue(int id) =>
+        await m_Service.GetAmountDue(id, m_TransactionsService, m_OrderItemsService);
 
     // GET: api/Orders/FromOrderNum
     [HttpGet("FromOrderNum")]

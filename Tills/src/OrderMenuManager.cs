@@ -85,10 +85,10 @@ public class OrderMenuManager {
         var slawBurgerItem = burgerItem.NewFrom("Slaw Burger", 0.5M);
 
         MenuButton?[,] burgerMenuItems = {
-            { new BasicMenuButton(burgerItem),              new BasicMenuButton(doubleBurgerItem),              new BasicMenuButton(chickenBurgerItem),             new BasicMenuButton(hawaiianBurgerItem) },
-            { new BasicMenuButton(cheeseBurgerItem),        new BasicMenuButton(doubleCheeseBurgerItem),        new BasicMenuButton(chickenCheeseBurgerItem),       new BasicMenuButton(tacoBurgerItem) },
-            { new BasicMenuButton(baconBurgerItem),         new BasicMenuButton(doubleBaconBurgerItem),         new BasicMenuButton(chickenBaconBurgerItem),        new BasicMenuButton(sloppyBurgerItem) },
-            { new BasicMenuButton(baconCheeseBurgerItem),   new BasicMenuButton(doubleBaconCheeseBurgerItem),   new BasicMenuButton(chickenBaconCheeseBurgerItem),  new BasicMenuButton(slawBurgerItem) },
+            { new DbMenuButton(burgerItem, 0),              new PremadeItemMenuButton(doubleBurgerItem),              new PremadeItemMenuButton(chickenBurgerItem),             new PremadeItemMenuButton(hawaiianBurgerItem) },
+            { new DbMenuButton(cheeseBurgerItem, 2),        new PremadeItemMenuButton(doubleCheeseBurgerItem),        new PremadeItemMenuButton(chickenCheeseBurgerItem),       new PremadeItemMenuButton(tacoBurgerItem) },
+            { new DbMenuButton(baconBurgerItem, 4),         new PremadeItemMenuButton(doubleBaconBurgerItem),         new PremadeItemMenuButton(chickenBaconBurgerItem),        new PremadeItemMenuButton(sloppyBurgerItem) },
+            { new DbMenuButton(baconCheeseBurgerItem, 7),   new PremadeItemMenuButton(doubleBaconCheeseBurgerItem),   new PremadeItemMenuButton(chickenBaconCheeseBurgerItem),  new PremadeItemMenuButton(slawBurgerItem) },
         };
 
         Menu burgerMenu = new("Burgers", burgerMenuItems, 4, 4);
@@ -98,10 +98,10 @@ public class OrderMenuManager {
 
 
         MenuButton?[,] chickenMenuItems = {
-            { new BasicMenuButton(chickenBurgerItem),             },
-            { new BasicMenuButton(chickenCheeseBurgerItem),       },
-            { new BasicMenuButton(chickenBaconBurgerItem),        },
-            { new BasicMenuButton(chickenBaconCheeseBurgerItem),  },
+            { new PremadeItemMenuButton(chickenBurgerItem),             },
+            { new PremadeItemMenuButton(chickenCheeseBurgerItem),       },
+            { new PremadeItemMenuButton(chickenBaconBurgerItem),        },
+            { new PremadeItemMenuButton(chickenBaconCheeseBurgerItem),  },
         };
 
         menuManager.CreateMenu("Chicken", chickenMenuItems, 4, 4);

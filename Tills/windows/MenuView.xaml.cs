@@ -77,19 +77,15 @@ public partial class MenuView : UserControl
     private void Orders_SV_Up(object sender, RoutedEventArgs e) => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset - SCROLL_AMOUNT);
     private void Orders_SV_Down(object sender, RoutedEventArgs e) => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset + SCROLL_AMOUNT);
 
-    private void Button_Clear(object sender, RoutedEventArgs e) => OrderManager.DeleteAll();
+    private void Button_Clear(object sender, RoutedEventArgs e) => OrderManager.DeleteAllItems();
 
-    private void DeleteButton_Click(object sender, RoutedEventArgs e) => OrderManager.RemoveSelectedOrder();
+    private void DeleteButton_Click(object sender, RoutedEventArgs e) => OrderManager.RemoveSelectedOrderItem();
     private void ModifyButton_Click(object sender, RoutedEventArgs e) { }
 
     private void SitInButton_Click(object sender, RoutedEventArgs e) => OrderManager.CheckoutOrder(CheckoutType.SitIn);
     private void TakeAwayButton_Click(object sender, RoutedEventArgs e) => OrderManager.CheckoutOrder(CheckoutType.TakeAway);
 
-    private void FunctionsButton_Click(object sender, RoutedEventArgs e) => Task.Run(async () => {
-        var response = await Client.GetAsync("api/Orders/NextOrderNum");
-        string content = await response.Content.ReadAsStringAsync();
-        OrderManager.OrderNumber = int.Parse(content.Trim()) + 1;
-    });
+    private void FunctionsButton_Click(object sender, RoutedEventArgs e) => OrderManager.NextOrder();
 
     private void OrderItemsEmptyFillButton_Click(object sender, RoutedEventArgs e) => OrderManager.DeselectItem();
 }

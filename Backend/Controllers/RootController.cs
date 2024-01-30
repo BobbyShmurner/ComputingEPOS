@@ -18,6 +18,6 @@ public class RootController : ControllerBase {
     [ProducesResponseType(StatusCodes.Status200OK)]
     public ActionResult Ping() {
         Console.WriteLine("Ping!");
-        return Ok("Pong!");
+        return Ok("\"Pong!\"");
     }
 }

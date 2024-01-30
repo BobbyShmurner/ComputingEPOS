@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ComputingEPOS.Tills.Api;
@@ -15,12 +17,43 @@ public class Client : Singleton<Client> {
         BaseAddress = new Uri("http://localhost:5068/api"),
     };
 
-    public static async Task<HttpResponseMessage> GetAsync(string requestUri) {
+    public static async Task<T?> GetAsync<T>(string requestUri) {
         try {
-            return await HttpClient.GetAsync(requestUri);
+            var response = await HttpClient.GetAsync(requestUri);
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<T>();
         } catch (HttpRequestException e) {
-            Trace.WriteLine("GOT HTTP REQUEST EXCEPTION!!");
-            Trace.WriteLine(Instance.OnRequestException?.GetInvocationList().Length);
+            Instance.OnRequestException?.Invoke(e);
+            throw;
+        }
+    }
+
+    public static async Task<T?> PostAsync<T>(string postUri, HttpContent? content)
+    {
+        try
+        {
+            var response = await HttpClient.PostAsync(postUri, content);
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<T>();
+        }
+        catch (HttpRequestException e)
+        {
+            Instance.OnRequestException?.Invoke(e);
+            throw;
+        }
+    }
+
+    public static async Task DeleteAsync(string requestUri)
+    {
+        try
+        {
+            var response = await HttpClient.DeleteAsync(requestUri);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException e)
+        {
             Instance.OnRequestException?.Invoke(e);
             throw;
         }
