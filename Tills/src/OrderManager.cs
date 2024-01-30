@@ -221,6 +221,14 @@ public class OrderManager : INotifyPropertyChanged {
     public async Task FetchAmountPaid() =>
         AmountPaid = (await Orders.GetAmountPaid(CurrentOrder)).Value;
 
+    public void PayForOrder(decimal amount, Transaction.PaymentMethods paymentMethod)
+    {
+        Task.Run(async () => {
+            await Transactions.Create(CurrentOrder, amount, paymentMethod);
+            await FetchAmountPaid();
+        });
+    }
+
     public void LockOrder()
     {
         IsOrderLocked = true;
