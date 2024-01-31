@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -22,17 +23,24 @@ public class OrderItems : Singleton<Client> {
             Subtotal = subtotal ?? 0M,
         };
 
-        var returnedItem = await Client.PostAsync<OrderItem[]>("api/OrderItems", new StringContent(
+        var response = await Client.HttpClient.PostAsync("api/OrderItems", new StringContent(
             $"[{JsonSerializer.Serialize(item)}]",
             Encoding.UTF8,
             "application/json"
         ));
 
-        return returnedItem[0];
+        try {
+            response.EnsureSuccessStatusCode();
+            return (await response.Content.ReadFromJsonAsync<OrderItem[]>())?[0];
+        } catch (HttpRequestException ex) {
+            if (ex.StatusCode == HttpStatusCode.Forbidden)
+            {
+                await Modal.Instance.ShowError($"Failed to create order item!", response);
+            }
+            throw;
+        }
     }
 
-    public static async Task Delete(OrderItem item)
-    {
-        await Client.DeleteAsync($"api/OrderItems/{item.OrderItemID}");
-    }
+    public static async Task Delete(OrderItem item) =>
+        (await Client.HttpClient.DeleteAsync($"api/OrderItems/{item.OrderItemID}")).EnsureSuccessStatusCode();
 }

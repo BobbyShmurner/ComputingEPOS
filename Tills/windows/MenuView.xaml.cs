@@ -77,17 +77,17 @@ public partial class MenuView : UserControl
     private void Orders_SV_Up(object sender, RoutedEventArgs e) => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset - SCROLL_AMOUNT);
     private void Orders_SV_Down(object sender, RoutedEventArgs e) => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset + SCROLL_AMOUNT);
 
-    private void Button_Clear(object sender, RoutedEventArgs e) => OrderManager.DeleteAllItems();
+    private void Button_Clear(object sender, RoutedEventArgs e) => Task.Run(async() => await OrderManager.DeleteAllItems(true));
 
-    private void DeleteButton_Click(object sender, RoutedEventArgs e) => OrderManager.RemoveSelectedOrderItem();
+    private void DeleteButton_Click(object sender, RoutedEventArgs e) => OrderManager.RemoveSelectedOrderItem(true);
     private void ModifyButton_Click(object sender, RoutedEventArgs e) { }
 
     private void SitInButton_Click(object sender, RoutedEventArgs e) => OrderManager.CheckoutOrder(CheckoutType.SitIn);
     private void TakeAwayButton_Click(object sender, RoutedEventArgs e) => OrderManager.CheckoutOrder(CheckoutType.TakeAway);
 
-    private void FunctionsButton_Click(object sender, RoutedEventArgs e) => OrderManager.NextOrder();
+    private void FunctionsButton_Click(object sender, RoutedEventArgs e) { }
 
     private void OrderItemsEmptyFillButton_Click(object sender, RoutedEventArgs e) => OrderManager.DeselectItem();
 
-    private void TransactionButton_Click(object sender, RoutedEventArgs e) => OrderManager.PayForOrder(TransactionButton.GetAmount((UIElement)sender), TransactionButton.GetPaymentMethod((UIElement)sender));
+    private void TransactionButton_Click(object sender, RoutedEventArgs e) => OrderManager.PayForOrder(TransactionButton.GetAmount((UIElement)sender), TransactionButton.GetPaymentMethod((UIElement)sender), TransactionButton.GetRemaining((UIElement)sender));
 }

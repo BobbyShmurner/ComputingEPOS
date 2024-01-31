@@ -18,7 +18,7 @@ public class Order {
 	public int? ParentOrderID { get; set; } = null;
 
 	[Range(1, 999)]
-	public int? OrderNum { get; set; } = 1;
+	public int? OrderNum { get; set; }
 
 	[Range(0, DAY_IN_SECONDS)]
 	public double? OrderDuration { get; set; } = null;

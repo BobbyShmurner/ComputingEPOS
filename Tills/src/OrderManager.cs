@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using static ComputingEPOS.Models.Transaction;
 
 namespace ComputingEPOS.Tills;
 
@@ -130,22 +131,32 @@ public class OrderManager : INotifyPropertyChanged {
         OnSelectionChanged += (itemView) => IsItemSelected = itemView != null;
         OrderMenuManager.OnMenuChanged += menu => IsOrderLocked = menu != null;
 
-        NextOrder();
+        Task.Run(NextOrder);
     }
 
-    public void NextOrder() =>
-        Task.Run(async() => {
-            while (true) {
-                try
-                {
-                    CurrentOrder = await Orders.Create();
-                    break;
-                } catch
-                {
-                    continue;
-                }
+    public async Task NextOrder()
+    {
+        await DeleteAllItems(false);
+
+        while (true)
+        {
+            try
+            {
+                CurrentOrder = await Orders.Create();
+                break;
             }
-     });
+            catch
+            {
+                continue;
+            }
+        }
+
+        await Menu.Dispatcher.BeginInvoke(() =>
+        {
+            OrderMenuManager.ShowFirstMenu();
+            UnlockOrder();
+        });
+    }
 
     public OrderListItemView AddOrderItem(OrderListItem item, OrderListItemView? parent = null)
     {
@@ -169,17 +180,17 @@ public class OrderManager : INotifyPropertyChanged {
         return null;
     }
 
-    public async void RemoveSelectedOrderItem() {
+    public async void RemoveSelectedOrderItem(bool removeFromDB) {
         if (Selected == null) return;
         OrderListItemView? nextSelection = GetNextOrderItemForSelection(Selected);
 
-        await RemoveOrderItem(Selected);
+        await RemoveOrderItem(Selected, removeFromDB);
         await Menu.Dispatcher.BeginInvoke(() => SelectItem(nextSelection));
     }
 
-    public async Task RemoveOrderItem(OrderListItemView view)
+    public async Task RemoveOrderItem(OrderListItemView view, bool removeFromDB)
     {
-        if (view.Item.OrderItem != null)
+        if (removeFromDB && view.Item.OrderItem != null)
             await OrderItems.Delete(view.Item.OrderItem);
 
         await Menu.Dispatcher.BeginInvoke(() =>
@@ -187,13 +198,13 @@ public class OrderManager : INotifyPropertyChanged {
             if (view.Parent == null) RootItems.Remove(view);
             if (view.Price.HasValue) Total -= view.Price.Value;
 
-            view.Remove();
+            view.Remove(removeFromDB);
         });
     }
 
-    public async Task DeleteAllItems()
+    public async Task DeleteAllItems(bool removeFromDB)
     {
-        while (RootItems.Count > 0) await RemoveOrderItem(RootItems[0]);
+        while (RootItems.Count > 0) await RemoveOrderItem(RootItems[0], removeFromDB);
     }
 
     public void DeselectItem(bool fireEvent = true)
@@ -210,6 +221,7 @@ public class OrderManager : INotifyPropertyChanged {
 
         Task.Run(async () =>
         {
+            await Orders.FinaliseOrder(CurrentOrder);
             await FetchAmountPaid();
             await Menu.Dispatcher.BeginInvoke(() =>
             {
@@ -221,12 +233,36 @@ public class OrderManager : INotifyPropertyChanged {
     public async Task FetchAmountPaid() =>
         AmountPaid = (await Orders.GetAmountPaid(CurrentOrder)).Value;
 
-    public void PayForOrder(decimal amount, Transaction.PaymentMethods paymentMethod)
+    public void PayForOrder(decimal? amount, PaymentMethods paymentMethod, bool remaining)
     {
+        if (remaining) amount = Outstanding;
+        else if (amount == null) throw new ArgumentNullException("amount");
+
         Task.Run(async () => {
-            await Transactions.Create(CurrentOrder, amount, paymentMethod);
-            await FetchAmountPaid();
+            await PayForOrder_Internal(amount.Value, paymentMethod);
+
+            if (Outstanding <= 0) {
+                if (Outstanding < 0) await HandleChange();
+                await CloseCheck();
+                await NextOrder();
+            }
         });
+    }
+
+    async Task HandleChange() {
+        decimal change = -Outstanding;
+
+        await PayForOrder_Internal(Outstanding, PaymentMethods.Cash);
+        await Menu.Dispatcher.BeginInvoke(() => Modal.Instance.Show($"Change: £{change}"));
+    }
+
+    async Task CloseCheck() =>
+        await Orders.CloseCheck(CurrentOrder, false);
+
+    async Task PayForOrder_Internal(decimal amount, PaymentMethods paymentMethod)
+    {
+        await Transactions.Create(CurrentOrder, amount, paymentMethod);
+        await FetchAmountPaid();
     }
 
     public void LockOrder()

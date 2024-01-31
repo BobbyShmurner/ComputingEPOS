@@ -27,6 +27,7 @@
             <local:MenuView/>
             <local:ConnectionScreen x:Name="ConnectionScreen" Visibility="Collapsed"/>
         </Grid>
+        <local:Modal x:Name="Modal"/>
         <Border Grid.ColumnSpan="2" Grid.Row="3" Background="LightGray" BorderBrush="DimGray" BorderThickness="0,1,0,0">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">

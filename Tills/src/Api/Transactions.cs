@@ -22,10 +22,13 @@ public class Transactions : Singleton<Client> {
             Method = paymentMethod.ToString(),
         };
 
-        return await Client.PostAsync<Transaction>("api/Transactions", new StringContent(
+        var response = await Client.HttpClient.PostAsync("api/Transactions", new StringContent(
             JsonSerializer.Serialize(item),
             Encoding.UTF8,
             "application/json"
         ));
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<Transaction>();
     }
 }

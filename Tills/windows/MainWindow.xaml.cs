@@ -26,11 +26,12 @@ namespace ComputingEPOS.Tills
         public const int SCROLL_AMOUNT = 100;
 
         public TimeDisplay Time { get; private set; }
-
         public ViewManager RootViewManager { get; private set; }
+        public static MainWindow Instance;
 
         public MainWindow()
         {
+            Instance = this;
             InitializeComponent();
 
             Time = new TimeDisplay();
@@ -40,9 +41,6 @@ namespace ComputingEPOS.Tills
 
             this.Width = 1200;
             this.Height = 900;
-
-            
-
             ConnectionScreen.Ping();
         }
 

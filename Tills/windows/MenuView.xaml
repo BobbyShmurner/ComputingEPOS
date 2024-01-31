@@ -160,20 +160,20 @@
                     <TextBlock>£20</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="0">
+                <Button Grid.Row="2" Grid.Column="0" local:TransactionButton.PaymentMethod="Cash" local:TransactionButton.Remaining="True" Click="TransactionButton_Click">
+                    <TextBlock>Cash<LineBreak/>Remaining</TextBlock>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="1" local:TransactionButton.PaymentMethod="Card" local:TransactionButton.Remaining="True" Click="TransactionButton_Click">
+                    <TextBlock>Chip Pin<LineBreak/>Remaining</TextBlock>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="2" local:TransactionButton.PaymentMethod="Cash">
                     <TextBlock>Cash</TextBlock>
                 </Button>
-                <Button Grid.Row="2" Grid.Column="1">
-                    <TextBlock>Cash<LineBreak/>Exact</TextBlock>
-                </Button>
-                <Button Grid.Row="2" Grid.Column="2">
-                    <TextBlock>Round Up To Next £</TextBlock>
-                </Button>
-                <Button Grid.Row="2" Grid.Column="3">
+                <Button Grid.Row="2" Grid.Column="3" local:TransactionButton.PaymentMethod="Card">
                     <TextBlock>Chip Pin</TextBlock>
                 </Button>
-                <Button Grid.Row="2" Grid.Column="4">
-                    <TextBlock>Chip Pin Specific</TextBlock>
+                <Button Grid.Row="2" Grid.Column="4" local:TransactionButton.PaymentMethod="Cash">
+                    <TextBlock>Round Up To Next £</TextBlock>
                 </Button>
             </Grid>
         </Grid>

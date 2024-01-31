@@ -7,20 +7,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="570" d:DesignWidth="800">
     <Grid Background="Navy">
-        <Border Background="#050505" Margin="100" CornerRadius="50">
-            <Border.Resources>
-                <Style TargetType="{x:Type TextBlock}">
-                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                    <Setter Property="FontSize" Value="22"/>
-                    <Setter Property="Foreground" Value="White"/>
-                </Style>
-            </Border.Resources>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock>Connection to the Tills Server Lost!</TextBlock>
-                <TextBlock>:(</TextBlock>
-                <TextBlock><LineBreak/><LineBreak/>Retrying...</TextBlock>
-            </StackPanel>
-        </Border>
+        
     </Grid>
 </UserControl>

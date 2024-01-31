@@ -188,6 +188,9 @@ public class OrderMenuManager {
         OnMenuChanged?.Invoke(menu);
     }
 
+    public void ShowFirstMenu() =>
+        ShowMenu(RegisteredMenus.FirstOrDefault());
+
     public void ShowPaymentScreen()
     {
         MenuViewManager.ShowView(PaymentView);

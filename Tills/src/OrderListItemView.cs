@@ -128,10 +128,10 @@ public class OrderListItemView {
         else Manager.DeselectItem();
     }
 
-    public async void Remove() {
+    public async void Remove(bool removeFromDB) {
         while (Children.Count > 0)
         {
-            await Manager.RemoveOrderItem(Children[0]);
+            await Manager.RemoveOrderItem(Children[0], removeFromDB);
         }
 
         if (Manager.Selected == this) Manager.DeselectItem();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -35,7 +36,14 @@ public partial class ConnectionScreen : UserControl {
         retryTimer.Interval = TimeSpan.FromSeconds(3);
         retryTimer.Tick += (_, _) => Ping();
 
-        Client.Instance.OnRequestException += _ => SetConnectionDown();
+        Client.Instance.OnRequestException += OnRequestException;
+    }
+
+    void OnRequestException(HttpRequestException e) {
+        Trace.WriteLine($"Http Error Message: {e.Message}");
+        Trace.WriteLine($"Http Error Code: {e.StatusCode}");
+        Trace.WriteLine($"Http Error Type: {e.InnerException?.GetType() ?? e.GetType()}");
+        if (e.StatusCode == null) SetConnectionDown();
     }
 
     void CacheWindow() {
@@ -52,8 +60,11 @@ public partial class ConnectionScreen : UserControl {
         Task.Run(async () => {
             try {
                 Trace.WriteLine("Ping!");
-                var response = await Client.GetAsync<string>("api/ping");
-                Trace.WriteLine(response);
+                var response = await Client.HttpClient.GetAsync("api/ping");
+                response.EnsureSuccessStatusCode();
+
+                string msg = await response.Content.ReadAsStringAsync();
+                Trace.WriteLine($"Got Response: {msg}");
 
                 if (!ConnectionUp) SetConnectionUp();
             } catch {
@@ -70,7 +81,10 @@ public partial class ConnectionScreen : UserControl {
         if (Window!.RootViewManager.CurrentView != this)
             previousView = Window.RootViewManager.CurrentView;
 
-        Dispatcher.Invoke(() => Window.RootViewManager.ShowView(this));
+        Dispatcher.Invoke(() => {
+            Window.RootViewManager.ShowView(this);
+            Window.Modal.Show("Connection to the Tills Server Lost!\n:(\n\nRetrying...", false);
+        });
 
         StartRetryTimer();
     }
@@ -78,7 +92,10 @@ public partial class ConnectionScreen : UserControl {
     void SetConnectionUp() {
         ConnectionUp = true;
         CacheWindow();
-        Dispatcher.Invoke(() => Window!.RootViewManager.ShowView(previousView));
+        Dispatcher.Invoke(() => {
+            Window!.Modal.Hide();
+            Window!.RootViewManager.ShowView(previousView);
+        });
         retryTimer.Stop();
     }
 

@@ -43,4 +43,21 @@ public static class TransactionButton
             throw new ArgumentNullException("element");
         element.SetValue(PaymentMethodProperty, value);
     }
+
+    public static readonly DependencyProperty RemainingProperty = DependencyProperty.RegisterAttached("Remaining",
+            typeof(bool), typeof(TransactionButton), new FrameworkPropertyMetadata(false));
+
+    public static bool GetRemaining(UIElement element)
+    {
+        if (element == null)
+            throw new ArgumentNullException("element");
+        return (bool)element.GetValue(RemainingProperty);
+    }
+
+    public static void SetRemaining(UIElement element, bool value)
+    {
+        if (element == null)
+            throw new ArgumentNullException("element");
+        element.SetValue(RemainingProperty, value);
+    }
 }
