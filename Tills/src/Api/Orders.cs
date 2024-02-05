@@ -45,7 +45,7 @@ public class Orders : Singleton<Client> {
         {
             if (ex.StatusCode != null)
             {
-                await Modal.Instance.ShowError($"Failed to close Order #{order.OrderNum} [ID: {order.OrderID}]!", response);
+                await Modal.Instance.ShowError($"Failed to close Order #{order.OrderNum} [ID: {order.OrderID}]", response);
             }
             throw;
         }

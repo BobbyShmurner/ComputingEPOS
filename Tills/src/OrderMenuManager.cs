@@ -85,10 +85,10 @@ public class OrderMenuManager {
         var slawBurgerItem = burgerItem.NewFrom("Slaw Burger", 0.5M);
 
         MenuButton?[,] burgerMenuItems = {
-            { new DbMenuButton(burgerItem, 0),              new PremadeItemMenuButton(doubleBurgerItem),              new PremadeItemMenuButton(chickenBurgerItem),             new PremadeItemMenuButton(hawaiianBurgerItem) },
-            { new DbMenuButton(cheeseBurgerItem, 2),        new PremadeItemMenuButton(doubleCheeseBurgerItem),        new PremadeItemMenuButton(chickenCheeseBurgerItem),       new PremadeItemMenuButton(tacoBurgerItem) },
-            { new DbMenuButton(baconBurgerItem, 4),         new PremadeItemMenuButton(doubleBaconBurgerItem),         new PremadeItemMenuButton(chickenBaconBurgerItem),        new PremadeItemMenuButton(sloppyBurgerItem) },
-            { new DbMenuButton(baconCheeseBurgerItem, 7),   new PremadeItemMenuButton(doubleBaconCheeseBurgerItem),   new PremadeItemMenuButton(chickenBaconCheeseBurgerItem),  new PremadeItemMenuButton(slawBurgerItem) },
+            { new DbMenuButton(burgerItem, 0),              new DbMenuButton(doubleBurgerItem, 1),              new DbMenuButton(chickenBurgerItem, 9),              new DbMenuButton(hawaiianBurgerItem, 13) },
+            { new DbMenuButton(cheeseBurgerItem, 2),        new DbMenuButton(doubleCheeseBurgerItem, 3),        new DbMenuButton(chickenCheeseBurgerItem, 10),       new DbMenuButton(tacoBurgerItem, 14) },
+            { new DbMenuButton(baconBurgerItem, 4),         new DbMenuButton(doubleBaconBurgerItem, 6),         new DbMenuButton(chickenBaconBurgerItem, 11),        new DbMenuButton(sloppyBurgerItem, 15) },
+            { new DbMenuButton(baconCheeseBurgerItem, 7),   new DbMenuButton(doubleBaconCheeseBurgerItem, 8),   new DbMenuButton(chickenBaconCheeseBurgerItem, 12),  new DbMenuButton(slawBurgerItem, 16) },
         };
 
         Menu burgerMenu = new("Burgers", burgerMenuItems, 4, 4);
@@ -98,10 +98,10 @@ public class OrderMenuManager {
 
 
         MenuButton?[,] chickenMenuItems = {
-            { new PremadeItemMenuButton(chickenBurgerItem),             },
-            { new PremadeItemMenuButton(chickenCheeseBurgerItem),       },
-            { new PremadeItemMenuButton(chickenBaconBurgerItem),        },
-            { new PremadeItemMenuButton(chickenBaconCheeseBurgerItem),  },
+            { new DbMenuButton(chickenBurgerItem, 9),             },
+            { new DbMenuButton(chickenCheeseBurgerItem, 10),       },
+            { new DbMenuButton(chickenBaconBurgerItem, 11),        },
+            { new DbMenuButton(chickenBaconCheeseBurgerItem, 12),  },
         };
 
         menuManager.CreateMenu("Chicken", chickenMenuItems, 4, 4);
