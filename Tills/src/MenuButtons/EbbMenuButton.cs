@@ -31,10 +31,4 @@ public class EbbMenuButton : PremadeItemMenuButton
 
         return button;
     }
-
-    protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu)
-    {
-        var view = menu.OrderManager.AddOrderItem(Item);
-        menu.OrderManager.SelectItem(view);
-    }
 }

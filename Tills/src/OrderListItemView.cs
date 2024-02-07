@@ -29,6 +29,14 @@ public class OrderListItemView {
         }
     }
 
+    public int Index
+    {
+        get
+        {
+            if (Parent == null) return Menu.DP_OrderItems.Children.IndexOf(border);
+            else return Parent.Children.IndexOf(this);
+        }
+    }
     public OrderListItem Item { get; private set; }
     public OrderManager Manager { get; private set; }
 
@@ -81,14 +89,29 @@ public class OrderListItemView {
     TextBlock priceText;
     Border border;
 
-    public OrderListItemView(OrderManager manager, MenuView menu, OrderListItem item, OrderListItemView? parent = null) {
+    public async static Task<OrderListItemView> CreateAsync(OrderManager manager, MenuView menu, OrderListItem item, OrderListItemView? parent = null, int? index = null)
+    {
+        OrderListItemView? listItemView = null;
+        await manager.Menu.Dispatcher.BeginInvoke(() =>
+            listItemView = new OrderListItemView(manager, menu, item, parent, index)
+        );
+
+        return listItemView!;
+    }
+
+    public void BringIntoView() =>
+        border.BringIntoView();
+
+    public OrderListItemView(OrderManager manager, MenuView menu, OrderListItem item, OrderListItemView? parent = null, int? index = null) {
         Menu = menu;
         Parent = parent;
         Manager = manager;
 
         Item = item;
 
-        if (Parent != null) Parent.Children.Add(this);
+        if (Parent != null) {
+            Parent.Children.Insert(index ?? Parent.Children.Count, this);
+        }
 
         border = new Border();
         border.BorderBrush = Brushes.DimGray;
@@ -115,11 +138,8 @@ public class OrderListItemView {
 
         Price = Item.Price;
 
-        if (Parent != null) Parent.stackPanel.Children.Add(border);
-        else Menu.DP_OrderItems.Children.Insert(Menu.DP_OrderItems.Children.Count - 1, border);
-
-        Item.Children.ForEach(c => Manager.AddOrderItem(c, this));
-        border.BringIntoView();
+        if (Parent != null) Parent.stackPanel.Children.Insert(index != null ? index.Value + 1 : Parent.stackPanel.Children.Count, border);
+        else Menu.DP_OrderItems.Children.Insert(index ?? (Menu.DP_OrderItems.Children.Count - 1), border);
     }
 
     void OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -128,23 +148,26 @@ public class OrderListItemView {
         else Manager.DeselectItem();
     }
 
-    public async void Remove(bool removeFromDB) {
+    public async Task Remove(bool removeFromDB) {
         while (Children.Count > 0)
         {
             await Manager.RemoveOrderItem(Children[0], removeFromDB);
         }
 
-        if (Manager.Selected == this) Manager.DeselectItem();
+        await Menu.Dispatcher.BeginInvoke(() => {
+            if (Manager.Selected == this) Manager.DeselectItem();
 
-        if (Parent != null)
-        {
-            Parent.Children.Remove(this);
-            Parent.stackPanel.Children.Remove(border);
-        }
-        else
-        {
-            Menu.DP_OrderItems.Children.Remove(border);
-        }
+            if (Parent != null)
+            {
+                Parent.Children.Remove(this);
+                Parent.Item.Children.Remove(Item);
+                Parent.stackPanel.Children.Remove(border);
+            }
+            else
+            {
+                Menu.DP_OrderItems.Children.Remove(border);
+            }
+        });
     }
 
     public void RecursivlyHideBorder()
@@ -152,6 +175,4 @@ public class OrderListItemView {
         Selected = false;
         Children.ForEach(c => c.RecursivlyHideBorder());
     }
-
-    public void BringIntoView() => border.BringIntoView();
 }

@@ -24,6 +24,8 @@ public class OrderListItem {
     decimal? m_Price;
     public decimal? Price => m_Price ?? BaseItem?.Price;
 
+    public int? StockID;
+
     public OrderItem? OrderItem = null;
 
     public OrderListItem? BaseItem { get; private set; }
@@ -31,26 +33,36 @@ public class OrderListItem {
 
     OrderListItem() { }
 
-    public OrderListItem(OrderListItem baseItem, params OrderListItem[] children) {
+    OrderListItem(OrderListItem baseItem, int? stockID, params OrderListItem[] children) {
         BaseItem = baseItem;
+        Children = children.ToList();
+        StockID = stockID;
+    }
+
+    public OrderListItem(string text, params OrderListItem[] children)
+    {
+        m_Text = text;
         Children = children.ToList();
     }
 
-    public OrderListItem(string text, decimal? price = null, params OrderListItem[] children)
+    public OrderListItem(string text, int stockID, decimal? price = null, params OrderListItem[] children)
     {
         m_Text = text;
         m_Price = price;
         Children = children.ToList();
+        StockID = stockID;
     }
 
-    public OrderListItem NewWithChildren(params OrderListItem[] children) => new(this, children);
-    public OrderListItem NewFrom(string text, decimal priceDelta) => new(text, (Price ?? 0) + priceDelta, Children.ToArray());
+    public OrderListItem NewWithChildren(int? stockID, params OrderListItem[] children) => new(this, stockID, children);
+    public OrderListItem NewFrom(string text, int stockID, decimal priceDelta) => new(text, stockID, price: (Price ?? 0) + priceDelta, Children.ToArray());
 
     public OrderListItem Clone() => new OrderListItem
     {
         m_Text = m_Text,
         m_Price = m_Price,
         BaseItem = BaseItem?.Clone(),
-        Children = Children.Select(c => c.Clone()).ToList()
+        Children = Children.Select(c => c.Clone()).ToList(),
+        OrderItem = OrderItem,
+        StockID = StockID,
     };
 }

@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="ComputingEPOS.Tills.Keypad"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ComputingEPOS.Tills"
+             mc:Ignorable="d" 
+             d:DesignHeight="160" d:DesignWidth="120">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="3" Grid.Column="0" Click="Clear_Click">Clear</Button>
+        <Button Grid.Row="3" Grid.Column="2" Click="Confirm_Click">OK</Button>
+        
+        <Button Grid.Row="3" Grid.Column="1" Click="Num_Click">0</Button>
+        <Button Grid.Row="2" Grid.Column="0" Click="Num_Click">1</Button>
+        <Button Grid.Row="2" Grid.Column="1" Click="Num_Click">2</Button>
+        <Button Grid.Row="2" Grid.Column="2" Click="Num_Click">3</Button>
+        <Button Grid.Row="1" Grid.Column="0" Click="Num_Click">4</Button>
+        <Button Grid.Row="1" Grid.Column="1" Click="Num_Click">5</Button>
+        <Button Grid.Row="1" Grid.Column="2" Click="Num_Click">6</Button>
+        <Button Grid.Row="0" Grid.Column="0" Click="Num_Click">7</Button>
+        <Button Grid.Row="0" Grid.Column="1" Click="Num_Click">8</Button>
+        <Button Grid.Row="0" Grid.Column="2" Click="Num_Click">9</Button>
+    </Grid>
+</UserControl>

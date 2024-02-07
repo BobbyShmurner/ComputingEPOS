@@ -160,21 +160,39 @@
                     <TextBlock>£20</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="0" local:TransactionButton.PaymentMethod="Cash" local:TransactionButton.Remaining="True" Click="TransactionButton_Click">
-                    <TextBlock>Cash<LineBreak/>Remaining</TextBlock>
-                </Button>
-                <Button Grid.Row="2" Grid.Column="1" local:TransactionButton.PaymentMethod="Card" local:TransactionButton.Remaining="True" Click="TransactionButton_Click">
-                    <TextBlock>Chip Pin<LineBreak/>Remaining</TextBlock>
-                </Button>
-                <Button Grid.Row="2" Grid.Column="2" local:TransactionButton.PaymentMethod="Cash">
+                <Button Grid.Row="2" Grid.Column="0" local:TransactionButton.PaymentMethod="Cash" local:TransactionButton.Special="Specific" Click="TransactionButton_Click">
                     <TextBlock>Cash</TextBlock>
                 </Button>
-                <Button Grid.Row="2" Grid.Column="3" local:TransactionButton.PaymentMethod="Card">
+                <Button Grid.Row="2" Grid.Column="1" local:TransactionButton.PaymentMethod="Card" local:TransactionButton.Special="Specific" Click="TransactionButton_Click">
                     <TextBlock>Chip Pin</TextBlock>
                 </Button>
-                <Button Grid.Row="2" Grid.Column="4" local:TransactionButton.PaymentMethod="Cash">
+                <Button Grid.Row="2" Grid.Column="2" local:TransactionButton.PaymentMethod="Cash" local:TransactionButton.Special="Remaning" Click="TransactionButton_Click">
+                    <TextBlock>Cash<LineBreak/>Remaining</TextBlock>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="3" local:TransactionButton.PaymentMethod="Card" local:TransactionButton.Special="Remaning" Click="TransactionButton_Click">
+                    <TextBlock>Chip Pin<LineBreak/>Remaining</TextBlock>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="4" local:TransactionButton.PaymentMethod="Cash" local:TransactionButton.Special="RoundUp" Click="TransactionButton_Click">
                     <TextBlock>Round Up To Next £</TextBlock>
                 </Button>
+            </Grid>
+            <Grid x:Name="Grid_MenuButtonsKeypadView" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="320"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock FontSize="18" Text="Cash Payment" VerticalAlignment="Center" Grid.Column="1"/>
+                <TextBlock FontSize="24" Text="{c:Binding Value / 100M, ElementName=PaymentKeypad, StringFormat=£{0:n2}}" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1"/>
+                <local:Keypad x:Name="PaymentKeypad" Grid.Column="1" Grid.Row="2"/>
             </Grid>
         </Grid>
         <Border Grid.Column="1" Grid.Row="2" BorderBrush="DimGray" BorderThickness="0, 1, 0, 0">
@@ -189,7 +207,7 @@
 
                     <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="ModifyButton" Click="ModifyButton_Click">Modify</Button>
                     <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="DeleteButton" Click="DeleteButton_Click">Delete</Button>
-                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="ComboButton">Combo</Button>
+                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="ComboButton" Click="ComboButton_Click">Combo</Button>
                     <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="UpsizeButton" FontSize="28" Width="30">↑</Button>
                     <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="DownsizeButton" FontSize="28" Width="30">↓</Button>
                 </StackPanel>

@@ -89,5 +89,7 @@ public partial class MenuView : UserControl
 
     private void OrderItemsEmptyFillButton_Click(object sender, RoutedEventArgs e) => OrderManager.DeselectItem();
 
-    private void TransactionButton_Click(object sender, RoutedEventArgs e) => OrderManager.PayForOrder(TransactionButton.GetAmount((UIElement)sender), TransactionButton.GetPaymentMethod((UIElement)sender), TransactionButton.GetRemaining((UIElement)sender));
+    private void TransactionButton_Click(object sender, RoutedEventArgs e) => OrderManager.PayForOrder(TransactionButton.GetAmount((UIElement)sender), TransactionButton.GetPaymentMethod((UIElement)sender), TransactionButton.GetSpecial((UIElement)sender));
+
+    private void ComboButton_Click(object sender, RoutedEventArgs e) => OrderManager.MakeSelectedCombo();
 }

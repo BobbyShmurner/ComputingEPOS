@@ -44,20 +44,27 @@ public static class TransactionButton
         element.SetValue(PaymentMethodProperty, value);
     }
 
-    public static readonly DependencyProperty RemainingProperty = DependencyProperty.RegisterAttached("Remaining",
-            typeof(bool), typeof(TransactionButton), new FrameworkPropertyMetadata(false));
+    public static readonly DependencyProperty SpecialProperty = DependencyProperty.RegisterAttached("Special",
+            typeof(SpecialFunctions), typeof(TransactionButton), new FrameworkPropertyMetadata(SpecialFunctions.None));
 
-    public static bool GetRemaining(UIElement element)
+    public static SpecialFunctions GetSpecial(UIElement element)
     {
         if (element == null)
             throw new ArgumentNullException("element");
-        return (bool)element.GetValue(RemainingProperty);
+        return (SpecialFunctions)element.GetValue(SpecialProperty);
     }
 
-    public static void SetRemaining(UIElement element, bool value)
+    public static void SetSpecial(UIElement element, SpecialFunctions value)
     {
         if (element == null)
             throw new ArgumentNullException("element");
-        element.SetValue(RemainingProperty, value);
+        element.SetValue(SpecialProperty, value);
+    }
+
+    public enum SpecialFunctions {
+        None,
+        Remaning,
+        Specific,
+        RoundUp
     }
 }

@@ -6,11 +6,13 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using static ComputingEPOS.Models.Transaction;
 
 namespace ComputingEPOS.Tills;
@@ -158,15 +160,67 @@ public class OrderManager : INotifyPropertyChanged {
         });
     }
 
-    public OrderListItemView AddOrderItem(OrderListItem item, OrderListItemView? parent = null)
-    {
-        var view = new OrderListItemView(this, Menu, item, parent);
+    public async Task<OrderListItemView> AddOrderItem(OrderListItem item, OrderListItemView? parent = null, int? index = null) {
+        var itemClone = item.Clone();
+
+        if (item.StockID != null) {
+            var returnedOrderItem = await OrderItems.Create(CurrentOrder!.OrderID, item.StockID.Value, 1, item.Price);
+            itemClone.OrderItem = returnedOrderItem;
+        }
+
+        item = itemClone;
+
+        OrderListItemView view = await OrderListItemView.CreateAsync(this, Menu, item, parent, index);
         Views[item] = view;
 
         if (item.Price.HasValue) Total += item.Price.Value;
-        if (parent == null) RootItems.Add(view);
+        if (parent == null) RootItems.Insert(index ?? RootItems.Count, view);
+
+
+        try {
+            foreach (var child in view.Item.Children)
+                await AddOrderItem(child, view);
+        } catch {
+            await RemoveOrderItem(view, true);
+            throw;
+        }
+
+        await Menu.Dispatcher.BeginInvoke(() => SelectItem(view));
 
         return view;
+    }
+
+    public async Task<OrderListItemView?> MakeSelectedCombo() =>
+        Selected != null ? await MakeCombo(Selected) : null;
+
+    public async Task<OrderListItemView> MakeCombo(OrderListItemView itemView) {
+        var item = itemView.Item.Clone();
+        var drinkItem = new OrderListItem("Coke", 17, 0.50M);
+        var friesItem = new OrderListItem("Fries", 23, 0.50M);
+        var mealItem = new OrderListItem(item.Text + " Meal", item, drinkItem, friesItem);
+
+        try {
+            return await ReplaceOrderItem(itemView, mealItem);
+        } catch {
+            throw;
+        }
+
+    }
+
+    public async Task<OrderListItemView> ReplaceOrderItem(OrderListItemView toReplace, OrderListItem replaceWith) {
+        int index = toReplace.Index;
+        var parent = toReplace.Parent;
+
+        await RemoveOrderItem(toReplace, true);
+
+        try
+        {
+            return await AddOrderItem(replaceWith, parent, index);
+        } catch
+        {
+            await AddOrderItem(toReplace.Item, parent, index);
+            throw;
+        }
     }
 
     public OrderListItemView? GetNextOrderItemForSelection(OrderListItemView view)
@@ -197,9 +251,9 @@ public class OrderManager : INotifyPropertyChanged {
         {
             if (view.Parent == null) RootItems.Remove(view);
             if (view.Price.HasValue) Total -= view.Price.Value;
-
-            view.Remove(removeFromDB);
         });
+
+        await view.Remove(removeFromDB);
     }
 
     public async Task DeleteAllItems(bool removeFromDB)
@@ -233,12 +287,25 @@ public class OrderManager : INotifyPropertyChanged {
     public async Task FetchAmountPaid() =>
         AmountPaid = (await Orders.GetAmountPaid(CurrentOrder)).Value;
 
-    public void PayForOrder(decimal? amount, PaymentMethods paymentMethod, bool remaining)
+    public void PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special)
     {
-        if (remaining) amount = Outstanding;
-        else if (amount == null) throw new ArgumentNullException("amount");
-
         Task.Run(async () => {
+                switch (special) {
+                case TransactionButton.SpecialFunctions.Remaning:
+                    amount = Outstanding;
+                    break;
+                case TransactionButton.SpecialFunctions.RoundUp:
+                    amount = Math.Ceiling(Outstanding);
+                    break;
+                case TransactionButton.SpecialFunctions.Specific:
+                    amount = await GetAmountKeypad();
+                    Trace.WriteLine($"Got amount: £{amount}");
+                    break;
+                default:
+                    if (amount == null) throw new ArgumentNullException("amount");
+                    break;
+            }
+        
             await PayForOrder_Internal(amount.Value, paymentMethod);
 
             if (Outstanding <= 0) {
@@ -247,6 +314,35 @@ public class OrderManager : INotifyPropertyChanged {
                 await NextOrder();
             }
         });
+    }
+
+    async Task<decimal> GetAmountKeypad() {
+        bool waitingForConfirmation = true;
+
+        EventHandler action = (_, _) => waitingForConfirmation = false;
+
+        await Menu.Dispatcher.BeginInvoke(() =>
+        {
+            Menu.PaymentKeypad.Confirm += action;
+            Menu.PaymentKeypad.ClearVaule();
+
+            OrderMenuManager.ShowKeypadScreen();
+        });
+
+        while (waitingForConfirmation) {
+            Thread.Sleep(100);
+        }
+
+        int value = 0;
+        await Menu.Dispatcher.BeginInvoke(() =>
+        {
+            value = Menu.PaymentKeypad.Value;
+            Menu.PaymentKeypad.Confirm -= action;
+
+            OrderMenuManager.ShowPaymentScreen();
+        });
+
+        return value / 100M;
     }
 
     async Task HandleChange() {

@@ -19,6 +19,7 @@ public class OrderMenuManager {
     public Grid Root => Menu.Grid_MenuButtons;
     public Grid MenuView => Menu.Grid_MenuButtonsOrderView;
     public Grid PaymentView => Menu.Grid_MenuButtonsPaymentView;
+    public Grid KeypadView => Menu.Grid_MenuButtonsKeypadView;
     public OrderManager OrderManager => Menu.OrderManager;
     public ViewManager MenuViewManager { get; private set; }
 
@@ -64,31 +65,36 @@ public class OrderMenuManager {
     {
         // Burger Menu
 
-        var burgerItem = new OrderListItem("Burger", 4.99M);
-        var cheeseBurgerItem = burgerItem.NewFrom("Cheese Burger", 0.5M);
-        var baconBurgerItem = burgerItem.NewFrom("Bacon Burger", 0.5M);
-        var baconCheeseBurgerItem = burgerItem.NewFrom("Bacon Cheese Burger", 1M);
+        var burgerItem = new OrderListItem("Burger", 0, 4.99M);
+        var cheeseBurgerItem = burgerItem.NewFrom("Cheese Burger", 2, 0.5M);
+        var baconBurgerItem = burgerItem.NewFrom("Bacon Burger", 4, 0.5M);
+        var baconCheeseBurgerItem = burgerItem.NewFrom("Bacon Cheese Burger", 7, 1M);
 
-        var doubleBurgerItem = burgerItem.NewFrom("Dbl Burger", 1M);
-        var doubleCheeseBurgerItem = doubleBurgerItem.NewFrom("Dbl Cheese Burger", 0.5M);
-        var doubleBaconBurgerItem = doubleBurgerItem.NewFrom("Dbl Bacon Burger", 0.5M);
-        var doubleBaconCheeseBurgerItem = doubleBurgerItem.NewFrom("Dbl Bacon Cheese Burger", 1M);
+        var doubleBurgerItem = burgerItem.NewFrom("Dbl Burger", 1, 1M);
+        var doubleCheeseBurgerItem = doubleBurgerItem.NewFrom("Dbl Cheese Burger", 3, 0.5M);
+        var doubleBaconBurgerItem = doubleBurgerItem.NewFrom("Dbl Bacon Burger", 6, 0.5M);
+        var doubleBaconCheeseBurgerItem = doubleBurgerItem.NewFrom("Dbl Bacon Cheese Burger", 8, 1M);
 
-        var chickenBurgerItem = new OrderListItem("Chick Burger", 5.99M);
-        var chickenCheeseBurgerItem = chickenBurgerItem.NewFrom("Chick Cheese Burger", 0.5M);
-        var chickenBaconBurgerItem = chickenBurgerItem.NewFrom("Chick Bacon Burger", 0.5M);
-        var chickenBaconCheeseBurgerItem = chickenBurgerItem.NewFrom("Chick Bacon Cheese Burger", 1M);
+        var chickenBurgerItem = new OrderListItem("Chick Burger", 9, 5.99M);
+        var chickenCheeseBurgerItem = chickenBurgerItem.NewFrom("Chick Cheese Burger", 10, 0.5M);
+        var chickenBaconBurgerItem = chickenBurgerItem.NewFrom("Chick Bacon Burger", 11, 0.5M);
+        var chickenBaconCheeseBurgerItem = chickenBurgerItem.NewFrom("Chick Bacon Cheese Burger", 12, 1M);
 
-        var hawaiianBurgerItem = burgerItem.NewFrom("Hawaiian Burger", 2M);
-        var tacoBurgerItem = burgerItem.NewFrom("Taco Burger", 1.5M);
-        var sloppyBurgerItem = burgerItem.NewFrom("Sloppy Burger", 1.5M);
-        var slawBurgerItem = burgerItem.NewFrom("Slaw Burger", 0.5M);
+        var hawaiianBurgerItem = burgerItem.NewFrom("Hawaiian Burger", 13, 2M);
+        var tacoBurgerItem = burgerItem.NewFrom("Taco Burger", 14, 1.5M);
+        var sloppyBurgerItem = burgerItem.NewFrom("Sloppy Burger", 15, 1.5M);
+        var slawBurgerItem = burgerItem.NewFrom("Slaw Burger", 16, 0.5M);
+
+        var chickenNuggets4 = new OrderListItem("4 Chick Nuggs", 24, 3.99M);
+        var chickenNuggets6 = chickenNuggets4.NewFrom("6 Chick Nuggs", 25, 1M);
+        var chickenNuggets9 = chickenNuggets6.NewFrom("9 Chick Nuggs", 26, 1M);
+        var chickenNuggets20 = chickenNuggets9.NewFrom("20 Chick Nuggs", 27, 2M);
 
         MenuButton?[,] burgerMenuItems = {
-            { new DbMenuButton(burgerItem, 0),              new DbMenuButton(doubleBurgerItem, 1),              new DbMenuButton(chickenBurgerItem, 9),              new DbMenuButton(hawaiianBurgerItem, 13) },
-            { new DbMenuButton(cheeseBurgerItem, 2),        new DbMenuButton(doubleCheeseBurgerItem, 3),        new DbMenuButton(chickenCheeseBurgerItem, 10),       new DbMenuButton(tacoBurgerItem, 14) },
-            { new DbMenuButton(baconBurgerItem, 4),         new DbMenuButton(doubleBaconBurgerItem, 6),         new DbMenuButton(chickenBaconBurgerItem, 11),        new DbMenuButton(sloppyBurgerItem, 15) },
-            { new DbMenuButton(baconCheeseBurgerItem, 7),   new DbMenuButton(doubleBaconCheeseBurgerItem, 8),   new DbMenuButton(chickenBaconCheeseBurgerItem, 12),  new DbMenuButton(slawBurgerItem, 16) },
+            { new PremadeItemMenuButton(burgerItem),              new PremadeItemMenuButton(doubleBurgerItem),              new PremadeItemMenuButton(chickenBurgerItem),             new PremadeItemMenuButton(hawaiianBurgerItem) },
+            { new PremadeItemMenuButton(cheeseBurgerItem),        new PremadeItemMenuButton(doubleCheeseBurgerItem),        new PremadeItemMenuButton(chickenCheeseBurgerItem),       new PremadeItemMenuButton(tacoBurgerItem) },
+            { new PremadeItemMenuButton(baconBurgerItem),         new PremadeItemMenuButton(doubleBaconBurgerItem),         new PremadeItemMenuButton(chickenBaconBurgerItem),        new PremadeItemMenuButton(sloppyBurgerItem) },
+            { new PremadeItemMenuButton(baconCheeseBurgerItem),   new PremadeItemMenuButton(doubleBaconCheeseBurgerItem),   new PremadeItemMenuButton(chickenBaconCheeseBurgerItem),  new PremadeItemMenuButton(slawBurgerItem) },
         };
 
         Menu burgerMenu = new("Burgers", burgerMenuItems, 4, 4);
@@ -96,26 +102,47 @@ public class OrderMenuManager {
 
         // Chicken Menu
 
-
         MenuButton?[,] chickenMenuItems = {
-            { new DbMenuButton(chickenBurgerItem, 9),             },
-            { new DbMenuButton(chickenCheeseBurgerItem, 10),       },
-            { new DbMenuButton(chickenBaconBurgerItem, 11),        },
-            { new DbMenuButton(chickenBaconCheeseBurgerItem, 12),  },
+            { new PremadeItemMenuButton(chickenBurgerItem),             new PremadeItemMenuButton(chickenNuggets4), },
+            { new PremadeItemMenuButton(chickenCheeseBurgerItem),       new PremadeItemMenuButton(chickenNuggets6), },
+            { new PremadeItemMenuButton(chickenBaconBurgerItem),        new PremadeItemMenuButton(chickenNuggets9), },
+            { new PremadeItemMenuButton(chickenBaconCheeseBurgerItem),  new PremadeItemMenuButton(chickenNuggets20), },
         };
 
         menuManager.CreateMenu("Chicken", chickenMenuItems, 4, 4);
 
-        // eeb
+        // Drinks Menu
 
-        var glutenItem = new OrderListItem("Gluten Free", 1000000M);
-        var burbgereItem = new OrderListItem("burbgere", 5.99M, [glutenItem]);
-
-        MenuButton?[,] eebMenuItems = {
-            { new EbbMenuButton(burbgereItem, fontSize: 75),             },
+        MenuButton?[,] drinkMenuItems = {
+            { new PremadeItemMenuButton(chickenBurgerItem),            },
+            { new PremadeItemMenuButton(chickenCheeseBurgerItem),      },
+            { new PremadeItemMenuButton(chickenBaconBurgerItem),       },
+            { new PremadeItemMenuButton(chickenBaconCheeseBurgerItem), },
         };
 
-        menuManager.CreateMenu("menu but nyo french", eebMenuItems);
+        menuManager.CreateMenu("Drinks", drinkMenuItems, 4, 4);
+
+        // Sides Menu
+
+        MenuButton?[,] sidesMenuItems = {
+            { new PremadeItemMenuButton(chickenBurgerItem),            },
+            { new PremadeItemMenuButton(chickenCheeseBurgerItem),      },
+            { new PremadeItemMenuButton(chickenBaconBurgerItem),       },
+            { new PremadeItemMenuButton(chickenBaconCheeseBurgerItem), },
+        };
+
+        menuManager.CreateMenu("Sides", sidesMenuItems, 4, 4);
+
+        // eeb
+
+        // var glutenItem = new OrderListItem("Gluten Free", 1000000M);
+        // var burbgereItem = new OrderListItem("burbgere", 5.99M, [glutenItem]);
+
+        // MenuButton?[,] eebMenuItems = {
+        //     { new EbbMenuButton(burbgereItem, fontSize: 75),             },
+        // };
+
+        // menuManager.CreateMenu("menu but nyo french", eebMenuItems);
 
         return menuManager;
     }
@@ -195,6 +222,10 @@ public class OrderMenuManager {
     {
         MenuViewManager.ShowView(PaymentView);
         OnShowPaymentScreen?.Invoke();
+    }
+
+    public void ShowKeypadScreen() {
+        MenuViewManager.ShowView(KeypadView);
     }
 
     void SetItemButton(int row, int column, MenuButton item)

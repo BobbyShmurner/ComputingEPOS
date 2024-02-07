@@ -28,17 +28,17 @@ public class DbMenuButton : MenuButton
 
     protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu)
     {
-        Task.Run(async () => {
-            while (menu.OrderManager.CurrentOrder == null) Thread.Sleep(100);
-            var returnedOrderItem = await OrderItems.Create(menu.OrderManager.CurrentOrder!.OrderID, StockID, 1, Item.Price);
-            var itemClone = Item.Clone();
-
-            itemClone.OrderItem = returnedOrderItem;
-
-            menu.OrderManager.Menu.Dispatcher.Invoke(() => {
-                var view = menu.OrderManager.AddOrderItem(itemClone);
-                menu.OrderManager.SelectItem(view);
-            });
-        });
+        // Task.Run(async () => {
+        //     while (menu.OrderManager.CurrentOrder == null) Thread.Sleep(100);
+        //     var returnedOrderItem = await OrderItems.Create(menu.OrderManager.CurrentOrder!.OrderID, StockID, 1, Item.Price);
+        //     var itemClone = Item.Clone();
+        // 
+        //     itemClone.OrderItem = returnedOrderItem;
+        // 
+        //     var view = await menu.OrderManager.AddOrderItem(itemClone);
+        //     menu.OrderManager.Menu.Dispatcher.Invoke(() => {
+        //         menu.OrderManager.SelectItem(view);
+        //     });
+        // });
     }
 }
