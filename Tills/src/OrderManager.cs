@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,8 +38,6 @@ public static class CheckoutTypeExtensions
 }
 
 public class OrderManager : INotifyPropertyChanged {
-
-
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action<OrderListItemView?>? OnSelectionChanged;
 
@@ -55,7 +54,7 @@ public class OrderManager : INotifyPropertyChanged {
         private set
         {
             m_IsItemSelected = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsItemSelected)));
+            UIDispatcher.Enqueue(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsItemSelected))));
         }
     }
 
@@ -66,7 +65,7 @@ public class OrderManager : INotifyPropertyChanged {
         private set
         {
             m_IsOrderLocked = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOrderLocked)));
+            UIDispatcher.Enqueue(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOrderLocked))));
         }
     }
 
@@ -76,9 +75,12 @@ public class OrderManager : INotifyPropertyChanged {
         set
         {
             m_Total = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Total)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SubTotal)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Tax)));
+
+            UIDispatcher.Enqueue(() => {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Total)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SubTotal)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Tax)));
+            });
         }
     }
 
@@ -89,8 +91,11 @@ public class OrderManager : INotifyPropertyChanged {
         set
         {
             m_AmountPaid = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AmountPaid)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Outstanding)));
+
+            UIDispatcher.Enqueue(() => {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AmountPaid)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Outstanding)));
+            });
         }
     }
 
@@ -103,8 +108,12 @@ public class OrderManager : INotifyPropertyChanged {
         set
         {
             m_CheckoutType = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutType)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutTypePretty)));
+
+            UIDispatcher.Enqueue(() =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutType)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutTypePretty)));
+            });
         }
     }
 
@@ -122,7 +131,7 @@ public class OrderManager : INotifyPropertyChanged {
         set
         {
             m_CurrentOrder = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber)));
+            UIDispatcher.Enqueue(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber))));
         }
     }
 
@@ -153,24 +162,28 @@ public class OrderManager : INotifyPropertyChanged {
             }
         }
 
-        await Menu.Dispatcher.BeginInvoke(() =>
-        {
-            OrderMenuManager.ShowFirstMenu();
-            UnlockOrder();
-        });
+        OrderMenuManager.ShowFirstMenu();
+        UnlockOrder();
     }
 
     public async Task<OrderListItemView> AddOrderItem(OrderListItem item, OrderListItemView? parent = null, int? index = null) {
         var itemClone = item.Clone();
 
         if (item.StockID != null) {
-            var returnedOrderItem = await OrderItems.Create(CurrentOrder!.OrderID, item.StockID.Value, 1, item.Price);
-            itemClone.OrderItem = returnedOrderItem;
+            try
+            {
+                var returnedOrderItem = await OrderItems.Create(CurrentOrder!.OrderID, item.StockID.Value, 1, item.Price);
+                itemClone.OrderItem = returnedOrderItem;
+            } catch (HttpRequestException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                throw;
+            }
         }
 
         item = itemClone;
 
-        OrderListItemView view = await OrderListItemView.CreateAsync(this, Menu, item, parent, index);
+        OrderListItemView view = new OrderListItemView(this, Menu, item, parent, index);
         Views[item] = view;
 
         if (item.Price.HasValue) Total += item.Price.Value;
@@ -181,12 +194,17 @@ public class OrderManager : INotifyPropertyChanged {
             foreach (var child in view.Item.Children)
                 await AddOrderItem(child, view);
         } catch {
-            await RemoveOrderItem(view, true);
+
+            // Keep trying to remove this item. If it fails more than 10 times, just exit
+            for (int i = 0; i < 10; i++) {
+                try { await RemoveOrderItem(view, true); }
+                catch { Thread.Sleep(100); }
+            }
+
             throw;
         }
 
-        await Menu.Dispatcher.BeginInvoke(() => SelectItem(view));
-
+        SelectItem(view);
         return view;
     }
 
@@ -234,26 +252,35 @@ public class OrderManager : INotifyPropertyChanged {
         return null;
     }
 
-    public async void RemoveSelectedOrderItem(bool removeFromDB) {
+    public async Task RemoveSelectedOrderItem(bool removeFromDB) {
         if (Selected == null) return;
         OrderListItemView? nextSelection = GetNextOrderItemForSelection(Selected);
 
         await RemoveOrderItem(Selected, removeFromDB);
-        await Menu.Dispatcher.BeginInvoke(() => SelectItem(nextSelection));
+        SelectItem(nextSelection);
     }
 
     public async Task RemoveOrderItem(OrderListItemView view, bool removeFromDB)
     {
         if (removeFromDB && view.Item.OrderItem != null)
-            await OrderItems.Delete(view.Item.OrderItem);
 
-        await Menu.Dispatcher.BeginInvoke(() =>
-        {
-            if (view.Parent == null) RootItems.Remove(view);
-            if (view.Price.HasValue) Total -= view.Price.Value;
-        });
+            try
+            {
+                await OrderItems.Delete(view.Item.OrderItem);
+            } catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+                throw;
+            }
 
-        await view.Remove(removeFromDB);
+        if (view.Parent == null) RootItems.Remove(view);
+        if (view.Price.HasValue) Total -= view.Price.Value;
+
+        while (view.Children.Count > 0)
+            await RemoveOrderItem(view.Children[0], removeFromDB);
+
+        if (Selected == view) DeselectItem();
+        view.Remove();
     }
 
     public async Task DeleteAllItems(bool removeFromDB)
@@ -269,51 +296,43 @@ public class OrderManager : INotifyPropertyChanged {
         if (fireEvent) OnSelectionChanged?.Invoke(null);
     }
 
-    public void CheckoutOrder(CheckoutType checkoutType) {
+    public async Task CheckoutOrder(CheckoutType checkoutType) {
         LockOrder();
         CheckoutType = checkoutType;
 
-        Task.Run(async () =>
-        {
-            await Orders.FinaliseOrder(CurrentOrder);
-            await FetchAmountPaid();
-            await Menu.Dispatcher.BeginInvoke(() =>
-            {
-                OrderMenuManager.ShowPaymentScreen();
-            });
-        });
+        await Orders.FinaliseOrder(CurrentOrder);
+        await FetchAmountPaid();
+        OrderMenuManager.ShowPaymentScreen();
     }
 
     public async Task FetchAmountPaid() =>
         AmountPaid = (await Orders.GetAmountPaid(CurrentOrder)).Value;
 
-    public void PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special)
+    public async Task PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special)
     {
-        Task.Run(async () => {
-                switch (special) {
-                case TransactionButton.SpecialFunctions.Remaning:
-                    amount = Outstanding;
-                    break;
-                case TransactionButton.SpecialFunctions.RoundUp:
-                    amount = Math.Ceiling(Outstanding);
-                    break;
-                case TransactionButton.SpecialFunctions.Specific:
-                    amount = await GetAmountKeypad();
-                    Trace.WriteLine($"Got amount: £{amount}");
-                    break;
-                default:
-                    if (amount == null) throw new ArgumentNullException("amount");
-                    break;
-            }
+        switch (special) {
+            case TransactionButton.SpecialFunctions.Remaning:
+                amount = Outstanding;
+                break;
+            case TransactionButton.SpecialFunctions.RoundUp:
+                amount = Math.Ceiling(Outstanding);
+                break;
+            case TransactionButton.SpecialFunctions.Specific:
+                amount = await GetAmountKeypad();
+                Trace.WriteLine($"Got amount: £{amount}");
+                break;
+            default:
+                if (amount == null) throw new ArgumentNullException("amount");
+                break;
+        }
         
-            await PayForOrder_Internal(amount.Value, paymentMethod);
+        await PayForOrder_Internal(amount.Value, paymentMethod);
 
-            if (Outstanding <= 0) {
-                if (Outstanding < 0) await HandleChange();
-                await CloseCheck();
-                await NextOrder();
-            }
-        });
+        if (Outstanding <= 0) {
+            if (Outstanding < 0) await HandleChange();
+            await CloseCheck();
+            await NextOrder();
+        }
     }
 
     async Task<decimal> GetAmountKeypad() {
@@ -321,27 +340,29 @@ public class OrderManager : INotifyPropertyChanged {
 
         EventHandler action = (_, _) => waitingForConfirmation = false;
 
-        await Menu.Dispatcher.BeginInvoke(() =>
-        {
+        UIDispatcher.Enqueue(() => {
             Menu.PaymentKeypad.Confirm += action;
             Menu.PaymentKeypad.ClearVaule();
 
             OrderMenuManager.ShowKeypadScreen();
         });
 
+        await UIDispatcher.UpdateUIAsync();
+
         while (waitingForConfirmation) {
             Thread.Sleep(100);
         }
 
         int value = 0;
-        await Menu.Dispatcher.BeginInvoke(() =>
-        {
+
+        UIDispatcher.Enqueue(() => {
             value = Menu.PaymentKeypad.Value;
             Menu.PaymentKeypad.Confirm -= action;
 
             OrderMenuManager.ShowPaymentScreen();
         });
 
+        await UIDispatcher.UpdateUIAsync();
         return value / 100M;
     }
 
@@ -349,7 +370,7 @@ public class OrderManager : INotifyPropertyChanged {
         decimal change = -Outstanding;
 
         await PayForOrder_Internal(Outstanding, PaymentMethods.Cash);
-        await Menu.Dispatcher.BeginInvoke(() => Modal.Instance.Show($"Change: £{change}"));
+        UIDispatcher.Enqueue(() => Modal.Instance.Show($"Change: £{change}"));
     }
 
     async Task CloseCheck() =>

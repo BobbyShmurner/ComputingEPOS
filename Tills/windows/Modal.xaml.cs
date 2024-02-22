@@ -57,11 +57,11 @@ public partial class Modal : UserControl
         sb.Append("\n\nReason: ");
         sb.Append(reason ?? "Unknown");
 
-        await Dispatcher.BeginInvoke(() => Show(sb.ToString()));
+        UIDispatcher.Enqueue(() => Show(sb.ToString()));
+        await UIDispatcher.UpdateUIAsync();
     }
 
-        public void Show(string message, bool hideOnClick = true)
-    {
+    public void Show(string message, bool hideOnClick = true) {
         Message = message;
         HideOnClick = hideOnClick;
         Visible = true;

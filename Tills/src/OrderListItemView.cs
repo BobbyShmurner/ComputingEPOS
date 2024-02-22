@@ -33,8 +33,18 @@ public class OrderListItemView {
     {
         get
         {
-            if (Parent == null) return Menu.DP_OrderItems.Children.IndexOf(border);
-            else return Parent.Children.IndexOf(this);
+            if (Parent == null) {
+                int? index = null;
+
+                UIDispatcher.Enqueue(() =>
+                    index = Menu.DP_OrderItems.Children.IndexOf(border)
+                );
+
+                UIDispatcher.UpdateUI();
+                return index!.Value;
+            }
+            
+            return Parent.Children.IndexOf(this);
         }
     }
     public OrderListItem Item { get; private set; }
@@ -47,7 +57,7 @@ public class OrderListItemView {
         set
         {
             m_Text = value;
-            textBlock.Text = $"- {m_Text}";
+            UIDispatcher.Enqueue(() => textBlock.Text = $"- {m_Text}");
         }
     }
 
@@ -56,7 +66,7 @@ public class OrderListItemView {
         get => m_Price;
         set {
             m_Price = value;
-            priceText.Text = m_Price != null ? $"£{m_Price:0.00}" : "";
+            UIDispatcher.Enqueue(() => priceText.Text = m_Price != null ? $"£{m_Price:0.00}" : "");
         }
     }
 
@@ -69,17 +79,22 @@ public class OrderListItemView {
         set
         {
             m_Selected = value;
-            if (m_Selected)
+
+            UIDispatcher.Enqueue(() =>
             {
-                border.Background = Brushes.LightGray;
-                border.BorderThickness = new Thickness(0, 1, 0, 1);
-                stackPanel.Margin = new Thickness(0, -1, 0, -1);
-            } else
-            {
-                border.Background = Brushes.Transparent;
-                border.BorderThickness = new Thickness(0);
-                stackPanel.Margin = new Thickness(0);
-            }
+                if (m_Selected)
+                {
+                    border.Background = Brushes.LightGray;
+                    border.BorderThickness = new Thickness(0, 1, 0, 1);
+                    stackPanel.Margin = new Thickness(0, -1, 0, -1);
+                }
+                else
+                {
+                    border.Background = Brushes.Transparent;
+                    border.BorderThickness = new Thickness(0);
+                    stackPanel.Margin = new Thickness(0);
+                }
+            });
         }
     }
 
@@ -88,16 +103,6 @@ public class OrderListItemView {
     TextBlock textBlock;
     TextBlock priceText;
     Border border;
-
-    public async static Task<OrderListItemView> CreateAsync(OrderManager manager, MenuView menu, OrderListItem item, OrderListItemView? parent = null, int? index = null)
-    {
-        OrderListItemView? listItemView = null;
-        await manager.Menu.Dispatcher.BeginInvoke(() =>
-            listItemView = new OrderListItemView(manager, menu, item, parent, index)
-        );
-
-        return listItemView!;
-    }
 
     public void BringIntoView() =>
         border.BringIntoView();
@@ -113,60 +118,53 @@ public class OrderListItemView {
             Parent.Children.Insert(index ?? Parent.Children.Count, this);
         }
 
-        border = new Border();
-        border.BorderBrush = Brushes.DimGray;
-        DockPanel.SetDock(border, Dock.Top);
+        UIDispatcher.Enqueue(() =>
+        {
+            border = new Border();
+            border.BorderBrush = Brushes.DimGray;
+            DockPanel.SetDock(border, Dock.Top);
 
-        stackPanel = new StackPanel();
-        border.Child = stackPanel;
+            stackPanel = new StackPanel();
+            border.Child = stackPanel;
 
-        dockPanel = new DockPanel();
-        dockPanel.MouseDown += OnMouseDown;
-        stackPanel.Children.Add(dockPanel);
+            dockPanel = new DockPanel();
+            dockPanel.MouseDown += OnMouseDown;
+            stackPanel.Children.Add(dockPanel);
 
-        priceText = new TextBlock();
-        DockPanel.SetDock(priceText, Dock.Right);
-        priceText.Padding = new Thickness(PRICE_GAP, 0, BASE_INDENT, 0);
-        dockPanel.Children.Add(priceText);
+            priceText = new TextBlock();
+            DockPanel.SetDock(priceText, Dock.Right);
+            priceText.Padding = new Thickness(PRICE_GAP, 0, BASE_INDENT, 0);
+            dockPanel.Children.Add(priceText);
 
-        textBlock = new TextBlock();
-        textBlock.Padding = new Thickness(Indent, 0, BASE_INDENT, 0);
-        dockPanel.Children.Add(this.textBlock);
+            textBlock = new TextBlock();
+            textBlock.Padding = new Thickness(Indent, 0, BASE_INDENT, 0);
+            dockPanel.Children.Add(this.textBlock);
 
-        m_Text = Item.Text; // Redundant, just gets rid of a warning
-        Text = Item.Text;
+            m_Text = Item.Text; // Redundant, just gets rid of a warning
+            Text = Item.Text;
 
-        Price = Item.Price;
-
-        if (Parent != null) Parent.stackPanel.Children.Insert(index != null ? index.Value + 1 : Parent.stackPanel.Children.Count, border);
-        else Menu.DP_OrderItems.Children.Insert(index ?? (Menu.DP_OrderItems.Children.Count - 1), border);
+            Price = Item.Price;
+        
+            if (Parent != null) Parent.stackPanel.Children.Insert(index != null ? index.Value + 1 : Parent.stackPanel.Children.Count, border);
+            else Menu.DP_OrderItems.Children.Insert(index ?? (Menu.DP_OrderItems.Children.Count - 1), border);
+        });
     }
 
     void OnMouseDown(object sender, MouseButtonEventArgs e)
     {
         if (!Selected) Manager.SelectItem(this);
         else Manager.DeselectItem();
+
+        UIDispatcher.UpdateUI();
     }
 
-    public async Task Remove(bool removeFromDB) {
-        while (Children.Count > 0)
-        {
-            await Manager.RemoveOrderItem(Children[0], removeFromDB);
-        }
+    public void Remove() {
+        Parent?.Children.Remove(this);
+        Parent?.Item.Children.Remove(Item);
 
-        await Menu.Dispatcher.BeginInvoke(() => {
-            if (Manager.Selected == this) Manager.DeselectItem();
-
-            if (Parent != null)
-            {
-                Parent.Children.Remove(this);
-                Parent.Item.Children.Remove(Item);
-                Parent.stackPanel.Children.Remove(border);
-            }
-            else
-            {
-                Menu.DP_OrderItems.Children.Remove(border);
-            }
+        UIDispatcher.Enqueue(() => {
+            if (Parent != null) Parent.stackPanel.Children.Remove(border);
+            else Menu.DP_OrderItems.Children.Remove(border);
         });
     }
 

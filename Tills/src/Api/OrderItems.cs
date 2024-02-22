@@ -33,14 +33,23 @@ public class OrderItems : Singleton<Client> {
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<OrderItem[]>())?[0];
         } catch (HttpRequestException ex) {
-            if (ex.StatusCode == HttpStatusCode.Forbidden)
-            {
+            if (ex.StatusCode != null)
                 await Modal.Instance.ShowError($"Failed to create order item!", response);
-            }
+
             throw;
         }
     }
 
-    public static async Task Delete(OrderItem item) =>
-        (await Client.HttpClient.DeleteAsync($"api/OrderItems/{item.OrderItemID}")).EnsureSuccessStatusCode();
+    public static async Task Delete(OrderItem item) {
+        var response = await Client.HttpClient.DeleteAsync($"api/OrderItems/{item.OrderItemID}");
+
+        try {
+            response.EnsureSuccessStatusCode();
+        } catch (HttpRequestException ex) {
+            if (ex.StatusCode != null)
+                await Modal.Instance.ShowError($"Failed to delete order item!", response);
+            
+            throw;
+        }
+    }
 }

@@ -37,11 +37,13 @@ public class OrderMenuManager {
         {
             m_Rows = value;
 
-            var RowDefinitions = MenuView.RowDefinitions;
-            RowDefinitions.Clear();
+            UIDispatcher.Enqueue(() => {
+                var RowDefinitions = MenuView.RowDefinitions;
+                RowDefinitions.Clear();
 
-            for (int i = 0; i < m_Rows; i++)
-                RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                for (int i = 0; i < m_Rows; i++)
+                    RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            });
         }
     }
 
@@ -53,11 +55,13 @@ public class OrderMenuManager {
         {
             m_Columns = value;
 
-            var ColumnDefinitions = MenuView.ColumnDefinitions;
-            ColumnDefinitions.Clear();
+            UIDispatcher.Enqueue(() => {
+                var ColumnDefinitions = MenuView.ColumnDefinitions;
+                ColumnDefinitions.Clear();
 
-            for (int i = 0; i < m_Columns; i++)
-                ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                for (int i = 0; i < m_Columns; i++)
+                    ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            });
         }
     }
 
@@ -183,6 +187,7 @@ public class OrderMenuManager {
         {
             ShowMenu(menu);
             OrderManager.UnlockOrder();
+            UIDispatcher.UpdateUI();
         };
 
         Menu.SP_MenuList.Children.Add(button);
@@ -190,29 +195,34 @@ public class OrderMenuManager {
 
     public void ShowMenu(Menu? menu)
     {
-        MenuViewManager.ShowView(MenuView);
-
-        Buttons.ForEach(b => MenuView.Children.Remove(b));
         CurrentMenu = menu;
-
         Rows = menu?.Rows ?? 0;
         Columns = menu?.Columns ?? 0;
 
-        if (menu == null) {
+        if (menu == null)
+        {
             OnMenuChanged?.Invoke(null);
             return;
         }
 
-        for (int row = 0; row < menu.Items.GetLength(0); row++) {
-            for (int column = 0; column < menu.Items.GetLength(1); column++) {
-                var item = menu.Items[row, column];
-                if (item == null) continue;
-
-                SetItemButton(row, column, item);
-            }
-        }
-
         OnMenuChanged?.Invoke(menu);
+
+        UIDispatcher.Enqueue(() => {
+            Buttons.ForEach(b => MenuView.Children.Remove(b));
+
+            for (int row = 0; row < menu.Items.GetLength(0); row++)
+            {
+                for (int column = 0; column < menu.Items.GetLength(1); column++)
+                {
+                    var item = menu.Items[row, column];
+                    if (item == null) continue;
+
+                    SetItemButton(row, column, item);
+                }
+            }
+
+            MenuViewManager.ShowView(MenuView);
+        });
     }
 
     public void ShowFirstMenu() =>
@@ -220,12 +230,14 @@ public class OrderMenuManager {
 
     public void ShowPaymentScreen()
     {
-        MenuViewManager.ShowView(PaymentView);
-        OnShowPaymentScreen?.Invoke();
+        UIDispatcher.Enqueue(() => {
+            MenuViewManager.ShowView(PaymentView);
+            OnShowPaymentScreen?.Invoke();
+        });
     }
 
     public void ShowKeypadScreen() {
-        MenuViewManager.ShowView(KeypadView);
+        UIDispatcher.Enqueue(() => MenuViewManager.ShowView(KeypadView));
     }
 
     void SetItemButton(int row, int column, MenuButton item)

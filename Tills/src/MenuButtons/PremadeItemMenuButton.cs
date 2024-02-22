@@ -26,7 +26,7 @@ public class PremadeItemMenuButton : MenuButton
     {
         Task.Run(async () => {
             var view = await menu.OrderManager.AddOrderItem(Item);
-            await menu.Dispatcher.BeginInvoke(() => menu.OrderManager.SelectItem(view));
+            await UIDispatcher.UpdateUIAsync();
         });
     }
 }
