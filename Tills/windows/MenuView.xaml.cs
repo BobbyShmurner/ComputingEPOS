@@ -31,8 +31,6 @@ public partial class MenuView : UserControl
 
         OrderMenuManager = OrderMenuManager.CreateTestMenus(this);
         OrderManager = new(this);
-
-        UIDispatcher.UpdateUI();
     }
 
     #region ShowScrollButtons Dependency Property

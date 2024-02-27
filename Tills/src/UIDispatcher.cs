@@ -12,8 +12,21 @@ public class UIDispatcher : Singleton<UIDispatcher> {
 
     Queue<Action> uiActions = new();
 
+    public static void DispatchSingle(Action action) =>
+        Instance.Window.Dispatcher.Invoke(action);
+
     public static void Enqueue(Action action) =>
         Instance.uiActions.Enqueue(action);
+
+    public static void EnqueueAndDispatch(Action action) {
+        Enqueue(action);
+        UpdateUI();
+    }
+
+    public static Task EnqueueAndDispatchAsync(Action action) {
+        Enqueue(action);
+        return UpdateUIAsync();
+    }
 
     public static void UpdateUI() {
         Instance.Window.Dispatcher.Invoke(() => {

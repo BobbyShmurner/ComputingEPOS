@@ -53,6 +53,7 @@ public class ViewManager
 
         ShowView(view.Name);
     }
+    
     public void ShowView(string viewName) {
         viewName = viewName.ToLower().Trim();
         var oldView = CurrentView;
