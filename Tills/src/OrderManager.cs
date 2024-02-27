@@ -134,29 +134,22 @@ public class OrderManager : INotifyPropertyChanged {
         }
     }
 
-    public OrderManager(MenuView menu)
-    {
+    public OrderManager(MenuView menu) {
         Menu = menu;
 
         OnSelectionChanged += (itemView) => IsItemSelected = itemView != null;
         OrderMenuManager.OnMenuChanged += menu => IsOrderLocked = menu != null;
-
-        Task.Run(NextOrder);
     }
 
     public async Task NextOrder()
     {
         await DeleteAllItems(false);
 
-        while (true)
-        {
-            try
-            {
+        while (true) {
+            try {
                 CurrentOrder = await Api.Orders.Create();
                 break;
-            }
-            catch
-            {
+            } catch {
                 continue;
             }
         }
@@ -281,6 +274,7 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     public async Task DeleteAllItems(bool removeFromDB) {
+        if (CurrentOrder == null) return;
         while (RootItems.Count > 0) await RemoveOrderItem(RootItems[0], removeFromDB);
     }
 

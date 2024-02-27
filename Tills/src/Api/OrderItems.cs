@@ -23,7 +23,7 @@ public class OrderItems : Singleton<Client> {
             Subtotal = subtotal ?? 0M,
         };
 
-        var response = await Client.HttpClient.PostAsync("api/OrderItems", new StringContent(
+        var response = await Client.PostAsync("api/OrderItems", new StringContent(
             $"[{JsonSerializer.Serialize(item)}]",
             Encoding.UTF8,
             "application/json"
@@ -41,8 +41,8 @@ public class OrderItems : Singleton<Client> {
     }
 
     public static async Task Delete(OrderItem item) {
-        var response = await Client.HttpClient.DeleteAsync($"api/OrderItems/{item.OrderItemID}");
-
+        var response = await Client.DeleteAsync($"api/OrderItems/{item.OrderItemID}");
+        
         try {
             response.EnsureSuccessStatusCode();
         } catch (HttpRequestException ex) {

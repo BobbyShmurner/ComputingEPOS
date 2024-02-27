@@ -22,84 +22,63 @@ namespace ComputingEPOS.Tills;
 /// Interaction logic for ConnectionScreen.xaml
 /// </summary>
 public partial class ConnectionScreen : UserControl {
-    public bool ConnectionUp { get; private set; } = true;
-    public MainWindow? Window { get; private set; }
+    public static ConnectionScreen Instance => MainWindow.Instance.ConnectionScreen;
+
+    public static bool ConnectionUp { get; private set; } = false;
 
     FrameworkElement? previousView;
-    DispatcherTimer retryTimer;
 
     public ConnectionScreen() {
         InitializeComponent();
-
-        retryTimer = new DispatcherTimer();
-        retryTimer.Interval = TimeSpan.FromSeconds(3);
-        retryTimer.Tick += (_, _) => Ping();
-
-        Api.Client.Instance.OnRequestException += OnRequestException;
     }
 
-    void OnRequestException(HttpRequestException e) {
-        Trace.WriteLine($"Http Error Message: {e.Message}");
-        Trace.WriteLine($"Http Error Code: {e.StatusCode}");
-        Trace.WriteLine($"Http Error Type: {e.InnerException?.GetType() ?? e.GetType()}");
-        if (e.StatusCode == null) SetConnectionDown();
+    public async Task EnsureConnected(bool setViewOnDown = true, bool setViewOnUp = true) {
+        if (ConnectionUp) return;
+        
+        while (!ConnectionUp) {
+            await Ping(setViewOnDown, setViewOnUp);
+            await Task.Delay(1000);
+        }
     }
 
-    void CacheWindow() {
-        if (Window != null) return;
+    public async Task Ping(bool setViewOnDown = true, bool setViewOnUp = true) {
+        try {
+            Trace.WriteLine("Ping!");
 
-        FrameworkElement? parent = this;
-        do parent = parent.Parent as FrameworkElement;
-        while (!parent!.GetType().IsAssignableTo(typeof(MainWindow)));
+            // Make sure to call `HttpClient.GetAsync` instead of `Client.GetAsync`
+            // To avoid the timeout exception being caught by the client
+            var response = await Api.Client.HttpClient.GetAsync("api/ping");
+            response.EnsureSuccessStatusCode();
 
-        Window = (MainWindow)parent;
+            string msg = await response.Content.ReadAsStringAsync();
+            Trace.WriteLine($"Got Response: {msg}");
+
+            if (!ConnectionUp) SetConnectionUp(setViewOnUp);
+        } catch {
+            SetConnectionDown(setViewOnDown);
+        }
     }
 
-    public void Ping() {
-        Task.Run(async () => {
-            try {
-                Trace.WriteLine("Ping!");
-                var response = await Api.Client.HttpClient.GetAsync("api/ping");
-                response.EnsureSuccessStatusCode();
-
-                string msg = await response.Content.ReadAsStringAsync();
-                Trace.WriteLine($"Got Response: {msg}");
-
-                if (!ConnectionUp) SetConnectionUp();
-            } catch {
-                SetConnectionDown();
-                throw;
-            }
-        });
-    }
-
-    public void SetConnectionDown() {
+    public void SetConnectionDown(bool updateView) {
         ConnectionUp = false;
-        CacheWindow();
-
-        if (Window!.RootViewManager.CurrentView != this)
-            previousView = Window.RootViewManager.CurrentView;
+        if (!updateView) return;
 
         Dispatcher.Invoke(() => {
-            Window.RootViewManager.ShowView(this);
-            Window.Modal.Show("Connection to the Tills Server Lost!\n:(\n\nRetrying...", false);
-        });
+            if (MainWindow.Instance.RootViewManager.CurrentView != this)
+                previousView = MainWindow.Instance.RootViewManager.CurrentView;
 
-        StartRetryTimer();
+            MainWindow.Instance.RootViewManager.ShowView(this);
+            MainWindow.Instance.Modal.Show("Connection to the Tills Server Lost!\n\nRetrying...", false);
+        });
     }
 
-    void SetConnectionUp() {
+    void SetConnectionUp(bool updateView) {
         ConnectionUp = true;
-        CacheWindow();
-        Dispatcher.Invoke(() => {
-            Window!.Modal.Hide();
-            Window!.RootViewManager.ShowView(previousView);
-        });
-        retryTimer.Stop();
-    }
 
-    void StartRetryTimer() {
-        if (retryTimer.IsEnabled) return;
-        retryTimer.Start();
+        if (!updateView) return;
+        Dispatcher.Invoke(() => {
+            MainWindow.Instance.Modal.Hide();
+            MainWindow.Instance.RootViewManager.ShowView(previousView);
+        });
     }
 }

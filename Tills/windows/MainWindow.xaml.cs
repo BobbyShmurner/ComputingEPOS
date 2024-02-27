@@ -15,8 +15,7 @@ using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Windows.Threading;
 
-namespace ComputingEPOS.Tills
-{
+namespace ComputingEPOS.Tills {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -36,12 +35,23 @@ namespace ComputingEPOS.Tills
 
             Time = new TimeDisplay();
             this.DataContext = this;
+            this.Width = 1200;
+            this.Height = 900;
 
             RootViewManager = new(Grid_MainViewContainer);
 
-            this.Width = 1200;
-            this.Height = 900;
-            ConnectionScreen.Ping();
+            RootViewManager.ShowView(ConnectionScreen);
+            Modal.Instance.Show("Connecting...", false);
+
+            Task.Run(async () => {
+                await ConnectionScreen.EnsureConnected(false);
+                await MenuView.OrderManager.NextOrder();
+
+                await UIDispatcher.EnqueueAndDispatchAsync(() => {
+                    Modal.Instance.Hide();
+                    RootViewManager.ShowView(MenuView);
+                });
+            });
         }
 
         #region ScaleValue Dependency Property

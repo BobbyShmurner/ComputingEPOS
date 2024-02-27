@@ -19,7 +19,7 @@ public class Orders : Singleton<Client> {
             EmployeeID = 1,
         };
 
-        var response = await Client.HttpClient.PostAsync("api/Orders", new StringContent(
+        var response = await Client.PostAsync("api/Orders", new StringContent(
             JsonSerializer.Serialize(item),
             Encoding.UTF8,
             "application/json"
@@ -30,11 +30,11 @@ public class Orders : Singleton<Client> {
     }
 
     public static async Task FinaliseOrder(Order order) =>
-        (await Client.HttpClient.PostAsync($"api/Orders/{order.OrderID}/Finalise", null)).EnsureSuccessStatusCode();
+        (await Client.PostAsync($"api/Orders/{order.OrderID}/Finalise", null)).EnsureSuccessStatusCode();
 
     public static async Task CloseCheck(Order order, bool forceClose = false)
     {
-        var response = await Client.HttpClient.PostAsync($"api/Orders/{order.OrderID}/CloseCheck?force={forceClose}", null);
+        var response = await Client.PostAsync($"api/Orders/{order.OrderID}/CloseCheck?force={forceClose}", null);
 
         try
         {
@@ -52,5 +52,5 @@ public class Orders : Singleton<Client> {
     }
 
     public static async Task<decimal?> GetAmountPaid(Order order) =>
-        await (await Client.HttpClient.GetAsync($"api/Orders/{order.OrderID}/AmountPaid")).Content.ReadFromJsonAsync<decimal>();
+        await (await Client.GetAsync($"api/Orders/{order.OrderID}/AmountPaid")).Content.ReadFromJsonAsync<decimal>();
 }
