@@ -1,0 +1,1 @@
+dotnet run --project "$PSScriptRoot/Tills/ComputingEPOS.Tills.csproj"
