@@ -27,7 +27,7 @@ public class DbMenuButton : MenuButton
 
     protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu)
     {
-        // Task.Run(async () => {
+        // UIDispatcher.EnqueueUIAction(async () => {
         //     while (menu.OrderManager.CurrentOrder == null) Thread.Sleep(100);
         //     var returnedOrderItem = await OrderItems.Create(menu.OrderManager.CurrentOrder!.OrderID, StockID, 1, Item.Price);
         //     var itemClone = Item.Clone();

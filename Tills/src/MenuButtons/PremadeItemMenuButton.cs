@@ -24,7 +24,7 @@ public class PremadeItemMenuButton : MenuButton
 
     protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu)
     {
-        Task.Run(async () => {
+        UIDispatcher.EnqueueUIAction(async () => {
             var view = await menu.OrderManager.AddOrderItem(Item);
             await UIDispatcher.UpdateUIAsync();
         });

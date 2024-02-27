@@ -74,51 +74,48 @@ public partial class MenuView : UserControl
 
     #endregion
 
-    private void Orders_SV_Up(object sender, RoutedEventArgs e) => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset - SCROLL_AMOUNT);
-    private void Orders_SV_Down(object sender, RoutedEventArgs e) => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset + SCROLL_AMOUNT);
+    private void Orders_SV_Up(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset - SCROLL_AMOUNT));
+    private void Orders_SV_Down(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => SV_Orders.ScrollToVerticalOffset(SV_Orders.VerticalOffset + SCROLL_AMOUNT));
 
-    private void Button_Clear(object sender, RoutedEventArgs e) => Task.Run(async() => {
+    private void Button_Clear(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async() => {
         try { await OrderManager.DeleteAllItems(true); }
         finally { await UIDispatcher.UpdateUIAsync(); }
     });
 
-    private void DeleteButton_Click(object sender, RoutedEventArgs e) => Task.Run(async () => {
+    private void DeleteButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         try { await OrderManager.RemoveSelectedOrderItem(true); }
         finally { await UIDispatcher.UpdateUIAsync(); }
     });
 
-    private void ModifyButton_Click(object sender, RoutedEventArgs e) { }
+    private void ModifyButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => { });
 
-    private void SitInButton_Click(object sender, RoutedEventArgs e) => Task.Run(async () => {
+    private void SitInButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         try { await OrderManager.CheckoutOrder(CheckoutType.SitIn); }
         finally { await UIDispatcher.UpdateUIAsync(); }
     });
 
-    private void TakeAwayButton_Click(object sender, RoutedEventArgs e) => Task.Run(async () => {
+    private void TakeAwayButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         try { await OrderManager.CheckoutOrder(CheckoutType.TakeAway); }
         finally { await UIDispatcher.UpdateUIAsync(); }
     });
 
-    private void FunctionsButton_Click(object sender, RoutedEventArgs e) { }
+    private void FunctionsButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => { });
 
-    private void OrderItemsEmptyFillButton_Click(object sender, RoutedEventArgs e) {
+    private void OrderItemsEmptyFillButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => {
         try { OrderManager.DeselectItem(); }
         finally { UIDispatcher.UpdateUI(); }
-    }
+    });
 
-    private void TransactionButton_Click(object sender, RoutedEventArgs e)
-    {
+    private void TransactionButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         decimal? amount = TransactionButton.GetAmount((UIElement)sender);
         Transaction.PaymentMethods paymentMethod = TransactionButton.GetPaymentMethod((UIElement)sender);
         TransactionButton.SpecialFunctions specialFunction = TransactionButton.GetSpecial((UIElement)sender);
 
-        Task.Run(async () => {
-            try { await OrderManager.PayForOrder(amount, paymentMethod, specialFunction); }
-            finally { await UIDispatcher.UpdateUIAsync(); }
-        });
-    }
+        try { await OrderManager.PayForOrder(amount, paymentMethod, specialFunction); }
+        finally { await UIDispatcher.UpdateUIAsync(); }
+    });
 
-    private void ComboButton_Click(object sender, RoutedEventArgs e) => Task.Run(async () => {
+    private void ComboButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         try { await OrderManager.MakeSelectedCombo(); }
         finally { await UIDispatcher.UpdateUIAsync(); }
     });

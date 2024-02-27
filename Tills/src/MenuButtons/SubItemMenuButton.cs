@@ -26,7 +26,7 @@ public class SubItemMenuButton : PremadeItemMenuButton {
     protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu) {
         var parent = menu.OrderManager.Selected?.RootParent ?? menu.OrderManager.Selected;
         
-        Task.Run(async () => {
+        UIDispatcher.EnqueueUIAction(async () => {
             var view = await menu.OrderManager.AddOrderItem(Item, parent);
             menu.OrderManager.SelectItem(parent);
             await UIDispatcher.UpdateUIAsync();

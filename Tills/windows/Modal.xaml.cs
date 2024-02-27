@@ -57,7 +57,7 @@ public partial class Modal : UserControl
         sb.Append("\n\nReason: ");
         sb.Append(reason ?? "Unknown");
 
-        UIDispatcher.Enqueue(() => Show(sb.ToString()));
+        UIDispatcher.EnqueueUIUpdate(() => Show(sb.ToString()));
         await UIDispatcher.UpdateUIAsync();
     }
 

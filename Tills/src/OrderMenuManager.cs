@@ -37,7 +37,7 @@ public class OrderMenuManager {
         {
             m_Rows = value;
 
-            UIDispatcher.Enqueue(() => {
+            UIDispatcher.EnqueueUIUpdate(() => {
                 var RowDefinitions = MenuView.RowDefinitions;
                 RowDefinitions.Clear();
 
@@ -55,7 +55,7 @@ public class OrderMenuManager {
         {
             m_Columns = value;
 
-            UIDispatcher.Enqueue(() => {
+            UIDispatcher.EnqueueUIUpdate(() => {
                 var ColumnDefinitions = MenuView.ColumnDefinitions;
                 ColumnDefinitions.Clear();
 
@@ -207,7 +207,7 @@ public class OrderMenuManager {
 
         OnMenuChanged?.Invoke(menu);
 
-        UIDispatcher.Enqueue(() => {
+        UIDispatcher.EnqueueUIUpdate(() => {
             Buttons.ForEach(b => MenuView.Children.Remove(b));
 
             for (int row = 0; row < menu.Items.GetLength(0); row++)
@@ -230,14 +230,14 @@ public class OrderMenuManager {
 
     public void ShowPaymentScreen()
     {
-        UIDispatcher.Enqueue(() => {
+        UIDispatcher.EnqueueUIUpdate(() => {
             MenuViewManager.ShowView(PaymentView);
             OnShowPaymentScreen?.Invoke();
         });
     }
 
     public void ShowKeypadScreen() {
-        UIDispatcher.Enqueue(() => MenuViewManager.ShowView(KeypadView));
+        UIDispatcher.EnqueueUIUpdate(() => MenuViewManager.ShowView(KeypadView));
     }
 
     void SetItemButton(int row, int column, MenuButton item)

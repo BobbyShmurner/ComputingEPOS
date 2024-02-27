@@ -47,7 +47,7 @@ namespace ComputingEPOS.Tills {
                 await ConnectionScreen.EnsureConnected(false);
                 await MenuView.OrderManager.NextOrder();
 
-                await UIDispatcher.EnqueueAndDispatchAsync(() => {
+                await UIDispatcher.EnqueueAndDispatchUIUpdateAsync(() => {
                     Modal.Instance.Hide();
                     RootViewManager.ShowView(MenuView);
                 });
