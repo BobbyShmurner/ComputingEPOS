@@ -1,5 +1,4 @@
 ﻿using ComputingEPOS.Models;
-using ComputingEPOS.Tills.Api;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -153,7 +152,7 @@ public class OrderManager : INotifyPropertyChanged {
         {
             try
             {
-                CurrentOrder = await Orders.Create();
+                CurrentOrder = await Api.Orders.Create();
                 break;
             }
             catch
@@ -172,7 +171,7 @@ public class OrderManager : INotifyPropertyChanged {
         if (item.StockID != null) {
             try
             {
-                var returnedOrderItem = await OrderItems.Create(CurrentOrder!.OrderID, item.StockID.Value, 1, item.Price);
+                var returnedOrderItem = await Api.OrderItems.Create(CurrentOrder!.OrderID, item.StockID.Value, 1, item.Price);
                 itemClone.OrderItem = returnedOrderItem;
             } catch (HttpRequestException ex)
             {
@@ -264,14 +263,12 @@ public class OrderManager : INotifyPropertyChanged {
     {
         if (removeFromDB && view.Item.OrderItem != null)
 
-            try
-            {
-                await OrderItems.Delete(view.Item.OrderItem);
-            } catch (Exception ex)
-            {
-                Trace.WriteLine(ex);
-                throw;
-            }
+        try {
+            await Api.OrderItems.Delete(view.Item.OrderItem);
+        } catch (Exception ex) {
+            Trace.WriteLine(ex);
+            throw;
+        }
 
         if (view.Parent == null) RootItems.Remove(view);
         if (view.Price.HasValue) Total -= view.Price.Value;
@@ -300,13 +297,13 @@ public class OrderManager : INotifyPropertyChanged {
         LockOrder();
         CheckoutType = checkoutType;
 
-        await Orders.FinaliseOrder(CurrentOrder);
+        await Api.Orders.FinaliseOrder(CurrentOrder);
         await FetchAmountPaid();
         OrderMenuManager.ShowPaymentScreen();
     }
 
     public async Task FetchAmountPaid() =>
-        AmountPaid = (await Orders.GetAmountPaid(CurrentOrder)).Value;
+        AmountPaid = (await Api.Orders.GetAmountPaid(CurrentOrder)).Value;
 
     public async Task PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special)
     {
@@ -374,11 +371,11 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     async Task CloseCheck() =>
-        await Orders.CloseCheck(CurrentOrder, false);
+        await Api.Orders.CloseCheck(CurrentOrder, false);
 
     async Task PayForOrder_Internal(decimal amount, PaymentMethods paymentMethod)
     {
-        await Transactions.Create(CurrentOrder, amount, paymentMethod);
+        await Api.Transactions.Create(CurrentOrder, amount, paymentMethod);
         await FetchAmountPaid();
     }
 

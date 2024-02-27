@@ -10,7 +10,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 using ComputingEPOS.Models;
-using ComputingEPOS.Tills.Api;
 
 namespace ComputingEPOS.Tills;
 
