@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
-using ComputingEPOS.Tills.Api;
 using System.Windows.Threading;
 
 namespace ComputingEPOS.Tills

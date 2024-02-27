@@ -15,7 +15,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using ComputingEPOS.Tills.Api;
 
 namespace ComputingEPOS.Tills;
 
@@ -36,7 +35,7 @@ public partial class ConnectionScreen : UserControl {
         retryTimer.Interval = TimeSpan.FromSeconds(3);
         retryTimer.Tick += (_, _) => Ping();
 
-        Client.Instance.OnRequestException += OnRequestException;
+        Api.Client.Instance.OnRequestException += OnRequestException;
     }
 
     void OnRequestException(HttpRequestException e) {
@@ -60,7 +59,7 @@ public partial class ConnectionScreen : UserControl {
         Task.Run(async () => {
             try {
                 Trace.WriteLine("Ping!");
-                var response = await Client.HttpClient.GetAsync("api/ping");
+                var response = await Api.Client.HttpClient.GetAsync("api/ping");
                 response.EnsureSuccessStatusCode();
 
                 string msg = await response.Content.ReadAsStringAsync();

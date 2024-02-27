@@ -1,5 +1,4 @@
 ﻿using ComputingEPOS.Models;
-using ComputingEPOS.Tills.Api;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
