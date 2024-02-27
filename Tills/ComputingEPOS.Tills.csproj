@@ -5,6 +5,7 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <NoWarn>CS0067</NoWarn>
 	<LangVersion>preview</LangVersion>
   </PropertyGroup>
 
@@ -19,5 +20,7 @@
   <ItemGroup>
     <Folder Include="src\Interfaces\" />
   </ItemGroup>
+
+
 
 </Project>

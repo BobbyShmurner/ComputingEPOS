@@ -20,16 +20,17 @@ namespace ComputingEPOS.Tills
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
-    {
+    public partial class MainWindow : Window {
         public const int SCROLL_AMOUNT = 100;
 
         public TimeDisplay Time { get; private set; }
         public ViewManager RootViewManager { get; private set; }
-        public static MainWindow Instance;
 
-        public MainWindow()
-        {
+        #pragma warning disable CS8618
+        public static MainWindow Instance;
+        #pragma warning restore CS8618
+
+        public MainWindow() {
             Instance = this;
             InitializeComponent();
 

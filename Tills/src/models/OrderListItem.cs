@@ -30,7 +30,9 @@ public class OrderListItem {
     public OrderListItem? BaseItem { get; private set; }
     public List<OrderListItem> Children { get; private set; }
 
-    OrderListItem() { }
+    OrderListItem() {
+        Children = new();
+    }
 
     OrderListItem(OrderListItem baseItem, int? stockID, params OrderListItem[] children) {
         BaseItem = baseItem;

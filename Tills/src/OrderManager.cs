@@ -166,12 +166,13 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     public async Task<OrderListItemView> AddOrderItem(OrderListItem item, OrderListItemView? parent = null, int? index = null) {
+        if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to add item to!");
         var itemClone = item.Clone();
 
         if (item.StockID != null) {
             try
             {
-                var returnedOrderItem = await Api.OrderItems.Create(CurrentOrder!.OrderID, item.StockID.Value, 1, item.Price);
+                var returnedOrderItem = await Api.OrderItems.Create(CurrentOrder.OrderID, item.StockID.Value, 1, item.Price);
                 itemClone.OrderItem = returnedOrderItem;
             } catch (HttpRequestException ex)
             {
@@ -240,8 +241,7 @@ public class OrderManager : INotifyPropertyChanged {
         }
     }
 
-    public OrderListItemView? GetNextOrderItemForSelection(OrderListItemView view)
-    {
+    public OrderListItemView? GetNextOrderItemForSelection(OrderListItemView view) {
         if (view.Parent != null) return view.Parent;
         int index = RootItems.IndexOf(view);
 
@@ -280,13 +280,11 @@ public class OrderManager : INotifyPropertyChanged {
         view.Remove();
     }
 
-    public async Task DeleteAllItems(bool removeFromDB)
-    {
+    public async Task DeleteAllItems(bool removeFromDB) {
         while (RootItems.Count > 0) await RemoveOrderItem(RootItems[0], removeFromDB);
     }
 
-    public void DeselectItem(bool fireEvent = true)
-    {
+    public void DeselectItem(bool fireEvent = true) {
         RootItems.ForEach(item => item.RecursivlyHideBorder());
         Selected = null;
 
@@ -294,6 +292,7 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     public async Task CheckoutOrder(CheckoutType checkoutType) {
+        if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to checkout!");
         LockOrder();
         CheckoutType = checkoutType;
 
@@ -303,7 +302,7 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     public async Task FetchAmountPaid() =>
-        AmountPaid = (await Api.Orders.GetAmountPaid(CurrentOrder)).Value;
+        AmountPaid = CurrentOrder != null ? (await Api.Orders.GetAmountPaid(CurrentOrder)).Value : 0;
 
     public async Task PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special)
     {
@@ -370,11 +369,14 @@ public class OrderManager : INotifyPropertyChanged {
         UIDispatcher.Enqueue(() => Modal.Instance.Show($"Change: £{change}"));
     }
 
-    async Task CloseCheck() =>
+    async Task CloseCheck() {
+        if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to close!");
         await Api.Orders.CloseCheck(CurrentOrder, false);
+    }
 
-    async Task PayForOrder_Internal(decimal amount, PaymentMethods paymentMethod)
-    {
+    async Task PayForOrder_Internal(decimal amount, PaymentMethods paymentMethod) {
+        if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to pay for!");
+
         await Api.Transactions.Create(CurrentOrder, amount, paymentMethod);
         await FetchAmountPaid();
     }

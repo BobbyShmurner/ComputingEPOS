@@ -13,9 +13,7 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 
-public class SubItemMenuButton : PremadeItemMenuButton
-{
-
+public class SubItemMenuButton : PremadeItemMenuButton {
     public SubItemMenuButton(OrderListItem item, string? displayText = null) : base(item, displayText) { }
 
     protected override Button PostCreateButton(Button button, MenuView menu) {
@@ -27,8 +25,12 @@ public class SubItemMenuButton : PremadeItemMenuButton
 
     protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu) {
         var parent = menu.OrderManager.Selected?.RootParent ?? menu.OrderManager.Selected;
-        menu.OrderManager.AddOrderItem(Item, parent);
-        menu.OrderManager.SelectItem(parent);
+        
+        Task.Run(async () => {
+            var view = await menu.OrderManager.AddOrderItem(Item, parent);
+            menu.OrderManager.SelectItem(parent);
+            await UIDispatcher.UpdateUIAsync();
+        });
     }
 
     void OnSelectionChanged(OrderListItemView? selection) => button!.IsEnabled = selection != null;
