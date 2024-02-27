@@ -36,24 +36,24 @@ public partial class Keypad : UserControl
         DataContext = this;
     }
 
-    public void ClearVaule() =>
-        Value = 0;
+    public void ClearVaule() => Value = 0;
 
-    private void Num_Click(object sender, RoutedEventArgs e) {
+    private void Num_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
+    {
         string content = ((Button)sender).Content.ToString()!;
         int num = int.Parse(content);
 
         Value = int.Parse(Value.ToString() + content);
         NumPressed?.Invoke(this, num);
-    }
+    });
 
-    private void Confirm_Click(object sender, RoutedEventArgs e) {
-        Confirm?.Invoke(this, EventArgs.Empty);
-    }
+    private void Confirm_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => 
+        Confirm?.Invoke(this, EventArgs.Empty)
+    );
 
-    private void Clear_Click(object sender, RoutedEventArgs e)
+    private void Clear_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => 
     {
         ClearVaule();
         Clear?.Invoke(this, EventArgs.Empty);
-    }
+    });
 }

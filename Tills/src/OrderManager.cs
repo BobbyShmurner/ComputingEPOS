@@ -53,7 +53,7 @@ public class OrderManager : INotifyPropertyChanged {
         private set
         {
             m_IsItemSelected = value;
-            UIDispatcher.Enqueue(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsItemSelected))));
+            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsItemSelected))));
         }
     }
 
@@ -64,7 +64,7 @@ public class OrderManager : INotifyPropertyChanged {
         private set
         {
             m_IsOrderLocked = value;
-            UIDispatcher.Enqueue(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOrderLocked))));
+            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOrderLocked))));
         }
     }
 
@@ -75,7 +75,7 @@ public class OrderManager : INotifyPropertyChanged {
         {
             m_Total = value;
 
-            UIDispatcher.Enqueue(() => {
+            UIDispatcher.EnqueueUIUpdate(() => {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Total)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SubTotal)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Tax)));
@@ -91,7 +91,7 @@ public class OrderManager : INotifyPropertyChanged {
         {
             m_AmountPaid = value;
 
-            UIDispatcher.Enqueue(() => {
+            UIDispatcher.EnqueueUIUpdate(() => {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AmountPaid)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Outstanding)));
             });
@@ -108,7 +108,7 @@ public class OrderManager : INotifyPropertyChanged {
         {
             m_CheckoutType = value;
 
-            UIDispatcher.Enqueue(() =>
+            UIDispatcher.EnqueueUIUpdate(() =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutType)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutTypePretty)));
@@ -130,7 +130,7 @@ public class OrderManager : INotifyPropertyChanged {
         set
         {
             m_CurrentOrder = value;
-            UIDispatcher.Enqueue(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber))));
+            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber))));
         }
     }
 
@@ -330,7 +330,7 @@ public class OrderManager : INotifyPropertyChanged {
 
         EventHandler action = (_, _) => waitingForConfirmation = false;
 
-        UIDispatcher.Enqueue(() => {
+        UIDispatcher.EnqueueUIUpdate(() => {
             Menu.PaymentKeypad.Confirm += action;
             Menu.PaymentKeypad.ClearVaule();
 
@@ -345,7 +345,7 @@ public class OrderManager : INotifyPropertyChanged {
 
         int value = 0;
 
-        UIDispatcher.Enqueue(() => {
+        UIDispatcher.EnqueueUIUpdate(() => {
             value = Menu.PaymentKeypad.Value;
             Menu.PaymentKeypad.Confirm -= action;
 
@@ -360,7 +360,7 @@ public class OrderManager : INotifyPropertyChanged {
         decimal change = -Outstanding;
 
         await PayForOrder_Internal(Outstanding, PaymentMethods.Cash);
-        UIDispatcher.Enqueue(() => Modal.Instance.Show($"Change: £{change}"));
+        UIDispatcher.EnqueueUIUpdate(() => Modal.Instance.Show($"Change: £{change}"));
     }
 
     async Task CloseCheck() {

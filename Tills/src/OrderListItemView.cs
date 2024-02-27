@@ -36,7 +36,7 @@ public class OrderListItemView {
             if (Parent == null) {
                 int? index = null;
 
-                UIDispatcher.Enqueue(() =>
+                UIDispatcher.EnqueueUIUpdate(() =>
                     index = Menu.DP_OrderItems.Children.IndexOf(border)
                 );
 
@@ -57,7 +57,7 @@ public class OrderListItemView {
         set
         {
             m_Text = value;
-            UIDispatcher.Enqueue(() => { if (textBlock != null) textBlock.Text = $"- {m_Text}"; });
+            UIDispatcher.EnqueueUIUpdate(() => { if (textBlock != null) textBlock.Text = $"- {m_Text}"; });
         }
     }
 
@@ -66,7 +66,7 @@ public class OrderListItemView {
         get => m_Price;
         set {
             m_Price = value;
-            UIDispatcher.Enqueue(() => { if (priceText != null) priceText.Text = m_Price != null ? $"£{m_Price:0.00}" : ""; });
+            UIDispatcher.EnqueueUIUpdate(() => { if (priceText != null) priceText.Text = m_Price != null ? $"£{m_Price:0.00}" : ""; });
         }
     }
 
@@ -80,7 +80,7 @@ public class OrderListItemView {
         {
             m_Selected = value;
 
-            UIDispatcher.Enqueue(() =>
+            UIDispatcher.EnqueueUIUpdate(() =>
             {
                 if (border == null || stackPanel == null) return;
                 
@@ -120,7 +120,7 @@ public class OrderListItemView {
             Parent.Children.Insert(index ?? Parent.Children.Count, this);
         }
 
-        UIDispatcher.Enqueue(() =>
+        UIDispatcher.EnqueueUIUpdate(() =>
         {
             border = new Border();
             border.BorderBrush = Brushes.DimGray;
@@ -164,7 +164,7 @@ public class OrderListItemView {
         Parent?.Children.Remove(this);
         Parent?.Item.Children.Remove(Item);
 
-        UIDispatcher.Enqueue(() => {
+        UIDispatcher.EnqueueUIUpdate(() => {
             if (Parent != null) Parent.stackPanel!.Children.Remove(border);
             else Menu.DP_OrderItems.Children.Remove(border);
         });
