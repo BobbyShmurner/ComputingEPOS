@@ -29,6 +29,10 @@ public class OrderListItemView {
         }
     }
 
+    public List<OrderListItemView> AllChildren =>
+        Children.SelectMany(c => c.AllChildren.Append(c))
+        .ToList();
+
     public int Index
     {
         get
@@ -49,6 +53,9 @@ public class OrderListItemView {
     }
     public OrderListItem Item { get; private set; }
     public OrderManager Manager { get; private set; }
+
+    public IComboHandler? ComboHandler;
+    public OrderListItemView? DeletionTarget;
 
     string m_Text = "";
     public string Text
@@ -115,6 +122,8 @@ public class OrderListItemView {
         Manager = manager;
 
         Item = item;
+        DeletionTarget = this;
+        ComboHandler = new ComboHandler(this);
 
         if (Parent != null) {
             Parent.Children.Insert(index ?? Parent.Children.Count, this);

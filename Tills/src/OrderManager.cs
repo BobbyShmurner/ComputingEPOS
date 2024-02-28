@@ -201,12 +201,10 @@ public class OrderManager : INotifyPropertyChanged {
         if (item.Price.HasValue) Total += item.Price.Value;
         if (parent == null) RootItems.Insert(index ?? RootItems.Count, view);
 
-
         try {
             foreach (var child in view.Item.Children)
                 await AddOrderItem(child, view);
         } catch {
-
             // Keep trying to remove this item. If it fails more than 10 times, just exit
             for (int i = 0; i < 10; i++) {
                 try { await RemoveOrderItem(view, true); }
@@ -221,21 +219,7 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     public async Task<OrderListItemView?> MakeSelectedCombo() =>
-        Selected != null ? await MakeCombo(Selected) : null;
-
-    public async Task<OrderListItemView> MakeCombo(OrderListItemView itemView) {
-        var item = itemView.Item.Clone();
-        var drinkItem = new OrderListItem("Coke", 17, 0.50M);
-        var friesItem = new OrderListItem("Fries", 23, 0.50M);
-        var mealItem = new OrderListItem(item.Text + " Meal", item, drinkItem, friesItem);
-
-        try {
-            return await ReplaceOrderItem(itemView, mealItem);
-        } catch {
-            throw;
-        }
-
-    }
+        Selected != null && Selected.ComboHandler != null ? await Selected.ComboHandler.Combo(this) : null;
 
     public async Task<OrderListItemView> ReplaceOrderItem(OrderListItemView toReplace, OrderListItem replaceWith) {
         int index = toReplace.Index;
@@ -265,21 +249,24 @@ public class OrderManager : INotifyPropertyChanged {
 
     public async Task RemoveSelectedOrderItem(bool removeFromDB) {
         if (Selected == null) return;
-        OrderListItemView? nextSelection = GetNextOrderItemForSelection(Selected);
+        var target = Selected.DeletionTarget;
+        if (target == null) return;
 
-        await RemoveOrderItem(Selected, removeFromDB);
+        OrderListItemView? nextSelection = GetNextOrderItemForSelection(target);
+
+        await RemoveOrderItem(target, removeFromDB);
         SelectItem(nextSelection);
     }
 
     public async Task RemoveOrderItem(OrderListItemView view, bool removeFromDB)
     {
-        if (removeFromDB && view.Item.OrderItem != null)
-
-        try {
-            await Api.OrderItems.Delete(view.Item.OrderItem);
-        } catch (Exception ex) {
-            Trace.WriteLine(ex);
-            throw;
+        if (removeFromDB && view.Item.OrderItem != null) {
+            try {
+                await Api.OrderItems.Delete(view.Item.OrderItem);
+            } catch (Exception ex) {
+                Trace.WriteLine(ex);
+                throw;
+            }
         }
 
         if (view.Parent == null) RootItems.Remove(view);
