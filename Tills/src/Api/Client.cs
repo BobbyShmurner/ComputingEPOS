@@ -29,6 +29,7 @@ public class Client : Singleton<Client> {
         Instance.GenericRequestAsync(() => HttpClient.DeleteAsync(requestUri));
 
     async Task<T> GenericRequestAsync<T>(Func<Task<T>> taskFactory) {
+        Trace.WriteLine("Executing Async Request");
         FrameworkElement? previousView = null;
 
         while (true) {

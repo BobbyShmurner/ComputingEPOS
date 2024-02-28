@@ -29,7 +29,7 @@ public class SubItemMenuButton : PremadeItemMenuButton {
         UIDispatcher.EnqueueUIAction(async () => {
             var view = await menu.OrderManager.AddOrderItem(Item, parent);
             menu.OrderManager.SelectItem(parent);
-            await UIDispatcher.UpdateUIAsync();
+            UIDispatcher.UpdateUI();
         });
     }
 

@@ -18,14 +18,10 @@ public class UIDispatcher : Singleton<UIDispatcher> {
     Thread asyncLoop = CreateAsyncLoop();
 
     public static void EnqueueUIAction(Func<Task> func) =>
-        EnqueueUIAction(func());
+        EnqueueUIAction(() => func().Wait());
 
-    public static void EnqueueUIAction(Action action) {
+    public static void EnqueueUIAction(Action action) =>
         Instance.uiActions.Enqueue(action);
-    }
-
-    public static void EnqueueUIAction(Task task) =>
-        Instance.uiActions.Enqueue(() => task.Wait());
 
     static Thread CreateAsyncLoop() {
         Thread thread = new Thread(() => {
@@ -59,18 +55,10 @@ public class UIDispatcher : Singleton<UIDispatcher> {
         UpdateUI();
     }
 
-    public static Task EnqueueAndDispatchUIUpdateAsync(Action action) {
-        EnqueueUIUpdate(action);
-        return UpdateUIAsync();
-    }
-
     public static void UpdateUI() {
         Instance.Window.Dispatcher.Invoke(() => {
-        while (Instance.uiThreadActions.Count > 0)
-            Instance.uiThreadActions.Dequeue().Invoke();
-    });
+            while (Instance.uiThreadActions.Count > 0)
+                Instance.uiThreadActions.Dequeue().Invoke();
+        });
     }
-
-    public async static Task UpdateUIAsync() =>
-        await Instance.Window.Dispatcher.BeginInvoke(UpdateUI);
 }
