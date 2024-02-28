@@ -40,8 +40,6 @@ public class Client : Singleton<Client> {
                     UIDispatcher.DispatchOnUIThreadSingle(() => {
                         MainWindow.Instance.RootViewManager.ShowView(previousView);
                         Modal.Instance.Hide();
-
-                        Trace.WriteLine("Showed Previous View");
                     });
                 }
 
