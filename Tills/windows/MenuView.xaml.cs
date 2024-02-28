@@ -107,9 +107,15 @@ public partial class MenuView : UserControl
     });
 
     private void TransactionButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
-        decimal? amount = TransactionButton.GetAmount((UIElement)sender);
-        Transaction.PaymentMethods paymentMethod = TransactionButton.GetPaymentMethod((UIElement)sender);
-        TransactionButton.SpecialFunctions specialFunction = TransactionButton.GetSpecial((UIElement)sender);
+        decimal? amount = null;
+        Transaction.PaymentMethods paymentMethod = Transaction.PaymentMethods.Cash;
+        TransactionButton.SpecialFunctions specialFunction = TransactionButton.SpecialFunctions.None;
+
+        UIDispatcher.DispatchOnUIThreadSingle(() => {
+            amount = TransactionButton.GetAmount((UIElement)sender);
+            paymentMethod = TransactionButton.GetPaymentMethod((UIElement)sender);
+            specialFunction = TransactionButton.GetSpecial((UIElement)sender);
+        });
 
         try { await OrderManager.PayForOrder(amount, paymentMethod, specialFunction); }
         finally { UIDispatcher.UpdateUI(); }

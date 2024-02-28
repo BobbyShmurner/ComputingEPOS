@@ -347,7 +347,6 @@ public class OrderManager : INotifyPropertyChanged {
         }
 
         FetchingAmountPaid = false;
-        UIDispatcher.UpdateUI();
     }
 
     async Task<decimal> GetAmountKeypad() {
