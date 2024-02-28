@@ -6,16 +6,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace ComputingEPOS.Tills;
 
 public class UIDispatcher : Singleton<UIDispatcher> {
-    public MainWindow Window => MainWindow.Instance;
+    public static MainWindow Window => MainWindow.Instance;
 
     Queue<Action> uiThreadActions = new();
     Queue<Action> uiActions = new();
 
     Thread asyncLoop = CreateAsyncLoop();
+    Dispatcher dispatcher = Window.Dispatcher;
 
     public static void EnqueueUIAction(Func<Task> func) =>
         EnqueueUIAction(() => func().Wait());
@@ -45,7 +47,7 @@ public class UIDispatcher : Singleton<UIDispatcher> {
     }
 
     public static void DispatchOnUIThreadSingle(Action action) =>
-        Instance.Window.Dispatcher.Invoke(action);
+        Instance.dispatcher.Invoke(action);
 
     public static void EnqueueUIUpdate(Action action) =>
         Instance.uiThreadActions.Enqueue(action);
@@ -56,7 +58,7 @@ public class UIDispatcher : Singleton<UIDispatcher> {
     }
 
     public static void UpdateUI() {
-        Instance.Window.Dispatcher.Invoke(() => {
+        Instance.dispatcher.Invoke(() => {
             while (Instance.uiThreadActions.Count > 0)
                 Instance.uiThreadActions.Dequeue().Invoke();
         });
