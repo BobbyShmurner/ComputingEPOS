@@ -94,6 +94,7 @@ public class OrderManager : INotifyPropertyChanged {
             UIDispatcher.EnqueueUIUpdate(() => {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AmountPaid)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Outstanding)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OutstandingStr)));
             });
         }
     }
@@ -122,6 +123,24 @@ public class OrderManager : INotifyPropertyChanged {
     public decimal Tax => Total * 0.2M;
     public decimal Outstanding => Total - AmountPaid;
 
+    public string OutstandingStr => FetchingAmountPaid
+        ? "Outstanding: ..."
+        : $"Outstanding: £{Outstanding:n2}";
+
+    bool m_FetchingAmountPaid = false;
+    public bool FetchingAmountPaid
+    {
+        get => m_FetchingAmountPaid;
+        set
+        {
+            m_FetchingAmountPaid = value;
+
+            UIDispatcher.EnqueueUIUpdate(() => {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FetchingAmountPaid)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OutstandingStr)));
+            });
+        }
+    }
 
     Order? m_CurrentOrder;
     public Order? CurrentOrder
@@ -300,6 +319,9 @@ public class OrderManager : INotifyPropertyChanged {
 
     public async Task PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special)
     {
+        FetchingAmountPaid = true;
+        UIDispatcher.UpdateUI();
+
         switch (special) {
             case TransactionButton.SpecialFunctions.Remaning:
                 amount = Outstanding;
@@ -323,6 +345,9 @@ public class OrderManager : INotifyPropertyChanged {
             await CloseCheck();
             await NextOrder();
         }
+
+        FetchingAmountPaid = false;
+        UIDispatcher.UpdateUI();
     }
 
     async Task<decimal> GetAmountKeypad() {
@@ -337,10 +362,10 @@ public class OrderManager : INotifyPropertyChanged {
             OrderMenuManager.ShowKeypadScreen();
         });
 
-        await UIDispatcher.UpdateUIAsync();
+        UIDispatcher.UpdateUI();
 
         while (waitingForConfirmation) {
-            Thread.Sleep(100);
+            await Task.Delay(100);
         }
 
         int value = 0;
@@ -352,7 +377,7 @@ public class OrderManager : INotifyPropertyChanged {
             OrderMenuManager.ShowPaymentScreen();
         });
 
-        await UIDispatcher.UpdateUIAsync();
+        UIDispatcher.UpdateUI();
         return value / 100M;
     }
 

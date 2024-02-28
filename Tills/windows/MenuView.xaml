@@ -141,7 +141,7 @@
                         </TextBlock.Text>
                     </TextBlock>
                     <TextBlock FontSize="18" Text="{c:Binding OrderManager.Total, StringFormat=Total: £{0:n2}}" />
-                    <TextBlock FontSize="18" Text="{c:Binding OrderManager.Outstanding, StringFormat=Outstanding: £{0:n2}}" />
+                    <TextBlock FontSize="18" Text="{c:Binding OrderManager.OutstandingStr}" />
                 </StackPanel>
 
                 <Button Grid.Row="1" Grid.Column="0" local:TransactionButton.PaymentMethod="Cash" local:TransactionButton.Amount="1.00" Click="TransactionButton_Click">

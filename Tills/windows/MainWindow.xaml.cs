@@ -44,10 +44,10 @@ namespace ComputingEPOS.Tills {
             Modal.Instance.Show("Connecting...", false);
 
             Task.Run(async () => {
-                await ConnectionScreen.EnsureConnected(false);
+                await ConnectionScreen.EnsureConnected(false, false);
                 await MenuView.OrderManager.NextOrder();
 
-                await UIDispatcher.EnqueueAndDispatchUIUpdateAsync(() => {
+                UIDispatcher.EnqueueAndDispatchUIUpdate(() => {
                     Modal.Instance.Hide();
                     RootViewManager.ShowView(MenuView);
                 });

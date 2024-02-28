@@ -58,7 +58,7 @@ public partial class Modal : UserControl
         sb.Append(reason ?? "Unknown");
 
         UIDispatcher.EnqueueUIUpdate(() => Show(sb.ToString()));
-        await UIDispatcher.UpdateUIAsync();
+        UIDispatcher.UpdateUI();
     }
 
     public void Show(string message, bool hideOnClick = true) {

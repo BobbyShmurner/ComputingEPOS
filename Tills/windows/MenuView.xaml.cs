@@ -79,24 +79,24 @@ public partial class MenuView : UserControl
 
     private void Button_Clear(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async() => {
         try { await OrderManager.DeleteAllItems(true); }
-        finally { await UIDispatcher.UpdateUIAsync(); }
+        finally { UIDispatcher.UpdateUI(); }
     });
 
     private void DeleteButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         try { await OrderManager.RemoveSelectedOrderItem(true); }
-        finally { await UIDispatcher.UpdateUIAsync(); }
+        finally { UIDispatcher.UpdateUI(); }
     });
 
     private void ModifyButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => { });
 
     private void SitInButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         try { await OrderManager.CheckoutOrder(CheckoutType.SitIn); }
-        finally { await UIDispatcher.UpdateUIAsync(); }
+        finally { UIDispatcher.UpdateUI(); }
     });
 
     private void TakeAwayButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         try { await OrderManager.CheckoutOrder(CheckoutType.TakeAway); }
-        finally { await UIDispatcher.UpdateUIAsync(); }
+        finally { UIDispatcher.UpdateUI(); }
     });
 
     private void FunctionsButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => { });
@@ -112,11 +112,11 @@ public partial class MenuView : UserControl
         TransactionButton.SpecialFunctions specialFunction = TransactionButton.GetSpecial((UIElement)sender);
 
         try { await OrderManager.PayForOrder(amount, paymentMethod, specialFunction); }
-        finally { await UIDispatcher.UpdateUIAsync(); }
+        finally { UIDispatcher.UpdateUI(); }
     });
 
     private void ComboButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         try { await OrderManager.MakeSelectedCombo(); }
-        finally { await UIDispatcher.UpdateUIAsync(); }
+        finally { UIDispatcher.UpdateUI(); }
     });
 }

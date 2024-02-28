@@ -63,9 +63,8 @@ public partial class ConnectionScreen : UserControl {
         ConnectionUp = false;
         if (!updateView) return;
 
-        Dispatcher.Invoke(() => {
-            if (MainWindow.Instance.RootViewManager.CurrentView != this)
-                previousView = MainWindow.Instance.RootViewManager.CurrentView;
+        UIDispatcher.DispatchOnUIThreadSingle(() => {
+            previousView = MainWindow.Instance.RootViewManager.CurrentView;
 
             MainWindow.Instance.RootViewManager.ShowView(this);
             MainWindow.Instance.Modal.Show("Connection to the Tills Server Lost!\n\nRetrying...", false);
@@ -76,7 +75,7 @@ public partial class ConnectionScreen : UserControl {
         ConnectionUp = true;
 
         if (!updateView) return;
-        Dispatcher.Invoke(() => {
+        UIDispatcher.DispatchOnUIThreadSingle(() => {
             MainWindow.Instance.Modal.Hide();
             MainWindow.Instance.RootViewManager.ShowView(previousView);
         });
