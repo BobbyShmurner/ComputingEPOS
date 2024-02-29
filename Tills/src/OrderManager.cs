@@ -60,14 +60,14 @@ public class OrderManager : INotifyPropertyChanged {
         private set
         {
             m_Selected = value;
-            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected))));
-            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsItemSelected))));
+            UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected))));
+            UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsItemSelected))));
 
-            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanDownsizeSelected))));
-            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanDeleteSelected))));
-            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanUpsizeSelected))));
-            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanModifySelected))));
-            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanComboSelected))));
+            UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanDownsizeSelected))));
+            UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanDeleteSelected))));
+            UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanUpsizeSelected))));
+            UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanModifySelected))));
+            UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanComboSelected))));
         }
     }
 
@@ -78,7 +78,7 @@ public class OrderManager : INotifyPropertyChanged {
         private set
         {
             m_IsOrderLocked = value;
-            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOrderLocked))));
+            UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOrderLocked))));
         }
     }
 
@@ -89,7 +89,7 @@ public class OrderManager : INotifyPropertyChanged {
         {
             m_Total = value;
 
-            UIDispatcher.EnqueueUIUpdate(() => {
+            UIDispatcher.EnqueueOnUIThread(() => {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Total)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SubTotal)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Tax)));
@@ -105,7 +105,7 @@ public class OrderManager : INotifyPropertyChanged {
         {
             m_AmountPaid = value;
 
-            UIDispatcher.EnqueueUIUpdate(() => {
+            UIDispatcher.EnqueueOnUIThread(() => {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AmountPaid)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Outstanding)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OutstandingStr)));
@@ -123,7 +123,7 @@ public class OrderManager : INotifyPropertyChanged {
         {
             m_CheckoutType = value;
 
-            UIDispatcher.EnqueueUIUpdate(() =>
+            UIDispatcher.EnqueueOnUIThread(() =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutType)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutTypePretty)));
@@ -139,7 +139,7 @@ public class OrderManager : INotifyPropertyChanged {
         {
             m_PaymentMethod = value;
 
-            UIDispatcher.EnqueueUIUpdate(() =>
+            UIDispatcher.EnqueueOnUIThread(() =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaymentMethod)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaymentMethodPretty)));
@@ -166,7 +166,7 @@ public class OrderManager : INotifyPropertyChanged {
         {
             m_FetchingAmountPaid = value;
 
-            UIDispatcher.EnqueueUIUpdate(() => {
+            UIDispatcher.EnqueueOnUIThread(() => {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FetchingAmountPaid)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OutstandingStr)));
             });
@@ -180,7 +180,7 @@ public class OrderManager : INotifyPropertyChanged {
         set
         {
             m_CurrentOrder = value;
-            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber))));
+            UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber))));
         }
     }
 
@@ -333,13 +333,11 @@ public class OrderManager : INotifyPropertyChanged {
     public async Task FetchAmountPaid() =>
         AmountPaid = CurrentOrder != null ? (await Api.Orders.GetAmountPaid(CurrentOrder)).Value : 0;
 
-    public async Task PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special)
-    {
-        FetchingAmountPaid = true;
-        UIDispatcher.UpdateUI();
+    public async Task PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special) {
         PaymentMethod = paymentMethod;
 
-        switch (special) {
+        switch (special)
+        {
             case TransactionButton.SpecialFunctions.Remaning:
                 amount = Outstanding;
                 break;
@@ -354,10 +352,22 @@ public class OrderManager : INotifyPropertyChanged {
                 if (amount == null) throw new ArgumentNullException("amount");
                 break;
         }
+
+        if (paymentMethod == PaymentMethods.Card && amount.Value > Outstanding) {
+            UIDispatcher.EnqueueOnUIThread(() =>
+                Modal.Instance.Show($"Cannot overcharge card!\n\nInputed Amount: £{amount.Value:n2}\nOutstanding Balance: £{Outstanding:n2}")
+            );
+
+            return;
+        }
+
+        FetchingAmountPaid = true;
+        UIDispatcher.UpdateUI();
         
         await PayForOrder_Internal(amount.Value, paymentMethod);
 
-        if (Outstanding <= 0) {
+        if (Outstanding <= 0)
+        {
             if (Outstanding < 0) await HandleChange();
             await CloseCheck();
             await NextOrder();
@@ -371,7 +381,7 @@ public class OrderManager : INotifyPropertyChanged {
 
         EventHandler action = (_, _) => waitingForConfirmation = false;
 
-        UIDispatcher.EnqueueUIUpdate(() => {
+        UIDispatcher.EnqueueOnUIThread(() => {
             Menu.PaymentKeypad.Confirm += action;
             Menu.PaymentKeypad.ClearVaule();
 
@@ -386,7 +396,7 @@ public class OrderManager : INotifyPropertyChanged {
 
         int value = 0;
 
-        UIDispatcher.EnqueueUIUpdate(() => {
+        UIDispatcher.EnqueueOnUIThread(() => {
             value = Menu.PaymentKeypad.Value;
             Menu.PaymentKeypad.Confirm -= action;
 
@@ -401,7 +411,7 @@ public class OrderManager : INotifyPropertyChanged {
         decimal change = -Outstanding;
 
         await PayForOrder_Internal(Outstanding, PaymentMethods.Cash);
-        UIDispatcher.EnqueueUIUpdate(() => Modal.Instance.Show($"Change: £{change}"));
+        UIDispatcher.EnqueueOnUIThread(() => Modal.Instance.Show($"Change: £{change}"));
     }
 
     async Task CloseCheck() {
