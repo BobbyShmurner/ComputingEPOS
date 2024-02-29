@@ -44,16 +44,30 @@ public class OrderManager : INotifyPropertyChanged {
     public OrderMenuManager OrderMenuManager => Menu.OrderMenuManager;
 
     public List<OrderListItemView> RootItems { get; private set; } = [];
-    public OrderListItemView? Selected { get; private set; }
     public Dictionary<OrderListItem, OrderListItemView> Views = [];
 
-    bool m_IsItemSelected = false;
-    public bool IsItemSelected {
-        get => m_IsItemSelected;
+    public bool IsItemSelected => Selected != null;
+
+    public bool CanDeleteSelected => Selected?.DeletionTarget != null;
+    public bool CanComboSelected => Selected?.ComboHandler != null;
+    public bool CanDownsizeSelected => IsItemSelected;
+    public bool CanModifySelected => IsItemSelected;
+    public bool CanUpsizeSelected => IsItemSelected;
+
+    OrderListItemView? m_Selected = null;
+    public OrderListItemView? Selected {
+        get => m_Selected;
         private set
         {
-            m_IsItemSelected = value;
+            m_Selected = value;
+            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected))));
             UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsItemSelected))));
+
+            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanDownsizeSelected))));
+            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanDeleteSelected))));
+            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanUpsizeSelected))));
+            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanModifySelected))));
+            UIDispatcher.EnqueueUIUpdate(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanComboSelected))));
         }
     }
 
@@ -117,7 +131,24 @@ public class OrderManager : INotifyPropertyChanged {
         }
     }
 
+    PaymentMethods? m_PaymentMethod;
+    public PaymentMethods? PaymentMethod
+    {
+        get => m_PaymentMethod;
+        set
+        {
+            m_PaymentMethod = value;
+
+            UIDispatcher.EnqueueUIUpdate(() =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaymentMethod)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaymentMethodPretty)));
+            });
+        }
+    }
+
     public string CheckoutTypePretty => CheckoutType?.ToPrettyString() ?? "None";
+    public string PaymentMethodPretty => PaymentMethod?.ToString() ?? "None";
 
     public decimal SubTotal => Total * 0.8M;
     public decimal Tax => Total * 0.2M;
@@ -155,8 +186,6 @@ public class OrderManager : INotifyPropertyChanged {
 
     public OrderManager(MenuView menu) {
         Menu = menu;
-
-        OnSelectionChanged += (itemView) => IsItemSelected = itemView != null;
         OrderMenuManager.OnMenuChanged += menu => IsOrderLocked = menu != null;
     }
 
@@ -308,6 +337,7 @@ public class OrderManager : INotifyPropertyChanged {
     {
         FetchingAmountPaid = true;
         UIDispatcher.UpdateUI();
+        PaymentMethod = paymentMethod;
 
         switch (special) {
             case TransactionButton.SpecialFunctions.Remaning:

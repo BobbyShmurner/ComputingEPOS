@@ -190,7 +190,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock FontSize="18" Text="Cash Payment" VerticalAlignment="Center" Grid.Column="1"/>
+                <TextBlock FontSize="18" Text="{Binding OrderManager.PaymentMethodPretty, StringFormat={}{0} Payment}" VerticalAlignment="Center" Grid.Column="1"/>
                 <TextBlock FontSize="24" Text="{c:Binding Value / 100M, ElementName=PaymentKeypad, StringFormat=£{0:n2}}" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1"/>
                 <local:Keypad x:Name="PaymentKeypad" Grid.Column="1" Grid.Row="2"/>
             </Grid>
@@ -205,11 +205,11 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="ModifyButton" Click="ModifyButton_Click">Modify</Button>
-                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="DeleteButton" Click="DeleteButton_Click">Delete</Button>
-                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="ComboButton" Click="ComboButton_Click">Combo</Button>
-                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="UpsizeButton" FontSize="28" Width="30">↑</Button>
-                    <Button IsEnabled="{Binding OrderManager.IsItemSelected}" x:Name="DownsizeButton" FontSize="28" Width="30">↓</Button>
+                    <Button IsEnabled="{Binding OrderManager.CanModifySelected}" x:Name="ModifyButton" Click="ModifyButton_Click">Modify</Button>
+                    <Button IsEnabled="{Binding OrderManager.CanDeleteSelected}" x:Name="DeleteButton" Click="DeleteButton_Click">Delete</Button>
+                    <Button IsEnabled="{Binding OrderManager.CanComboSelected}" x:Name="ComboButton" Click="ComboButton_Click">Combo</Button>
+                    <Button IsEnabled="{Binding OrderManager.CanUpsizeSelected}" x:Name="UpsizeButton" FontSize="28" Width="30">↑</Button>
+                    <Button IsEnabled="{Binding OrderManager.CanDownsizeSelected}" x:Name="DownsizeButton" FontSize="28" Width="30">↓</Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <StackPanel.Resources>
