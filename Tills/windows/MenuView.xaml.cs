@@ -111,7 +111,7 @@ public partial class MenuView : UserControl
         Transaction.PaymentMethods paymentMethod = Transaction.PaymentMethods.Cash;
         TransactionButton.SpecialFunctions specialFunction = TransactionButton.SpecialFunctions.None;
 
-        UIDispatcher.DispatchOnUIThreadSingle(() => {
+        UIDispatcher.DispatchOnUIThread(() => {
             amount = TransactionButton.GetAmount((UIElement)sender);
             paymentMethod = TransactionButton.GetPaymentMethod((UIElement)sender);
             specialFunction = TransactionButton.GetSpecial((UIElement)sender);

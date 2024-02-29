@@ -37,7 +37,7 @@ public class Client : Singleton<Client> {
                 T res = await taskFactory();
 
                 if (previousView != null) {
-                    UIDispatcher.DispatchOnUIThreadSingle(() => {
+                    UIDispatcher.DispatchOnUIThread(() => {
                         MainWindow.Instance.RootViewManager.ShowView(previousView);
                         Modal.Instance.Hide();
                     });
@@ -48,7 +48,7 @@ public class Client : Singleton<Client> {
                 ex is HttpRequestException && ((HttpRequestException)ex).StatusCode == null ||
                 ex is TaskCanceledException && ex.InnerException is TimeoutException
             ) {
-                UIDispatcher.DispatchOnUIThreadSingle(() => previousView = MainWindow.Instance.RootViewManager.CurrentView);
+                UIDispatcher.DispatchOnUIThread(() => previousView = MainWindow.Instance.RootViewManager.CurrentView);
                 Instance.OnTimeout?.Invoke();
 
                 ConnectionScreen.Instance.SetConnectionDown(true);

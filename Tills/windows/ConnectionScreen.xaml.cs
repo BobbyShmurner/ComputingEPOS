@@ -63,7 +63,7 @@ public partial class ConnectionScreen : UserControl {
         ConnectionUp = false;
         if (!updateView) return;
 
-        UIDispatcher.DispatchOnUIThreadSingle(() => {
+        UIDispatcher.DispatchOnUIThread(() => {
             previousView = MainWindow.Instance.RootViewManager.CurrentView;
 
             MainWindow.Instance.RootViewManager.ShowView(this);
@@ -75,7 +75,7 @@ public partial class ConnectionScreen : UserControl {
         ConnectionUp = true;
 
         if (!updateView) return;
-        UIDispatcher.DispatchOnUIThreadSingle(() => {
+        UIDispatcher.DispatchOnUIThread(() => {
             MainWindow.Instance.Modal.Hide();
             MainWindow.Instance.RootViewManager.ShowView(previousView);
         });
