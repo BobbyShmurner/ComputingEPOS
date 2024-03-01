@@ -232,11 +232,11 @@
                     <TextBlock>Manage<LineBreak/>Database</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="2" Click="NotImplementedButton_Click">
+                <Button Grid.Row="2" Grid.Column="2" Click="PowerOffButton_Click">
                     <TextBlock>Power Off</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="3" Click="NotImplementedButton_Click">
+                <Button Grid.Row="2" Grid.Column="3" Click="RebootButton_Click">
                     <TextBlock>Reboot</TextBlock>
                 </Button>
             </Grid>
