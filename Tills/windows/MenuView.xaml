@@ -39,9 +39,9 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <Button>Vouchers</Button>
+                    <Button Click="ReportsButton_Click">Reports</Button>
                     <Button Click="FunctionsButton_Click">Functions</Button>
-                    <Button>Logout</Button>
+                    <Button Click="LogoutButton_Click">Logout</Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -117,7 +117,7 @@
             <Grid x:Name="Grid_MenuButtonsOrderView" Margin="5">
 
             </Grid>
-            <Grid x:Name="Grid_MenuButtonsPaymentView" Margin="10">
+            <Grid x:Name="Grid_MenuButtonsPaymentView" Margin="10" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1.25*"/>
                     <RowDefinition Height="*"/>
@@ -176,7 +176,7 @@
                     <TextBlock>Round Up To Next £</TextBlock>
                 </Button>
             </Grid>
-            <Grid x:Name="Grid_MenuButtonsKeypadView" Margin="5">
+            <Grid x:Name="Grid_MenuButtonsKeypadView" Margin="5" Visibility="Collapsed">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="240"/>
@@ -194,6 +194,52 @@
                 <TextBlock FontSize="24" Text="{c:Binding Value / 100M, ElementName=PaymentKeypad, StringFormat=£{0:n2}}" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1"/>
                 <local:Keypad x:Name="PaymentKeypad" Grid.Column="1" Grid.Row="2"/>
             </Grid>
+            <Grid x:Name="Grid_MenuButtonsFunctionsView" Margin="10" Visibility="Visible">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.25*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="0.75*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Row="1" Grid.Column="0" Click="NotImplementedButton_Click">
+                    <TextBlock>Recall<LineBreak/>Check</TextBlock>
+                </Button>
+
+                <Button Grid.Row="1" Grid.Column="1" Click="NotImplementedButton_Click">
+                    <TextBlock>Issue<LineBreak/>Refund</TextBlock>
+                </Button>
+
+                <Button Grid.Row="1" Grid.Column="2" Click="NotImplementedButton_Click">
+                    <TextBlock>Print<LineBreak/>Receipt</TextBlock>
+                </Button>
+
+                <Button Grid.Row="1" Grid.Column="3" Click="NotImplementedButton_Click">
+                    <TextBlock>Open<LineBreak/>Drawer</TextBlock>
+                </Button>
+
+                <Button Grid.Row="2" Grid.Column="0" Click="NotImplementedButton_Click">
+                    <TextBlock>Force Close<LineBreak/>All Checks</TextBlock>
+                </Button>
+
+                <Button Grid.Row="2" Grid.Column="1" Click="NotImplementedButton_Click">
+                    <TextBlock>Manage<LineBreak/>Database</TextBlock>
+                </Button>
+
+                <Button Grid.Row="2" Grid.Column="2" Click="NotImplementedButton_Click">
+                    <TextBlock>Power Off</TextBlock>
+                </Button>
+
+                <Button Grid.Row="2" Grid.Column="3" Click="NotImplementedButton_Click">
+                    <TextBlock>Reboot</TextBlock>
+                </Button>
+            </Grid>
         </Grid>
         <Border Grid.Column="1" Grid.Row="2" BorderBrush="DimGray" BorderThickness="0, 1, 0, 0">
             <Grid>
@@ -208,8 +254,8 @@
                     <Button IsEnabled="{Binding OrderManager.CanModifySelected}" x:Name="ModifyButton" Click="ModifyButton_Click">Modify</Button>
                     <Button IsEnabled="{Binding OrderManager.CanDeleteSelected}" x:Name="DeleteButton" Click="DeleteButton_Click">Delete</Button>
                     <Button IsEnabled="{Binding OrderManager.CanComboSelected}" x:Name="ComboButton" Click="ComboButton_Click">Combo</Button>
-                    <Button IsEnabled="{Binding OrderManager.CanUpsizeSelected}" x:Name="UpsizeButton" FontSize="28" Width="30">↑</Button>
-                    <Button IsEnabled="{Binding OrderManager.CanDownsizeSelected}" x:Name="DownsizeButton" FontSize="28" Width="30">↓</Button>
+                    <Button IsEnabled="{Binding OrderManager.CanUpsizeSelected}" x:Name="UpsizeButton" Click="UpsizeButton_Click" FontSize="28" Width="30">↑</Button>
+                    <Button IsEnabled="{Binding OrderManager.CanDownsizeSelected}" x:Name="DownsizeButton" Click="DownsizeButton_Click" FontSize="28" Width="30">↓</Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <StackPanel.Resources>

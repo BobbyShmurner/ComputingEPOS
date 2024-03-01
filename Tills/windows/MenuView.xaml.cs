@@ -87,8 +87,6 @@ public partial class MenuView : UserControl
         finally { UIDispatcher.UpdateUI(); }
     });
 
-    private void ModifyButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => { });
-
     private void SitInButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         try { await OrderManager.CheckoutOrder(CheckoutType.SitIn); }
         finally { UIDispatcher.UpdateUI(); }
@@ -99,7 +97,6 @@ public partial class MenuView : UserControl
         finally { UIDispatcher.UpdateUI(); }
     });
 
-    private void FunctionsButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => { });
 
     private void OrderItemsEmptyFillButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => {
         try { OrderManager.DeselectItem(); }
@@ -125,4 +122,21 @@ public partial class MenuView : UserControl
         try { await OrderManager.MakeSelectedCombo(); }
         finally { UIDispatcher.UpdateUI(); }
     });
+
+    private void ShowNotImplementedModal() => UIDispatcher.EnqueueUIAction(() => {
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Show("Not Implemented"));
+    });
+
+    private void ModifyButton_Click(object sender, RoutedEventArgs e) => ShowNotImplementedModal();
+    private void FunctionsButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
+    {
+        OrderMenuManager.ShowFunctionsScreen();
+        UIDispatcher.UpdateUI();
+    });
+
+    private void UpsizeButton_Click(object sender, RoutedEventArgs e) => ShowNotImplementedModal();
+    private void DownsizeButton_Click(object sender, RoutedEventArgs e) => ShowNotImplementedModal();
+    private void ReportsButton_Click(object sender, RoutedEventArgs e) => ShowNotImplementedModal();
+    private void LogoutButton_Click(object sender, RoutedEventArgs e) => ShowNotImplementedModal();
+    private void NotImplementedButton_Click(object sender, RoutedEventArgs e) => ShowNotImplementedModal();
 }

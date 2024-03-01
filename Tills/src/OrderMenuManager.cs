@@ -19,6 +19,7 @@ public class OrderMenuManager {
     public Grid Root => Menu.Grid_MenuButtons;
     public Grid MenuView => Menu.Grid_MenuButtonsOrderView;
     public Grid PaymentView => Menu.Grid_MenuButtonsPaymentView;
+    public Grid FunctionsView => Menu.Grid_MenuButtonsFunctionsView;
     public Grid KeypadView => Menu.Grid_MenuButtonsKeypadView;
     public OrderManager OrderManager => Menu.OrderManager;
     public ViewManager MenuViewManager { get; private set; }
@@ -233,6 +234,13 @@ public class OrderMenuManager {
         UIDispatcher.EnqueueOnUIThread(() => {
             MenuViewManager.ShowView(PaymentView);
             OnShowPaymentScreen?.Invoke();
+        });
+    }
+
+    public void ShowFunctionsScreen()
+    {
+        UIDispatcher.EnqueueOnUIThread(() => {
+            MenuViewManager.ShowView(FunctionsView);
         });
     }
 
