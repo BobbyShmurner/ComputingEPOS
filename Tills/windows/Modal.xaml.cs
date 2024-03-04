@@ -44,6 +44,10 @@ public partial class Modal : UserControl
         set => SetValue(VisibleProperty, value);
     }
 
+    public void ShowNotImplementedModal() => UIDispatcher.EnqueueUIAction(() => {
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() => Show("Not Implemented"));
+    });
+
     public async Task ShowError(string error, HttpResponseMessage response, bool hideOnClick = true)
     {
         var content = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
