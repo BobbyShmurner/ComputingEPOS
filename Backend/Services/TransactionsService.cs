@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ComputingEPOS.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using ComputingEPOS.Backend.Results;
 
 namespace ComputingEPOS.Backend.Services;
 
@@ -23,6 +24,33 @@ public class TransactionsService : ITransactionsService {
     public async Task<ActionResult<Transaction>> GetTransaction(int id) {
         Transaction? transaction = await _context.Transactions.FindAsync(id);
         return transaction != null ? transaction : new NotFoundResult();
+    }
+
+    public async Task<ActionResult<decimal>> GetGrossSales(DateTime? from, DateTime? to)
+    {
+        try
+        {
+            return (await _context.Transactions.Where(x => (from == null || x.Date >= from) && (to == null || x.Date <= to)).ToListAsync())
+                .Aggregate(new decimal(), (acc, x) => acc + x.AmountPaid);
+        } catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return new ProblemResult();
+        }
+    }
+
+    public async Task<ActionResult<List<decimal>>> GetGrossSalesInIntervals(DateTime from, DateTime? to, long intervalInSeconds) {
+        List<decimal> sales = new();
+        long intervalInTicks = intervalInSeconds * 10000000;
+
+        for (long i = from.Ticks; i <= (to?.Ticks ?? DateTime.Now.Ticks); i += intervalInTicks)
+        {
+            ActionResult<decimal> salesRes = await GetGrossSales(new DateTime(i), new DateTime(i + intervalInTicks));
+            if (salesRes.Result != null) return salesRes.Result!;
+            sales.Add(salesRes.Value!);
+        }
+
+        return sales;
     }
 
     public async Task<ActionResult<Transaction>> PutTransaction(Transaction transaction) {

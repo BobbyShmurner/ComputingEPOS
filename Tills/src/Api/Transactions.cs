@@ -31,4 +31,12 @@ public class Transactions : Singleton<Client> {
 
         return await response.Content.ReadFromJsonAsync<Transaction>();
     }
+
+    public static async Task<List<decimal>> GetGrossSalesInIntervals(DateTime from, DateTime? to, long intervalInSeconds)
+    {
+        var response = await Client.GetAsync($"api/Transactions/GrossSalesInIntervals?from={from.ToUniversalTime():r}&to={to?.ToUniversalTime().ToString("r")}&intervalInSeconds={intervalInSeconds}");
+        response.EnsureSuccessStatusCode();
+
+        return (await response.Content.ReadFromJsonAsync<List<decimal>>())!;
+    }
 }

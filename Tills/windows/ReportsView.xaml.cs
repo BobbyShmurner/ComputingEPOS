@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -28,40 +29,89 @@ public partial class ReportsView : UserControl
 
     public ReportsView() {
         InitializeComponent();
+        DataContext = this;
 
         DataGrid = MainGrid;
         ReportGrids = new List<IReportGrid> {
             new SalesReportGrid()
         };
-
-        ShowGrid(ReportGrids[0]);
     }
 
-    public void ShowGrid(IReportGrid grid) {
-        grid.ShowGrid(DataGrid);
-        EmptyGrid.Columns.Clear();
+    public readonly DependencyProperty IntervalDependecyProperty = DependencyProperty.Register(
+        nameof(Interval),
+        typeof(TimeInterval),
+        typeof(ReportsView),
+        new PropertyMetadata(TimeInterval.Hourly, (d, e) => ((ReportsView)d).Interval = (TimeInterval)e.NewValue)
+    );
 
-        for( int i = 0; i < DataGrid.Columns.Count; i++ )
-        {
-            EmptyGrid.Columns.Add(new DataGridTextColumn
-            {
-                Width = DataGrid.Columns[i].Width
+    public TimeInterval Interval
+    {
+        get => (TimeInterval)GetValue(IntervalDependecyProperty);
+        private set {
+            SetValue(IntervalDependecyProperty, value);
+            UIDispatcher.EnqueueUIAction(async () => {
+                await RefreshCurrentGrid();
+                UIDispatcher.UpdateUI();
             });
         }
+    }
 
-        var items = new ObservableCollection<byte>();
+    public readonly DependencyProperty IntervalsDependecyProperty = DependencyProperty.Register(
+        nameof(Intervals),
+        typeof(TimeInterval[]),
+        typeof(ReportsView),
+        new PropertyMetadata(Enum.GetValues<TimeInterval>())
+    );
 
-        int itemCount = 0;
-        foreach (var item in DataGrid.ItemsSource) {
-            itemCount++;
-        }
+    public TimeInterval[] Intervals => (TimeInterval[])GetValue(IntervalDependecyProperty);
 
-        for (int i = 0; i < 20; i++)
-        {
-            items.Add(0);
-        }
+    public IReportGrid? CurrentGrid { get; private set; }
 
-        EmptyGrid.ItemsSource = items;
+    public Task RefreshCurrentGrid() {
+        if (CurrentGrid == null) return Task.CompletedTask;
+        return ShowGrid(CurrentGrid);
+    }
+
+    public async Task ShowGrid(IReportGrid grid) {
+        CurrentGrid = grid;
+
+        DataGrid? dataGrid = null;
+        TimeInterval? interval = null;
+
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
+            dataGrid = DataGrid;
+            interval = Interval;
+        });
+
+        await grid.ShowGrid(dataGrid!, interval!.Value);
+
+        //UIDispatcher.EnqueueOnUIThread(() =>
+        //{
+        //    EmptyGrid.Columns.Clear();
+
+        //    for (int i = 0; i < DataGrid.Columns.Count; i++)
+        //    {
+        //        EmptyGrid.Columns.Add(new DataGridTextColumn
+        //        {
+        //            Width = DataGrid.Columns[i].Width
+        //        });
+        //    }
+
+        //    var items = new ObservableCollection<byte>();
+
+        //    int itemCount = 0;
+        //    foreach (var item in DataGrid.ItemsSource)
+        //    {
+        //        itemCount++;
+        //    }
+
+        //    for (int i = 0; i < 20; i++)
+        //    {
+        //        items.Add(0);
+        //    }
+
+        //    EmptyGrid.ItemsSource = items;
+        //});
     }
 
     private void BackButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
@@ -69,5 +119,9 @@ public partial class ReportsView : UserControl
     );
 
     private void PrintButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
-    private void SwitchReportButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
+
+    private void SwitchReportButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        await ShowGrid(ReportGrids[0]);
+        UIDispatcher.UpdateUI();
+    });
 }

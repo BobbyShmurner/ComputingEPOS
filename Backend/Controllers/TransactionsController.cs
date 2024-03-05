@@ -32,6 +32,20 @@ public class TransactionsController : ControllerBase {
     public async Task<ActionResult<Transaction>> GetTransaction(int id) =>
         await m_Service.GetTransaction(id);
 
+    // GET: api/Transactions/GrossSales
+    [HttpGet("GrossSales")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<decimal>> GetGrossSales(DateTime? from, DateTime? to) =>
+        await m_Service.GetGrossSales(from, to);
+
+    // GET: api/Transactions/GrossSalesInIntervals
+    [HttpGet("GrossSalesInIntervals")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<decimal>>> GetGrossSalesInIntervals(DateTime from, DateTime? to, long intervalInSeconds) =>
+        await m_Service.GetGrossSalesInIntervals(from, to, intervalInSeconds);
+
     // PUT: api/Transactions/5
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
