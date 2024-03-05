@@ -10,6 +10,7 @@
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="60" />
+            <RowDefinition Height="3*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Border BorderBrush="DimGray" Background="LightGray" BorderThickness="0, 1">
@@ -57,11 +58,20 @@
                     <Setter Property="IsReadOnly" Value="True"/>
                     <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
                     <Setter Property="CanUserResizeColumns" Value="False"/>
+                    <Setter Property="CanUserResizeRows" Value="False"/>
                     <Setter Property="CanUserReorderColumns" Value="False"/>
                 </Style>
             </DockPanel.Resources>
-            <DataGrid x:Name="MainGrid" DockPanel.Dock="Top" BorderThickness="1, 1, 1, 0"/>
-            <DataGrid x:Name="EmptyGrid" HeadersVisibility="Row" BorderThickness="1, 0, 1, 1" VerticalScrollBarVisibility="Hidden"/>
+            <DataGrid x:Name="MainGrid" DockPanel.Dock="Top" BorderThickness="1"/>
+            <!--<DataGrid x:Name="EmptyGrid" HeadersVisibility="Row" BorderThickness="1, 0, 1, 1" VerticalScrollBarVisibility="Hidden"/>-->
         </DockPanel>
+        <Grid Grid.Row="2" Margin="20">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <Label FontSize="16">Time Frame:</Label>
+                    <ComboBox Width="200" ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}"  />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

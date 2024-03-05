@@ -13,5 +13,5 @@ public interface IReportGrid {
     public Type Type { get; }
     public string Title { get; }
 
-    public void ShowGrid(DataGrid grid);
+    public Task ShowGrid(DataGrid grid, TimeInterval timeFrame);
 }
