@@ -69,7 +69,7 @@
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal">
                     <Label FontSize="16">Time Frame:</Label>
-                    <ComboBox Width="200" ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}"  />
+                    <ComboBox Width="200" ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}" VerticalContentAlignment="Center" />
                 </StackPanel>
             </StackPanel>
         </Grid>
