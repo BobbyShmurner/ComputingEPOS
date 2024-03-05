@@ -141,9 +141,13 @@ public partial class MenuView : UserControl
         })
     );
 
-    private void ReportsButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
-        UIDispatcher.EnqueueAndUpdateOnUIThread(() => MainWindow.Instance.RootViewManager.ShowView(MainWindow.Instance.ReportsView))
-    );
+    private void ReportsButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        await MainWindow.Instance.ReportsView.RefreshCurrentGrid();
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() =>
+        {
+            MainWindow.Instance.RootViewManager.ShowView(MainWindow.Instance.ReportsView);
+        });
+    });
 
     private void UpsizeButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
     private void DownsizeButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();

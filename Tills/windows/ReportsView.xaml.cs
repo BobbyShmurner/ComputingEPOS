@@ -68,7 +68,7 @@ public partial class ReportsView : UserControl
     public IReportGrid? CurrentGrid { get; private set; }
 
     public Task RefreshCurrentGrid() {
-        if (CurrentGrid == null) return Task.CompletedTask;
+        if (CurrentGrid == null) CurrentGrid = ReportGrids[0];
         return ShowGrid(CurrentGrid);
     }
 
