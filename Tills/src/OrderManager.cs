@@ -107,30 +107,18 @@ public class OrderManager : INotifyPropertyChanged {
         }
     }
 
-    public string OpenCheckCountStr => FetchingOpenCheckCount
+    public string OpenCheckCountStr => OpenChecks == null
         ? "Fetching..."
-        : $"{OpenChecks} Open {(OpenChecks != 1 ? "Checks" : "Check")}";
+        : $"{OpenChecks.Value} Open {(OpenChecks.Value != 1 ? "Checks" : "Check")}";
 
-    int m_OpenChecks = 0;
-    public int OpenChecks {
+    int? m_OpenChecks = null;
+    public int? OpenChecks {
         get => m_OpenChecks;
         set {
             m_OpenChecks = value;
 
             UIDispatcher.EnqueueOnUIThread(() => {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OpenChecks)));
-            });
-        }
-    }
-
-    bool m_FetchingOpenCheckCount = true;
-    public bool FetchingOpenCheckCount {
-        get => m_FetchingOpenCheckCount;
-        set {
-            m_FetchingOpenCheckCount = value;
-
-            UIDispatcher.EnqueueOnUIThread(() => {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FetchingOpenCheckCount)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OpenCheckCountStr)));
             });
         }
@@ -200,6 +188,19 @@ public class OrderManager : INotifyPropertyChanged {
     public OrderManager(MenuView menu) {
         Menu = menu;
         OrderMenuManager.OnMenuChanged += menu => IsOrderLocked = menu != null;
+
+        Task.Run(async () => {
+            while (true) {
+                Thread.Sleep(3000);
+                await FetchOpenChecks();
+
+                // Only update UI if this is the only queued Ui action
+                if (UIDispatcher.Instance.queuedUiActions == 0 && UIDispatcher.Instance.queuedUiThreadActions == 1)
+                    UIDispatcher.UpdateUI();
+                else
+                    await UIDispatcher.WaitForUIUpdate();
+            }
+        });
     }
 
     public async Task NextOrder() {
@@ -340,11 +341,7 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     public async Task FetchOpenChecks() {
-        FetchingOpenCheckCount = true;
-        UIDispatcher.UpdateUI();
-
         OpenChecks = (await Api.Orders.GetOpenChecks()).Count;
-        FetchingOpenCheckCount = false;
     }
 
     public async Task CheckoutOrder(CheckoutType checkoutType) {
