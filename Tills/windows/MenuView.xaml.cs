@@ -131,6 +131,11 @@ public partial class MenuView : UserControl
         UIDispatcher.UpdateUI();
     });
 
+    private void ForceCloseAllChecks_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        await OrderManager.ForceCloseAllChecks();
+        UIDispatcher.UpdateUI();
+    });
+
     private void PowerOffButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
         UIDispatcher.DispatchOnUIThread(() => Application.Current.Shutdown(0))
     );

@@ -224,7 +224,7 @@
                     <TextBlock>Open<LineBreak/>Drawer</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="0" Click="NotImplementedButton_Click">
+                <Button Grid.Row="2" Grid.Column="0" Click="ForceCloseAllChecks_Click">
                     <TextBlock>Force Close<LineBreak/>All Checks</TextBlock>
                 </Button>
 

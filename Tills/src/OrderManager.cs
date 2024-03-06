@@ -328,6 +328,17 @@ public class OrderManager : INotifyPropertyChanged {
         if (fireEvent) OnSelectionChanged?.Invoke(null);
     }
 
+    public async Task ForceCloseAllChecks() {
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
+            Modal.Instance.Show("Closing Checks...", false);
+        });
+
+        await Api.Orders.ForceCloseAllChecks();
+        await NextOrder();
+
+        UIDispatcher.EnqueueOnUIThread(() => Modal.Instance.Show("Successfuly Closed All Checks!"));
+    }
+
     public async Task FetchOpenChecks() {
         FetchingOpenCheckCount = true;
         UIDispatcher.UpdateUI();
