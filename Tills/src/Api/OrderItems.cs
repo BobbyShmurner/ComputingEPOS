@@ -32,10 +32,8 @@ public static class OrderItems {
         try {
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<OrderItem[]>())?[0];
-        } catch (HttpRequestException ex) {
-            if (ex.StatusCode != null)
-                await Modal.Instance.ShowError($"Failed to create order item!", response);
-
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to create order item!", response);
             throw;
         }
     }
@@ -45,10 +43,8 @@ public static class OrderItems {
         
         try {
             response.EnsureSuccessStatusCode();
-        } catch (HttpRequestException ex) {
-            if (ex.StatusCode != null)
-                await Modal.Instance.ShowError($"Failed to delete order item!", response);
-            
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to delete order item!", response);
             throw;
         }
     }

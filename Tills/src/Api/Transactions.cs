@@ -27,16 +27,26 @@ public static class Transactions {
             Encoding.UTF8,
             "application/json"
         ));
-        response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<Transaction>();
+        try {
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Transaction>();
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to create transaction for Order #{order.OrderNum} [ID: {order.OrderID}]", response);
+            throw;
+        }
     }
 
     public static async Task<List<decimal>> GetGrossSalesInIntervals(DateTime from, DateTime? to, long intervalInSeconds)
     {
         var response = await Client.GetAsync($"api/Transactions/GrossSalesInIntervals?from={from.ToUniversalTime():r}&to={to?.ToUniversalTime().ToString("r")}&intervalInSeconds={intervalInSeconds}");
-        response.EnsureSuccessStatusCode();
 
-        return (await response.Content.ReadFromJsonAsync<List<decimal>>())!;
+        try {
+            response.EnsureSuccessStatusCode();
+            return (await response.Content.ReadFromJsonAsync<List<decimal>>())!;
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to get the gross sales!", response);
+            throw;
+        }
     }
 }

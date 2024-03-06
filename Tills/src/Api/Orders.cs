@@ -25,25 +25,59 @@ public static class Orders {
             "application/json"
         ));
 
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<Order>();
+        try {
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Order>();
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to create order!", response);
+            throw;
+        }
     }
 
-    public static async Task FinaliseOrder(Order order) =>
-        (await Client.PostAsync($"api/Orders/{order.OrderID}/Finalise", null)).EnsureSuccessStatusCode();
+    public static async Task FinaliseOrder(Order order) {
+        var response = await Client.PostAsync($"api/Orders/{order.OrderID}/Finalise", null);
+
+        try {
+            response.EnsureSuccessStatusCode();
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to finalise Order #{order.OrderNum} [ID: {order.OrderID}]", response);
+            throw;
+        }
+    }
 
     public static async Task<List<Order>> GetOpenChecks() {
         var response = await Client.GetAsync($"api/Orders?closed=false");
-        response.EnsureSuccessStatusCode();
 
-        return (await response.Content.ReadFromJsonAsync<List<Order>>())!;
+        try {
+            response.EnsureSuccessStatusCode();
+            return (await response.Content.ReadFromJsonAsync<List<Order>>())!;
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to get open checks!", response);
+            throw;
+        }
     }
 
-    public static async Task ForceCloseAllChecks() =>
-        (await Client.PostAsync($"api/Orders/ForceCloseAllChecks", null)).EnsureSuccessStatusCode();
+    public static async Task ForceCloseAllChecks() {
+        var response = await Client.PostAsync($"api/Orders/ForceCloseAllChecks", null);
 
-    public static async Task CloseAllPaidChecks(bool closeEmpty) =>
-        (await Client.PostAsync($"api/Orders/CloseAllPaidChecks?closeEmpty={closeEmpty}", null)).EnsureSuccessStatusCode();
+        try {
+            response.EnsureSuccessStatusCode();
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to force close all checks!", response);
+            throw;
+        }
+    }
+
+    public static async Task CloseAllPaidChecks(bool closeEmpty) {
+        var response = await Client.PostAsync($"api/Orders/CloseAllPaidChecks?closeEmpty={closeEmpty}", null);
+
+        try {
+            response.EnsureSuccessStatusCode();
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to close all paid checks!", response);
+            throw;
+        }
+    }
 
     public static async Task DeleteOrder(Order order) {
         var response = await Client.DeleteAsync($"api/Orders/{order.OrderID}");
@@ -70,6 +104,15 @@ public static class Orders {
         }
     }
 
-    public static async Task<decimal?> GetAmountPaid(Order order) =>
-        await (await Client.GetAsync($"api/Orders/{order.OrderID}/AmountPaid")).Content.ReadFromJsonAsync<decimal>();
+    public static async Task<decimal?> GetAmountPaid(Order order) {
+        var response = await Client.GetAsync($"api/Orders/{order.OrderID}/AmountPaid");
+
+        try {
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<decimal>();
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to get amount paid for Order #{order.OrderNum} [ID: {order.OrderID}]", response);
+            throw;
+        }
+    }
 }
