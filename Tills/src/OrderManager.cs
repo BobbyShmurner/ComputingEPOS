@@ -57,8 +57,7 @@ public class OrderManager : INotifyPropertyChanged {
     OrderListItemView? m_Selected = null;
     public OrderListItemView? Selected {
         get => m_Selected;
-        private set
-        {
+        private set {
             m_Selected = value;
             UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected))));
             UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsItemSelected))));
@@ -72,11 +71,9 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     bool m_IsOrderLocked = false;
-    public bool IsOrderLocked
-    {
+    public bool IsOrderLocked {
         get => m_IsOrderLocked;
-        private set
-        {
+        private set {
             m_IsOrderLocked = value;
             UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsOrderLocked))));
         }
@@ -85,8 +82,7 @@ public class OrderManager : INotifyPropertyChanged {
     decimal m_Total = 0;
     public decimal Total {
         get => m_Total;
-        set
-        {
+        set {
             m_Total = value;
 
             UIDispatcher.EnqueueOnUIThread(() => {
@@ -98,11 +94,9 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     decimal m_AmountPaid = 0;
-    public decimal AmountPaid
-    {
+    public decimal AmountPaid {
         get => m_AmountPaid;
-        set
-        {
+        set {
             m_AmountPaid = value;
 
             UIDispatcher.EnqueueOnUIThread(() => {
@@ -113,18 +107,44 @@ public class OrderManager : INotifyPropertyChanged {
         }
     }
 
+    public string OpenCheckCountStr => FetchingOpenCheckCount
+        ? "Fetching..."
+        : $"{OpenChecks} Open {(OpenChecks != 1 ? "Checks" : "Check")}";
+
+    int m_OpenChecks = 0;
+    public int OpenChecks {
+        get => m_OpenChecks;
+        set {
+            m_OpenChecks = value;
+
+            UIDispatcher.EnqueueOnUIThread(() => {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OpenChecks)));
+            });
+        }
+    }
+
+    bool m_FetchingOpenCheckCount = true;
+    public bool FetchingOpenCheckCount {
+        get => m_FetchingOpenCheckCount;
+        set {
+            m_FetchingOpenCheckCount = value;
+
+            UIDispatcher.EnqueueOnUIThread(() => {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FetchingOpenCheckCount)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OpenCheckCountStr)));
+            });
+        }
+    }
+
     public int OrderNumber => CurrentOrder?.OrderNum ?? 0;
 
     CheckoutType? m_CheckoutType;
-    public CheckoutType? CheckoutType
-    {
+    public CheckoutType? CheckoutType {
         get => m_CheckoutType;
-        set
-        {
+        set {
             m_CheckoutType = value;
 
-            UIDispatcher.EnqueueOnUIThread(() =>
-            {
+            UIDispatcher.EnqueueOnUIThread(() => {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutType)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CheckoutTypePretty)));
             });
@@ -132,15 +152,12 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     PaymentMethods? m_PaymentMethod;
-    public PaymentMethods? PaymentMethod
-    {
+    public PaymentMethods? PaymentMethod {
         get => m_PaymentMethod;
-        set
-        {
+        set {
             m_PaymentMethod = value;
 
-            UIDispatcher.EnqueueOnUIThread(() =>
-            {
+            UIDispatcher.EnqueueOnUIThread(() => {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaymentMethod)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaymentMethodPretty)));
             });
@@ -159,11 +176,9 @@ public class OrderManager : INotifyPropertyChanged {
         : $"Outstanding: £{Outstanding:n2}";
 
     bool m_FetchingAmountPaid = false;
-    public bool FetchingAmountPaid
-    {
+    public bool FetchingAmountPaid {
         get => m_FetchingAmountPaid;
-        set
-        {
+        set {
             m_FetchingAmountPaid = value;
 
             UIDispatcher.EnqueueOnUIThread(() => {
@@ -174,11 +189,9 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     Order? m_CurrentOrder;
-    public Order? CurrentOrder
-    {
+    public Order? CurrentOrder {
         get => m_CurrentOrder;
-        set
-        {
+        set {
             m_CurrentOrder = value;
             UIDispatcher.EnqueueOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrderNumber))));
         }
@@ -189,8 +202,7 @@ public class OrderManager : INotifyPropertyChanged {
         OrderMenuManager.OnMenuChanged += menu => IsOrderLocked = menu != null;
     }
 
-    public async Task NextOrder()
-    {
+    public async Task NextOrder() {
         await DeleteAllItems(false);
 
         while (true) {
@@ -204,6 +216,8 @@ public class OrderManager : INotifyPropertyChanged {
 
         OrderMenuManager.ShowFirstMenu();
         UnlockOrder();
+
+        await FetchOpenChecks();
     }
 
     public async Task<OrderListItemView> AddOrderItem(OrderListItem item, OrderListItemView? parent = null, int? index = null) {
@@ -211,12 +225,10 @@ public class OrderManager : INotifyPropertyChanged {
         var itemClone = item.Clone();
 
         if (item.StockID != null) {
-            try
-            {
+            try {
                 var returnedOrderItem = await Api.OrderItems.Create(CurrentOrder.OrderID, item.StockID.Value, 1, item.Price);
                 itemClone.OrderItem = returnedOrderItem;
-            } catch (HttpRequestException ex)
-            {
+            } catch (HttpRequestException ex) {
                 Trace.WriteLine(ex.Message);
                 throw;
             }
@@ -236,8 +248,7 @@ public class OrderManager : INotifyPropertyChanged {
         } catch {
             // Keep trying to remove this item. If it fails more than 10 times, just exit
             for (int i = 0; i < 10; i++) {
-                try { await RemoveOrderItem(view, true); }
-                catch { Thread.Sleep(100); }
+                try { await RemoveOrderItem(view, true); } catch { Thread.Sleep(100); }
             }
 
             throw;
@@ -256,11 +267,9 @@ public class OrderManager : INotifyPropertyChanged {
 
         await RemoveOrderItem(toReplace, true);
 
-        try
-        {
+        try {
             return await AddOrderItem(replaceWith, parent, index);
-        } catch
-        {
+        } catch {
             await AddOrderItem(toReplace.Item, parent, index);
             throw;
         }
@@ -287,8 +296,7 @@ public class OrderManager : INotifyPropertyChanged {
         SelectItem(nextSelection);
     }
 
-    public async Task RemoveOrderItem(OrderListItemView view, bool removeFromDB)
-    {
+    public async Task RemoveOrderItem(OrderListItemView view, bool removeFromDB) {
         if (removeFromDB && view.Item.OrderItem != null) {
             try {
                 await Api.OrderItems.Delete(view.Item.OrderItem);
@@ -318,6 +326,14 @@ public class OrderManager : INotifyPropertyChanged {
         Selected = null;
 
         if (fireEvent) OnSelectionChanged?.Invoke(null);
+    }
+
+    public async Task FetchOpenChecks() {
+        FetchingOpenCheckCount = true;
+        UIDispatcher.UpdateUI();
+
+        OpenChecks = (await Api.Orders.GetOpenChecks()).Count;
+        FetchingOpenCheckCount = false;
     }
 
     public async Task CheckoutOrder(CheckoutType checkoutType) {

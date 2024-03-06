@@ -34,9 +34,9 @@ namespace ComputingEPOS.Tills {
             InitializeComponent();
 
             Time = new TimeDisplay();
-            this.DataContext = this;
-            this.Width = 1200;
-            this.Height = 900;
+            DataContext = this;
+            Width = 1200;
+            Height = 900;
 
             RootViewManager = new(Grid_MainViewContainer);
 

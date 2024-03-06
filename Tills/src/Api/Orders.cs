@@ -32,19 +32,24 @@ public static class Orders {
     public static async Task FinaliseOrder(Order order) =>
         (await Client.PostAsync($"api/Orders/{order.OrderID}/Finalise", null)).EnsureSuccessStatusCode();
 
-    public static async Task CloseCheck(Order order, bool forceClose = false)
-    {
+    public static async Task<List<Order>> GetOpenChecks() {
+        var response = await Client.GetAsync($"api/Orders?closed=false");
+        response.EnsureSuccessStatusCode();
+
+        return (await response.Content.ReadFromJsonAsync<List<Order>>())!;
+    }
+
+    public static async Task ForceCloseAllChecks() =>
+        (await Client.PostAsync($"api/Orders/ForceCloseAllChecks", null)).EnsureSuccessStatusCode();
+
+    public static async Task CloseCheck(Order order, bool forceClose = false) {
         var response = await Client.PostAsync($"api/Orders/{order.OrderID}/CloseCheck?force={forceClose}", null);
 
-        try
-        {
+        try {
             response.EnsureSuccessStatusCode();
             return;
-        }
-        catch (HttpRequestException ex)
-        {
-            if (ex.StatusCode != null)
-            {
+        } catch (HttpRequestException ex) {
+            if (ex.StatusCode != null) {
                 await Modal.Instance.ShowError($"Failed to close Order #{order.OrderNum} [ID: {order.OrderID}]", response);
             }
             throw;
