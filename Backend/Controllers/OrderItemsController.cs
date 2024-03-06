@@ -26,8 +26,8 @@ public class OrderItemsController : ControllerBase {
 	// GET: api/OrderItems
 	[HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-	public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int? orderId = null) =>
-		await m_Service.GetOrderItems(orderId);
+	public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int? orderId = null, int? stockId = null) =>
+		await m_Service.GetOrderItems(orderId, stockId);
 
 	// GET: api/OrderItems/5
 	[HttpGet("{id}")]
