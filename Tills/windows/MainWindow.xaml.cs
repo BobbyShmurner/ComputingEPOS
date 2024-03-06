@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Windows.Threading;
 using System.Reflection;
+using System.ComponentModel;
 
 namespace ComputingEPOS.Tills {
     /// <summary>
@@ -97,6 +98,11 @@ namespace ComputingEPOS.Tills {
             double value = Math.Min(xScale, yScale);
 
             ScaleValue = (double)OnCoerceScaleValue(mainWindow, value);
+        }
+
+        protected override void OnClosing(CancelEventArgs e) {
+            e.Cancel = true;
+            Shutdown();
         }
 
         public static void Shutdown(bool restart = false, int exitCode = 0) {
