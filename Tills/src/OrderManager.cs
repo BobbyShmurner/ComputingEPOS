@@ -221,6 +221,26 @@ public class OrderManager : INotifyPropertyChanged {
         await FetchOpenChecks();
     }
 
+    public async Task DeleteCurrentOrder() {
+        if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to delete!");
+
+        try {
+            await Api.Orders.DeleteOrder(CurrentOrder);
+        } catch (Exception ex) {
+            Trace.WriteLine(ex.Message);
+            throw;
+        }
+    }
+
+    public async Task CloseAllPaidChecks(bool closeEmpty = false) {
+        try {
+            await Api.Orders.CloseAllPaidChecks(closeEmpty);
+        } catch (Exception ex) {
+            Trace.WriteLine(ex.Message);
+            throw;
+        }
+    }
+
     public async Task<OrderListItemView> AddOrderItem(OrderListItem item, OrderListItemView? parent = null, int? index = null) {
         if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to add item to!");
         var itemClone = item.Clone();

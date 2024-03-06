@@ -137,13 +137,11 @@ public partial class MenuView : UserControl
     });
 
     private void PowerOffButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
-        UIDispatcher.DispatchOnUIThread(() => Application.Current.Shutdown(0))
+        MainWindow.Shutdown(restart: false)
     );
 
     private void RebootButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
-        UIDispatcher.DispatchOnUIThread(() => {
-            Restart();
-        })
+        MainWindow.Shutdown(restart: true)
     );
 
     private void ReportsButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
@@ -158,44 +156,4 @@ public partial class MenuView : UserControl
     private void DownsizeButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
     private void LogoutButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
     private void NotImplementedButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
-
-    /// <summary>
-    /// Restarts the application. <br/>
-    /// Taken From WinForms Source: https://github.com/dotnet/winforms/blob/bd97476fa596ac2063153181daa6a46251dc755d/src/System.Windows.Forms/src/System/Windows/Forms/Application.cs#L1090-L1127
-    /// </summary>
-    public static void Restart()
-    {
-        if (Assembly.GetEntryAssembly() is null)
-        {
-            throw new NotSupportedException();
-        }
-
-        bool hrefExeCase = false;
-
-        Process process = Process.GetCurrentProcess();
-        Debug.Assert(process is not null);
-
-        if (!hrefExeCase)
-        {
-            // Regular app case
-            string[] arguments = Environment.GetCommandLineArgs();
-            Debug.Assert(arguments is not null && arguments.Length > 0);
-
-            ProcessStartInfo currentStartInfo = new();
-            currentStartInfo.FileName = Environment.ProcessPath;
-            if (arguments.Length >= 2)
-            {
-                StringBuilder sb = new((arguments.Length - 1) * 16);
-                for (int argumentIndex = 1; argumentIndex < arguments.Length; argumentIndex++)
-                {
-                    sb.Append($"\"{arguments[argumentIndex]}\" ");
-                }
-
-                currentStartInfo.Arguments = sb.ToString(0, sb.Length - 1);
-            }
-
-            Application.Current.Shutdown();
-            Process.Start(currentStartInfo);
-        }
-    }
 }

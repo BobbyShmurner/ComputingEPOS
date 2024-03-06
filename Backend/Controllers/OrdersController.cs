@@ -14,14 +14,20 @@ namespace ComputingEPOS.Backend.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class OrdersController : ControllerBase {
+    private readonly BaseDbContext m_dbContext;
+
     private readonly IOrdersService m_Service;
+    private readonly IStockService m_StockService;
     private readonly IOrderItemsService m_OrderItemsService;
     private readonly ITransactionsService m_TransactionsService;
 
-    public OrdersController(IOrdersService service, IOrderItemsService orderItemsService, ITransactionsService transactionsService) {
-         m_Service = service;
-         m_OrderItemsService = orderItemsService;
-         m_TransactionsService = transactionsService;
+    public OrdersController(IOrdersService service, IOrderItemsService orderItemsService, ITransactionsService transactionsService, IStockService stockService, BaseDbContext context) {
+        m_Service = service;
+        m_StockService = stockService;
+        m_OrderItemsService = orderItemsService;
+        m_TransactionsService = transactionsService;
+
+        m_dbContext = context;
     }
 
     // GET: api/Orders?closed=false&parentId=5
@@ -110,14 +116,14 @@ public class OrdersController : ControllerBase {
         await m_Service.GetOrderTransactions(id, m_TransactionsService);
 
     // PUT: api/Orders/5
-    [HttpPut("{id}")]
+    /*[HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Order>> PutOrder(int id, Order order) {
         if (id != order.OrderID) return BadRequest(); 
         return await m_Service.PutOrder(order);
-    }
+    }*/
 
     // POST: api/Orders/5/CloseCheck?force=false
     [HttpPost("{id}/CloseCheck")]
@@ -165,10 +171,23 @@ public class OrdersController : ControllerBase {
     public async Task<IActionResult> PostForceCloseAllChecks() =>
         await m_Service.ForceCloseAllChecks();
 
+    // POST: api/Orders/CloseAllPaidChecks
+    [HttpPost("CloseAllPaidChecks")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> PostCloseAllPaidChecks(bool closeEmpty = false) =>
+        await m_Service.CloseAllPaidChecks(closeEmpty, m_TransactionsService, m_OrderItemsService);
+
     // DELETE: api/Orders/5
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteOrder(int id) =>
-        await m_Service.DeleteOrder(id);
+    public async Task<IActionResult> DeleteOrder(int id) {
+        using var transaction = m_dbContext.Database.BeginTransaction();
+
+        var res = await m_Service.DeleteOrder(id, m_OrderItemsService, m_StockService, m_TransactionsService);
+        if (res is not OkResult && res is not OkObjectResult) transaction.Rollback();
+        else await transaction.CommitAsync();
+
+        return res;
+    }
 }

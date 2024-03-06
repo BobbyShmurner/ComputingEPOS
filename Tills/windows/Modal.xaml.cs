@@ -51,7 +51,7 @@ public partial class Modal : UserControl
     public async Task ShowError(string error, HttpResponseMessage response, bool hideOnClick = true)
     {
         var content = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
-        var reason = content?["detail"].ToString();
+        var reason = content != null && content.ContainsKey("detail") ? content["detail"].ToString() : "Unknown";
 
         StringBuilder sb = new(error);
 

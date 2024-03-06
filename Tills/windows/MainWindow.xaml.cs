@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Windows.Threading;
+using System.Reflection;
 
 namespace ComputingEPOS.Tills {
     /// <summary>
@@ -96,6 +97,57 @@ namespace ComputingEPOS.Tills {
             double value = Math.Min(xScale, yScale);
 
             ScaleValue = (double)OnCoerceScaleValue(mainWindow, value);
+        }
+
+        public static void Shutdown(bool restart = false, int exitCode = 0) {
+            UIDispatcher.DispatchOnUIThread(() => {
+                var menuView = Instance.MenuView;
+                Modal.Instance.Show("Shutting down...", false);
+
+                Task.Run(async () => {
+                    try {
+                        if (menuView.OrderManager.CurrentOrder != null) await menuView.OrderManager.DeleteCurrentOrder();
+                        await menuView.OrderManager.CloseAllPaidChecks();
+
+                        if (restart) Restart();
+                        UIDispatcher.DispatchOnUIThread(() => Application.Current.Shutdown(exitCode));
+                    } catch (Exception ex) {
+                        Trace.WriteLine(ex);
+                        throw;
+                    }
+                });
+            });
+        }
+
+        /// <summary>
+        /// Restarts the application. <br/>
+        /// Taken From WinForms Source: https://github.com/dotnet/winforms/blob/bd97476fa596ac2063153181daa6a46251dc755d/src/System.Windows.Forms/src/System/Windows/Forms/Application.cs#L1090-L1127
+        /// </summary>
+        static void Restart() {
+            if (Assembly.GetEntryAssembly() is null) {
+                throw new NotSupportedException();
+            }
+
+            Process process = Process.GetCurrentProcess();
+            Debug.Assert(process is not null);
+
+            
+            string[] arguments = Environment.GetCommandLineArgs();
+            Debug.Assert(arguments is not null && arguments.Length > 0);
+
+            ProcessStartInfo currentStartInfo = new();
+            currentStartInfo.FileName = Environment.ProcessPath;
+            if (arguments.Length >= 2) {
+                StringBuilder sb = new((arguments.Length - 1) * 16);
+                for (int argumentIndex = 1; argumentIndex < arguments.Length; argumentIndex++) {
+                    sb.Append($"\"{arguments[argumentIndex]}\" ");
+                }
+
+                currentStartInfo.Arguments = sb.ToString(0, sb.Length - 1);
+            }
+
+                
+            Process.Start(currentStartInfo);
         }
     }
 }
