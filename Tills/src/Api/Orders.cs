@@ -42,6 +42,20 @@ public static class Orders {
     public static async Task ForceCloseAllChecks() =>
         (await Client.PostAsync($"api/Orders/ForceCloseAllChecks", null)).EnsureSuccessStatusCode();
 
+    public static async Task CloseAllPaidChecks(bool closeEmpty) =>
+        (await Client.PostAsync($"api/Orders/CloseAllPaidChecks?closeEmpty={closeEmpty}", null)).EnsureSuccessStatusCode();
+
+    public static async Task DeleteOrder(Order order) {
+        var response = await Client.DeleteAsync($"api/Orders/{order.OrderID}");
+
+        try {
+            response.EnsureSuccessStatusCode();
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to delete Order #{order.OrderNum} [ID: {order.OrderID}]", response);
+            throw;
+        }
+    }
+
     public static async Task CloseCheck(Order order, bool forceClose = false) {
         var response = await Client.PostAsync($"api/Orders/{order.OrderID}/CloseCheck?force={forceClose}", null);
 

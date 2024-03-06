@@ -41,7 +41,7 @@ public class OrderItemsService : IOrderItemsService {
 		return await stockService.GetStock(itemResult.Value!.StockID);
     }
 
-    public async Task<ActionResult<OrderItem>> PutOrderItem(OrderItem orderItem, IStockService stockService) {
+    /*public async Task<ActionResult<OrderItem>> PutOrderItem(OrderItem orderItem, IStockService stockService) {
         using var transaction = m_Context.Database.BeginTransaction();
 
         ActionResult<OrderItem> originalItemRes = await GetOrderItem(orderItem.OrderItemID);
@@ -67,10 +67,17 @@ public class OrderItemsService : IOrderItemsService {
 
         await transaction.CommitAsync();
         return orderItem;
-    }
+    }*/
 
-    public async Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem, IStockService stockService) {
+    public async Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem, IOrdersService ordersService, IStockService stockService) {
         using var transaction = m_Context.Database.BeginTransaction();
+
+        ActionResult<Order> orderRes = await ordersService.GetOrder(orderItem.OrderID);
+        if (orderRes.Result != null) return orderRes.Result;
+        Order order = orderRes.Value!;
+
+        if (order.IsClosed)
+            return new ForbiddenProblemResult("Cannot add new order items to a closed order!");
 
         ActionResult<Stock> stockRes = await stockService.GetStock(orderItem.StockID);
         if (stockRes.Result != null) return stockRes.Result;
@@ -86,25 +93,39 @@ public class OrderItemsService : IOrderItemsService {
         return orderItem;
     }
 
-    public async Task<IActionResult> DeleteOrderItem(int id, IStockService stockService) {
-        using var transaction = m_Context.Database.BeginTransaction();
-
+    public async Task<IActionResult> DeleteOrderItem(int id, IOrdersService ordersService, IStockService stockService) {
         ActionResult<OrderItem> itemResult = await GetOrderItem(id);
         if (itemResult.Result != null) return itemResult.Result;
         OrderItem orderItem = itemResult.Value!;
 
-        ActionResult<Stock> stockRes = await stockService.GetStock(orderItem.StockID);
-        if (stockRes.Result != null) return stockRes.Result;
-        Stock stock = stockRes.Value!;
+        ActionResult<Order> orderRes = await ordersService.GetOrder(orderItem.OrderID);
+        if (orderRes.Result == null) {
+            Order order = orderRes.Value!;
+
+            if (order.IsClosed)
+                return new ForbiddenProblemResult("Cannot remove an order item from a closed order!");
+        }
 
         ActionResult<Stock> stockUpdateRes = await stockService.UpdateStockQuantity(orderItem.StockID, orderItem.Quantity);
         if (stockUpdateRes.Result != null) return stockUpdateRes.Result;
 
-        Console.WriteLine($"Removing OrderItem ID: {orderItem.OrderItemID}, passed ID: {id}");
-
         m_Context.OrderItems.Remove(orderItem);
         await m_Context.SaveChangesAsync();
-        await transaction.CommitAsync();
+
+        return new OkResult();
+    }
+
+    public async Task<IActionResult> DeleteDanglingOrderItems(IOrdersService ordersService, IStockService stockService) {
+        ActionResult<List<OrderItem>> itemsResult = await GetOrderItems(null, null);
+        if (itemsResult.Result != null) return itemsResult.Result;
+        List<OrderItem> orderItems = itemsResult.Value!;
+
+        foreach (var item in orderItems) {
+            if (await ordersService.OrderExists(item.OrderID)) continue;
+            
+            var res = await DeleteOrderItem(item.OrderItemID, ordersService, stockService);
+            if (res is not OkResult && res is not OkObjectResult) return res;
+        }
 
         return new OkResult();
     }

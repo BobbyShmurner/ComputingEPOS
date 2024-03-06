@@ -53,7 +53,7 @@ public class TransactionsService : ITransactionsService {
         return sales;
     }
 
-    public async Task<ActionResult<Transaction>> PutTransaction(Transaction transaction) {
+    /*public async Task<ActionResult<Transaction>> PutTransaction(Transaction transaction) {
         _context.Entry(transaction).State = EntityState.Modified;
 
         try {
@@ -64,20 +64,51 @@ public class TransactionsService : ITransactionsService {
         }
 
         return transaction;
-    }
+    }*/
 
-    public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction) {
+    public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction, IOrdersService ordersService) {
+        ActionResult<Order> orderRes = await ordersService.GetOrder(transaction.OrderID);
+        if (orderRes.Result != null) return orderRes.Result;
+        Order order = orderRes.Value!;
+
+        if (order.IsClosed)
+            return new ForbiddenProblemResult("Cannot create a transaction for a closed order!");
+
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
         return transaction;
     }
 
-    public async Task<IActionResult> DeleteTransaction(int id) {
+    public async Task<IActionResult> DeleteTransaction(int id, IOrdersService ordersService) {
         ActionResult<Transaction> transactionRes = await GetTransaction(id);
         if (transactionRes.Result != null) return transactionRes.Result;
+        Transaction transaction = transactionRes.Value!;
+
+        ActionResult<Order> orderRes = await ordersService.GetOrder(transaction.OrderID);
+        if (orderRes.Result == null) {
+            Order order = orderRes.Value!;
+
+            if (order.IsClosed)
+                return new ForbiddenProblemResult("Cannot remove a transaction for a closed order!");
+        }
 
         _context.Transactions.Remove(transactionRes.Value!);
         await _context.SaveChangesAsync();
+
+        return new OkResult();
+    }
+
+    public async Task<IActionResult> DeleteDanglingTransactions(IOrdersService ordersService) {
+        ActionResult<List<Transaction>> transactionsRes = await GetTransactions(null);
+        if (transactionsRes.Result != null) return transactionsRes.Result;
+        List<Transaction> transactions = transactionsRes.Value!;
+
+        foreach (var trans in transactions) {
+            if (await ordersService.OrderExists(trans.OrderID)) continue;
+
+            IActionResult res = await DeleteTransaction(trans.TransactionID, ordersService);
+            if (res is not OkResult && res is not OkObjectResult) return res;
+        }
 
         return new OkResult();
     }

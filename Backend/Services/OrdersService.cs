@@ -157,11 +157,41 @@ public class OrdersService : IOrdersService {
     public async Task<ActionResult<Order>> CloseCheck(int id, ITransactionsService transactionsService, IOrderItemsService? orderItemsService)
         => await CloseCheck_Internal(id, false, transactionsService, orderItemsService);
 
+    public async Task<IActionResult> CloseAllPaidChecks(bool closeEmpty, ITransactionsService transactionsService, IOrderItemsService orderItemsService) {
+        ActionResult<List<Order>> ordersResult = await GetOrders(closed: false, parentId: null, from: null, to: null);
+        if (ordersResult.Result != null) return ordersResult.Result!;
+        List<Order> orders = ordersResult.Value!;
+
+        foreach (var order in orders) {
+            var amountDueRes = await GetAmountDue(order.OrderID, transactionsService, orderItemsService);
+            if (amountDueRes.Result != null) return amountDueRes.Result!;
+            var amountDue = amountDueRes.Value!;
+
+            if (amountDue != 0) continue;
+            if (!closeEmpty) {
+                var orderItemsRes = await GetOrderItems(order.OrderID, null, orderItemsService);
+                if (orderItemsRes.Result != null) return orderItemsRes.Result!;
+                var orderItems = orderItemsRes.Value!;
+
+                if (orderItems.Count == 0) continue;
+            }
+
+            // Force close, as we already checked if it is able to close
+            await CloseCheck_Internal(order, true, transactionsService, orderItemsService);
+        }
+
+        return new OkResult();
+    }
+
     async Task<ActionResult<Order>> CloseCheck_Internal(int id, bool forced, ITransactionsService? transactionsService, IOrderItemsService? orderItemsService) {
         ActionResult<Order> orderResult = await GetOrder(id);
         if (orderResult.Result != null) return orderResult.Result!;
         Order order = orderResult.Value!;
 
+        return await CloseCheck_Internal(order: order, forced: forced, transactionsService: transactionsService, orderItemsService: orderItemsService);
+    }
+
+    async Task<ActionResult<Order>> CloseCheck_Internal(Order order, bool forced, ITransactionsService? transactionsService, IOrderItemsService? orderItemsService) {
         if (!forced) {
             ActionResult<decimal> amountDueResult = await GetAmountDue(order.OrderID, transactionsService!, orderItemsService!);
             if (amountDueResult.Result != null) return amountDueResult.Result!;
@@ -186,10 +216,27 @@ public class OrdersService : IOrdersService {
         return success ? new OkResult() : new StatusCodeResult(500);
     }
 
-    public async Task<IActionResult> DeleteOrder(int id) {
+    public async Task<IActionResult> DeleteOrder(int id, IOrderItemsService orderItemsService, IStockService stockService, ITransactionsService transactionsService) {
         ActionResult<Order> orderResult = await GetOrder(id);
         if (orderResult.Result != null) return orderResult.Result!;
         Order order = orderResult.Value!;
+
+        ActionResult<List<Transaction>> transactionsRes = await GetOrderTransactions(id, transactionsService);
+        if (transactionsRes.Result != null) return transactionsRes.Result!;
+        List<Transaction> transactions = transactionsRes.Value!;
+
+        if (transactions.Count > 0) {
+            return new ForbiddenProblemResult($"Cannot delete an order that has transactions associated with it");
+        }
+
+        ActionResult<List<OrderItem>> orderItemsRes = await GetOrderItems(id, stockId: null, orderItemsService);
+        if (orderItemsRes.Result != null) return orderItemsRes.Result!;
+        List<OrderItem> orderItems = orderItemsRes.Value!;
+
+        foreach (var item in orderItems) {
+            IActionResult res = await orderItemsService.DeleteOrderItem(item.OrderItemID, this, stockService);
+            if (res is not OkResult && res is not OkObjectResult) return res;
+        }
 
         _context.Orders.Remove(order);
         await _context.SaveChangesAsync();
@@ -204,10 +251,6 @@ public class OrdersService : IOrdersService {
         await _context.Orders.AnyAsync(e => e.OrderID == id && e.ParentOrderID != null);
 
     public async Task<ActionResult<decimal>> GetAmountPaid(int id, ITransactionsService transactionsService) {
-        ActionResult<Order> orderResult = await GetOrder(id);
-        if (orderResult.Result != null) return orderResult.Result!;
-        Order order = orderResult.Value!;
-
         decimal amountPaid = 0;
 
         ActionResult<List<Transaction>> transactionsResult = await GetOrderTransactions(id, transactionsService);
