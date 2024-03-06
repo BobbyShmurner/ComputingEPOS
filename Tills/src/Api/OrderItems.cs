@@ -12,7 +12,7 @@ using ComputingEPOS.Models;
 
 namespace ComputingEPOS.Tills.Api;
 
-public class OrderItems : Singleton<Client> {
+public static class OrderItems {
     public static async Task<OrderItem?> Create(int orderID, int stockID, int quantity, decimal? subtotal)
     {
         var item = new OrderItem

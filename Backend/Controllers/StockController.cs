@@ -41,14 +41,14 @@ public class StockController : ControllerBase {
     [HttpGet("{id}/Pmix")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PmixReport>> GetStockPmix(int id, DateTime from, DateTime? to = null) =>
+    public async Task<ActionResult<PmixReport>> GetStockPmix(int id, DateTime? from = null, DateTime? to = null) =>
         await m_Service.GetStockPmix(id, from, to, m_OrdersService, m_OrderItemsService);
 
     // GET: api/Stock/Pmix
     [HttpGet("Pmix")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<PmixReport>>> GetAllStockPmix(DateTime from, DateTime? to = null) =>
+    public async Task<ActionResult<List<PmixReport>>> GetAllStockPmix(DateTime? from = null, DateTime? to = null) =>
         await m_Service.GetAllStockPmix(from, to, m_OrdersService, m_OrderItemsService);
 
     // PUT: api/Stock/5

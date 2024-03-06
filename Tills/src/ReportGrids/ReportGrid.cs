@@ -13,6 +13,8 @@ public enum TimeInterval {
     Hourly = 3600,
     Daily = 86400,
     Weekly = 604800,
+    Monthly = 2592000,
+    Annually = 31536000,
 }
 
 public static class TimeIntervalExtensions {
@@ -36,9 +38,26 @@ public static class TimeIntervalExtensions {
             case TimeInterval.Daily:
                 return GetIntervals(interval, DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday).AddMonths(-1), DateTime.Today);
             case TimeInterval.Weekly:
-                return GetIntervals(interval, DateTime.Now.Date.AddMonths(-6), DateTime.Now.Date);
+                return GetIntervals(interval, DateTime.Now.Date.AddMonths(-4), DateTime.Now.Date);
+            case TimeInterval.Monthly:
+                return GetIntervals(interval, DateTime.Now.Date.AddMonths(-12), DateTime.Now.Date);
+            case TimeInterval.Annually:
+                return GetIntervals(interval, DateTime.Now.Date.AddYears(-6), DateTime.Now.Date);
             default:
                 return new();
+        };
+    }
+
+    public static DateTime GetFromDate(this TimeInterval interval, DateTime? to = null) {
+        to ??= DateTime.Now;
+
+        return interval switch {
+            TimeInterval.Hourly => to.Value.AddHours(-1),
+            TimeInterval.Daily => to.Value.AddDays(-1),
+            TimeInterval.Weekly => to.Value.AddDays(-7),
+            TimeInterval.Monthly => to.Value.AddMonths(-1),
+            TimeInterval.Annually => to.Value.AddYears(-1),
+            _ => to.Value,
         };
     }
 }
@@ -47,19 +66,14 @@ public struct DataGridColumnInfo
 {
     public string Header { get; }
     public string Binding { get; }
+    public string Format { get; }
     public DataGridLength Width { get; }
 
-    public DataGridColumnInfo(string header, string binding)
-    {
+    public DataGridColumnInfo(string header, string binding, string format = "{0}", DataGridLength? width = null) {
         Header = header;
         Binding = binding;
-        Width = new(1.0, System.Windows.Controls.DataGridLengthUnitType.Star);
-    }
-
-    public DataGridColumnInfo(string header, string binding, DataGridLength width) {
-        Header = header;
-        Binding = binding;
-        Width = width;
+        Format = format;
+        Width = width ?? new(1.0, DataGridLengthUnitType.Star);
     }
 }
 
@@ -72,9 +86,7 @@ public abstract class ReportGrid<T> : IReportGrid where T : class {
 
     public async Task ShowGrid(DataGrid grid, TimeInterval timeFrame) {
         Data = new ObservableCollection<T>(await CollectData(timeFrame));
-
-        if (ColumnInfo == null)
-            ColumnInfo = GetColumnInfo();
+        ColumnInfo = GetColumnInfo(timeFrame);
 
         UIDispatcher.EnqueueOnUIThread(() => {
             grid.ItemsSource = Data;
@@ -85,7 +97,7 @@ public abstract class ReportGrid<T> : IReportGrid where T : class {
                 var dataColumn = new DataGridTextColumn
                 {
                     Header = columnInfo.Header,
-                    Binding = new Binding(columnInfo.Binding),
+                    Binding = new Binding(columnInfo.Binding) { StringFormat = columnInfo.Format},
                     Width = columnInfo.Width,
                 };
                 grid.Columns.Add(dataColumn);
@@ -94,5 +106,5 @@ public abstract class ReportGrid<T> : IReportGrid where T : class {
     }
 
     protected abstract Task<List<T>> CollectData(TimeInterval interval);
-    protected abstract List<DataGridColumnInfo> GetColumnInfo();
+    protected abstract List<DataGridColumnInfo> GetColumnInfo(TimeInterval interval);
 }
