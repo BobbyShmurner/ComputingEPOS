@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace ComputingEPOS.Tills;
 
-public class SalesReportGrid : ReportGrid<SalesReportData> {
-    public override string Title => "Sales";
+public class ProductMixReportGrid : ReportGrid<ProductMixReportData> {
+    public override string Title => "Product Mix";
 
-    protected async override Task<List<SalesReportData>> CollectData(TimeInterval interval) {
-        List<SalesReportData> data = new();
+    protected async override Task<List<ProductMixReportData>> CollectData(TimeInterval interval) {
+        List<ProductMixReportData> data = new();
 
         var intervals = interval.GetIntervals();
 
@@ -18,8 +18,8 @@ public class SalesReportGrid : ReportGrid<SalesReportData> {
 
         for (int i = 0; i < intervals.Count - 1; i++)
         {
-            data.Add(new SalesReportData {
-                Date = intervals[i].ToString(interval == TimeInterval.Hourly ? "HH:mm" : "dd/MM/yy"),
+            data.Add(new ProductMixReportData {
+                Stock = intervals[i].ToString(interval == TimeInterval.Hourly ? "HH:mm" : "dd/MM/yy"),
                 Net = $"£{grossSales[i] * .8m:n2}",
                 Gross = $"£{grossSales[i]:n2}",
                 Tax = $"£{grossSales[i] * .2m:n2}",
@@ -28,9 +28,9 @@ public class SalesReportGrid : ReportGrid<SalesReportData> {
 
         decimal grossSum = grossSales.Sum();
 
-        data.Add(new SalesReportData());
-        data.Add(new SalesReportData {
-            Date = "Total",
+        data.Add(new ProductMixReportData());
+        data.Add(new ProductMixReportData {
+            Stock = "Total",
             Net = $"£{grossSum * .8m:n2}",
             Gross = $"£{grossSum:n2}",
             Tax = $"£{grossSum * .2m:n2}",
@@ -42,16 +42,18 @@ public class SalesReportGrid : ReportGrid<SalesReportData> {
     protected override List<DataGridColumnInfo> GetColumnInfo() {
         return new List<DataGridColumnInfo>
         {
-            new("Date", nameof(SalesReportData.Date)),
-            new("Net", nameof(SalesReportData.Net)),
-            new("Gross", nameof(SalesReportData.Gross)),
-            new("Tax", nameof(SalesReportData.Tax)),
+            new("Stock", nameof(ProductMixReportData.Stock)),
+            new("QuantitySold", nameof(ProductMixReportData.QuantitySold)),
+            new("Net", nameof(ProductMixReportData.Net)),
+            new("Gross", nameof(ProductMixReportData.Gross)),
+            new("Tax", nameof(ProductMixReportData.Tax)),
         };
     }
 }
 
-public class SalesReportData {
-    public string Date { get; set; } = string.Empty;
+public class ProductMixReportData {
+    public string Stock { get; set; } = string.Empty;
+    public string QuantitySold { get; set; } = string.Empty;
     public string Net { get; set; } = string.Empty;
     public string Gross { get; set; } = string.Empty;
     public string Tax { get; set; } = string.Empty;

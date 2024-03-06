@@ -27,8 +27,8 @@ public class OrdersController : ControllerBase {
     // GET: api/Orders?closed=false&parentId=5
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<Order>>> GetOrders(bool? closed = null, int? parentId = null) =>
-        await m_Service.GetOrders(closed, parentId);
+    public async Task<ActionResult<List<Order>>> GetOrders(bool? closed = null, int? parentId = null, DateTime? from = null, DateTime? to = null) =>
+        await m_Service.GetOrders(closed, parentId, from, to);
 
     // GET: api/Orders/5
     [HttpGet("{id}")]
@@ -48,8 +48,8 @@ public class OrdersController : ControllerBase {
     [HttpGet("{id}/ChildOrders")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<Order>>> GetChildOrders(int id) =>
-        await m_Service.GetChildOrders(id);
+    public async Task<ActionResult<List<Order>>> GetChildOrders(int id, DateTime? from = null, DateTime? to = null) =>
+        await m_Service.GetChildOrders(id, from, to);
 
     // GET: api/Orders/5/AllRelated
     [HttpGet("{id}/AllRelated")]
@@ -100,8 +100,8 @@ public class OrdersController : ControllerBase {
     // GET: api/Orders/5/OrderItems
     [HttpGet("{id}/OrderItems")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int id) =>
-        await m_Service.GetOrderItems(id, m_OrderItemsService);
+    public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int id, int? stockId = null) =>
+        await m_Service.GetOrderItems(id, stockId, m_OrderItemsService);
 
     // GET: api/Orders/5/Transactions
     [HttpGet("{id}/Transactions")]

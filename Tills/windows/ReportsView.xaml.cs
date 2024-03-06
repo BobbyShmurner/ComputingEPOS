@@ -33,8 +33,29 @@ public partial class ReportsView : UserControl
 
         DataGrid = MainGrid;
         ReportGrids = new List<IReportGrid> {
-            new SalesReportGrid()
+            new SalesReportGrid(),
+            new ProductMixReportGrid(),
         };
+
+        GenerateReportButtons();
+    }
+
+    void GenerateReportButtons() {
+        foreach (IReportGrid grid in ReportGrids)
+        {
+            TextBlock buttonContent = new();
+            buttonContent.Text = grid.Title;
+
+            Button button = new();
+            button.Content = buttonContent;
+
+            button.Click += (_, _) => UIDispatcher.EnqueueUIAction(async () => {
+                await ShowGrid(grid);
+                UIDispatcher.UpdateUI();
+            });
+
+            ReportButtonsStackPanel.Children.Add(button);
+        }
     }
 
     public readonly DependencyProperty IntervalDependecyProperty = DependencyProperty.Register(
@@ -119,9 +140,4 @@ public partial class ReportsView : UserControl
     );
 
     private void PrintButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
-
-    private void SwitchReportButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
-        await ShowGrid(ReportGrids[0]);
-        UIDispatcher.UpdateUI();
-    });
 }

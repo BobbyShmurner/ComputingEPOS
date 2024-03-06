@@ -15,9 +15,14 @@ namespace ComputingEPOS.Backend.Controllers;
 [ApiController]
 public class StockController : ControllerBase {
 	private readonly IStockService m_Service;
+	private readonly IOrdersService m_OrdersService;
+	private readonly IOrderItemsService m_OrderItemsService;
 
-	public StockController(IStockService service) =>
-		 m_Service = service;
+    public StockController(IStockService service, IOrdersService ordersService, IOrderItemsService orderItemsService) {
+		m_Service = service;
+		m_OrdersService = ordersService;
+		m_OrderItemsService = orderItemsService;
+	}
 
 	// GET: api/Stock
 	[HttpGet]
@@ -32,8 +37,22 @@ public class StockController : ControllerBase {
 	public async Task<ActionResult<Stock>> GetStock(int id) =>
 		await m_Service.GetStock(id);
 
-	// PUT: api/Stock/5
-	[HttpPut("{id}")]
+    // GET: api/Stock/5/Pmix
+    [HttpGet("{id}/Pmix")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PmixReport>> GetStockPmix(int id, DateTime from, DateTime? to = null) =>
+        await m_Service.GetStockPmix(id, from, to, m_OrdersService, m_OrderItemsService);
+
+    // GET: api/Stock/Pmix
+    [HttpGet("Pmix")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<PmixReport>>> GetAllStockPmix(DateTime from, DateTime? to = null) =>
+        await m_Service.GetAllStockPmix(from, to, m_OrdersService, m_OrderItemsService);
+
+    // PUT: api/Stock/5
+    [HttpPut("{id}")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]

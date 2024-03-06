@@ -4,16 +4,16 @@ using ComputingEPOS.Models;
 namespace ComputingEPOS.Backend.Services;
 
 public interface IOrdersService {
-    public Task<ActionResult<List<Order>>> GetOrders(bool? closed, int? parentId);
+    public Task<ActionResult<List<Order>>> GetOrders(bool? closed, int? parentId, DateTime? from, DateTime? to);
     public Task<ActionResult<Order>> GetOrder(int id);
     public Task<ActionResult<Order?>> GetLatestOrder();
     public Task<ActionResult<int>> GetNextOrderNum();
     public Task<ActionResult<Order>> GetOrderFromOrderNum(int orderNum, bool todayOnly);
     public Task<ActionResult<Order?>> GetParentOrder(int id);
-    public Task<ActionResult<List<Order>>> GetChildOrders(int id);
+    public Task<ActionResult<List<Order>>> GetChildOrders(int id, DateTime? from, DateTime? to);
     public Task<ActionResult<List<Order>>> GetAllRelatedOrders(int id);
     public Task<ActionResult<decimal>> GetOrderCost(int id, IOrderItemsService orderItemsService);
-    public Task<ActionResult<List<OrderItem>>> GetOrderItems(int id, IOrderItemsService orderItemsService);
+    public Task<ActionResult<List<OrderItem>>> GetOrderItems(int id, int? stockId, IOrderItemsService orderItemsService);
     public Task<ActionResult<List<Transaction>>> GetOrderTransactions(int id, ITransactionsService transactionsService);
     public Task<ActionResult<decimal>> GetAmountPaid(int id, ITransactionsService transactionsService);
     public Task<ActionResult<decimal>> GetAmountDue(int id, ITransactionsService transactionsService, IOrderItemsService orderItemsService);

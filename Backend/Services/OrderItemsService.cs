@@ -16,10 +16,11 @@ public class OrderItemsService : IOrderItemsService {
 
     public OrderItemsService(BaseDbContext context) =>  m_Context = context;
 
-    public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int? orderId) {
-        if (orderId == null) return await m_Context.OrderItems.ToListAsync();
-		return await m_Context.OrderItems.Where(x => x.OrderID == orderId).ToListAsync();
-    }
+    public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int? orderId, int? stockId) =>
+        await m_Context.OrderItems.Where(x
+            => (orderId == null || x.OrderID == orderId)
+            && (stockId == null || x.StockID == stockId)
+        ).ToListAsync();
 
     public async Task<ActionResult<OrderItem>> GetOrderItem(int id) {
 		OrderItem? orderItem = await m_Context.OrderItems.FindAsync(id);

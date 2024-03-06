@@ -33,7 +33,7 @@
                     </StackPanel.Resources>
                     <Button Click="PrintButton_Click">Print</Button>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Name="ReportButtonsStackPanel">
                     <StackPanel.Resources>
                         <Style TargetType="{x:Type Button}">
                             <Setter Property="Margin" Value="2, 5, 3, 5"/>
@@ -41,13 +41,9 @@
                         </Style>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextAlignment" Value="Center"/>
+                            <Setter Property="TextWrapping" Value="Wrap"/>
                         </Style>
                     </StackPanel.Resources>
-                    <Button Click="SwitchReportButton_Click">Sales</Button>
-                    <Button Click="SwitchReportButton_Click"><TextBlock>Product<LineBreak/>Mix</TextBlock></Button>
-                    <Button Click="SwitchReportButton_Click">Stock</Button>
-                    <Button Click="SwitchReportButton_Click">Timings</Button>
-                    <Button Click="SwitchReportButton_Click"><TextBlock>Clock<LineBreak/>In/Out</TextBlock></Button>
                 </StackPanel>
             </Grid>
         </Border>

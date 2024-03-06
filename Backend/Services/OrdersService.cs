@@ -18,10 +18,12 @@ public class OrdersService : IOrdersService {
 
     public OrdersService(BaseDbContext context) =>  _context = context;
 
-    public async Task<ActionResult<List<Order>>> GetOrders(bool? closed, int? parentId) =>
+    public async Task<ActionResult<List<Order>>> GetOrders(bool? closed, int? parentId, DateTime? from, DateTime? to) =>
         await _context.Orders.Where(x
             => (closed == null || x.IsClosed == closed)
             && (parentId == null || x.ParentOrderID == parentId)
+            && (from == null || x.Date >= from)
+            && (to == null || x.Date <= to)
         ).ToListAsync();
 
     public async Task<ActionResult<Order>> GetOrder(int id) {
@@ -49,12 +51,12 @@ public class OrdersService : IOrdersService {
         return parentOrderResult.Value;
     }
 
-    public async Task<ActionResult<List<Order>>> GetChildOrders(int id) {
+    public async Task<ActionResult<List<Order>>> GetChildOrders(int id, DateTime? from, DateTime? to) {
 		ActionResult<Order> orderResult = await GetOrder(id);
         if (orderResult.Result != null) return orderResult.Result!;
         Order order = orderResult.Value!;
 
-        return await GetOrders(closed: null, parentId: order.OrderID);
+        return await GetOrders(closed: null, parentId: order.OrderID, from: from, to: to);
     }
 
     public async Task<ActionResult<List<Order>>> GetAllRelatedOrders(int id) {
@@ -73,21 +75,21 @@ public class OrdersService : IOrdersService {
             parentOrder = parentOrderRes.Value!;
         }
 
-        ActionResult<List<Order>> childOrdersRes = await GetChildOrders(parentOrder.OrderID);
+        ActionResult<List<Order>> childOrdersRes = await GetChildOrders(parentOrder.OrderID, from: null, to: null);
         if (childOrdersRes.Result != null) return childOrdersRes.Result;
         
         childOrdersRes.Value!.Add(parentOrder);
         return childOrdersRes.Value!;
     }
 
-    public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int id, IOrderItemsService orderItemsService)
-        => await orderItemsService.GetOrderItems(id);
+    public async Task<ActionResult<List<OrderItem>>> GetOrderItems(int id, int? stockId, IOrderItemsService orderItemsService)
+        => await orderItemsService.GetOrderItems(id, stockId);
 
     public async Task<ActionResult<List<Transaction>>> GetOrderTransactions(int id, ITransactionsService transactionsService)
         => await transactionsService.GetTransactions(id);
 
     public async Task<ActionResult<decimal>> GetOrderCost(int id, IOrderItemsService orderItemsService) {
-        ActionResult<List<OrderItem>> itemsResult = await GetOrderItems(id, orderItemsService);
+        ActionResult<List<OrderItem>> itemsResult = await GetOrderItems(id, null, orderItemsService);
         if (itemsResult.Result != null) return itemsResult.Result!;
 
         List<OrderItem> items = itemsResult.Value!;
