@@ -19,6 +19,9 @@ public class UIDispatcher : Singleton<UIDispatcher> {
     Thread asyncLoop = CreateAsyncLoop();
     Dispatcher dispatcher = Window.Dispatcher;
 
+    public int queuedUiThreadActions => uiThreadActions.Count;
+    public int queuedUiActions => uiActions.Count;
+
     /// <summary>
     /// Enqueue an async action triggered by UI to be executed.
     /// </summary>
@@ -61,13 +64,13 @@ public class UIDispatcher : Singleton<UIDispatcher> {
     public static void DispatchOnUIThread(Action action) =>
         Instance.dispatcher.Invoke(action);
 
-    /// <summary>
-    /// Adds an action to a queue of actions to be dispatched on the UI thread. <br/>
-    /// To dispatch the actions, see <see cref="UpdateUI"/>.
-    /// </summary>
-    /// <param name="action"></param>
     public static void EnqueueOnUIThread(Action action) =>
         Instance.uiThreadActions.Enqueue(action);
+
+    public static Task WaitForUIUpdate() =>
+        Task.Run(() => {
+            while (Instance.queuedUiThreadActions > 0) Thread.Sleep(100);
+        });
 
     /// <summary>
     /// Adds an action to the end of the UI queue, and then dispatches all events in the queue. <br/>
