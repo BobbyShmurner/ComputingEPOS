@@ -12,7 +12,7 @@ using static ComputingEPOS.Models.Transaction;
 
 namespace ComputingEPOS.Tills.Api;
 
-public class Transactions : Singleton<Client> {
+public static class Transactions {
     public static async Task<Transaction?> Create(Order order, decimal amountPaid, PaymentMethods paymentMethod)
     {
         var item = new Transaction

@@ -10,8 +10,8 @@
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="60" />
-            <RowDefinition Height="3*" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="60" />
         </Grid.RowDefinitions>
         <Border BorderBrush="DimGray" Background="LightGray" BorderThickness="0, 1">
             <Grid>
@@ -61,13 +61,30 @@
             <DataGrid x:Name="MainGrid" DockPanel.Dock="Top" BorderThickness="1"/>
             <!--<DataGrid x:Name="EmptyGrid" HeadersVisibility="Row" BorderThickness="1, 0, 1, 1" VerticalScrollBarVisibility="Hidden"/>-->
         </DockPanel>
-        <Grid Grid.Row="2" Margin="20">
-            <StackPanel Orientation="Vertical">
-                <StackPanel Orientation="Horizontal">
+        <Grid Grid.Row="2" Margin="20, 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                <DockPanel Margin="5, 0">
                     <Label FontSize="16">Time Frame:</Label>
-                    <ComboBox Width="200" ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}" VerticalContentAlignment="Center" />
-                </StackPanel>
+                    <ComboBox ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}" VerticalContentAlignment="Center" />
+                </DockPanel>
             </StackPanel>
+            <!--<StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+                <DockPanel Margin="5, 0">
+                    <Label FontSize="16">Time Frame:</Label>
+                    <ComboBox ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}" VerticalContentAlignment="Center" />
+                </DockPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Vertical" VerticalAlignment="Center">
+                <DockPanel Margin="5, 0">
+                    <Label FontSize="16">Time Frame:</Label>
+                    <ComboBox ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}" VerticalContentAlignment="Center" />
+                </DockPanel>
+            </StackPanel>-->
         </Grid>
     </Grid>
 </UserControl>

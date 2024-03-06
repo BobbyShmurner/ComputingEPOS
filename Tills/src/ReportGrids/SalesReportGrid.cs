@@ -19,30 +19,20 @@ public class SalesReportGrid : ReportGrid<SalesReportData> {
         for (int i = 0; i < intervals.Count - 1; i++)
         {
             data.Add(new SalesReportData {
-                Date = intervals[i].ToString(interval == TimeInterval.Hourly ? "HH:mm" : "dd/MM/yy"),
-                Net = $"£{grossSales[i] * .8m:n2}",
-                Gross = $"£{grossSales[i]:n2}",
-                Tax = $"£{grossSales[i] * .2m:n2}",
+                Date = intervals[i],
+                Gross = grossSales[i],
             });
         }
 
         decimal grossSum = grossSales.Sum();
 
-        data.Add(new SalesReportData());
-        data.Add(new SalesReportData {
-            Date = "Total",
-            Net = $"£{grossSum * .8m:n2}",
-            Gross = $"£{grossSum:n2}",
-            Tax = $"£{grossSum * .2m:n2}",
-        });
-
         return data;
     }
 
-    protected override List<DataGridColumnInfo> GetColumnInfo() {
+    protected override List<DataGridColumnInfo> GetColumnInfo(TimeInterval interval) {
         return new List<DataGridColumnInfo>
         {
-            new("Date", nameof(SalesReportData.Date)),
+            new("Date", nameof(SalesReportData.Date), interval == TimeInterval.Hourly ? "HH:mm" : "dd/MM/yy"),
             new("Net", nameof(SalesReportData.Net)),
             new("Gross", nameof(SalesReportData.Gross)),
             new("Tax", nameof(SalesReportData.Tax)),
@@ -51,8 +41,8 @@ public class SalesReportGrid : ReportGrid<SalesReportData> {
 }
 
 public class SalesReportData {
-    public string Date { get; set; } = string.Empty;
-    public string Net { get; set; } = string.Empty;
-    public string Gross { get; set; } = string.Empty;
-    public string Tax { get; set; } = string.Empty;
+    public DateTime Date { get; set; } = DateTime.MinValue;
+    public decimal Gross { get; set; } = 0m;
+    public decimal Net => Gross * .8m;
+    public decimal Tax => Gross * .2m;
 }

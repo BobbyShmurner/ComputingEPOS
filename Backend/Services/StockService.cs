@@ -24,60 +24,62 @@ public class StockService : IStockService {
 		return stock != null ? stock : new NotFoundResult();
 	}
 
-	public async Task<ActionResult<PmixReport>> GetStockPmix(int id, DateTime from, DateTime? to, IOrdersService ordersService, IOrderItemsService orderItemsService) {
+	public async Task<ActionResult<PmixReport>> GetStockPmix(int id, DateTime? from, DateTime? to, IOrdersService ordersService, IOrderItemsService orderItemsService) {
 		ActionResult<Stock> stockRes = await GetStock(id);
         if (stockRes.Result != null) return stockRes.Result;
         Stock stock = stockRes.Value!;
 
-		return await GetStockPmix_Internal(stock, from, to, ordersService, orderItemsService);
+		ActionResult<List<PmixReport>> reportsRes = await GetStockPmix_Internal(new List<Stock> { stock }, from, to, ordersService, orderItemsService);
+        if (reportsRes.Result != null) return reportsRes.Result;
+
+        return reportsRes.Value!.First();
     }
 
-    public async Task<ActionResult<List<PmixReport>>> GetAllStockPmix(DateTime from, DateTime? to, IOrdersService ordersService, IOrderItemsService orderItemsService)
+    public async Task<ActionResult<List<PmixReport>>> GetAllStockPmix(DateTime? from, DateTime? to, IOrdersService ordersService, IOrderItemsService orderItemsService)
     {
         ActionResult<List<Stock>> allStockRes = await GetAllStock();
         if (allStockRes.Result != null) return allStockRes.Result;
         List<Stock> allStock = allStockRes.Value!;
 
-		List<PmixReport> reports = new();
-		foreach (Stock stock in allStock) {
-			ActionResult<PmixReport> reportRes = await GetStockPmix_Internal(stock, from, to, ordersService, orderItemsService);
-            if (reportRes.Result != null) return reportRes.Result;
-            reports.Add(reportRes.Value!);
-        }
-
-		return reports;
+		return await GetStockPmix_Internal(allStock, from, to, ordersService, orderItemsService);
     }
 
-    async Task<ActionResult<PmixReport>> GetStockPmix_Internal(Stock stock, DateTime from, DateTime? to, IOrdersService ordersService, IOrderItemsService orderItemsService) {
+    async Task<ActionResult<List<PmixReport>>> GetStockPmix_Internal(List<Stock> stocks, DateTime? from, DateTime? to, IOrdersService ordersService, IOrderItemsService orderItemsService) {
+		from ??= DateTime.MinValue;
 		to ??= DateTime.Now;
 
         ActionResult<List<Order>> ordersRes = await ordersService.GetOrders(closed: true, parentId: null, from: from, to: to);
-		if (ordersRes.Result != null) return ordersRes.Result;
-		List<Order> orders = ordersRes.Value!;
+        if (ordersRes.Result != null) return ordersRes.Result;
+        List<Order> orders = ordersRes.Value!;
 
-		float quantitySold = 0f;
-		decimal gross = 0m;
+        List<OrderItem> orderItems = new();
+		List<PmixReport> reports = new();
 
-		foreach (var order in orders) {
-			Console.WriteLine($"Order: {order.OrderID}, Closed: {order.IsClosed}");
-
-			ActionResult<List<OrderItem>> orderItemsRes = await orderItemsService.GetOrderItems(order.OrderID, stock.StockID);
+        foreach (var order in orders) {
+			ActionResult<List<OrderItem>> orderItemsRes = await orderItemsService.GetOrderItems(order.OrderID, stockId: null);
 			if (orderItemsRes.Result != null) return orderItemsRes.Result;
-			List<OrderItem> orderItems = orderItemsRes.Value!;
-
-			orderItems.ForEach(item => {
-                quantitySold += item.Quantity;
-                gross += item.Subtotal;
-            });
+			orderItems.AddRange(orderItemsRes.Value!);
 		}
 
-		return new PmixReport {
-			Stock = stock,
-			From = from,
-			To = to.Value,
-			QuantitySold = quantitySold,
-			Gross = gross,
-		};
+		foreach (var stock in stocks) {
+            float quantitySold = 0f;
+            decimal gross = 0m;
+
+            foreach (var item in orderItems.Where(item => item.StockID == stock.StockID)) {
+                quantitySold += item.Quantity;
+                gross += item.Subtotal;
+            }
+
+            reports.Add(new PmixReport {
+                Stock = stock,
+                From = from.Value,
+                To = to.Value,
+                QuantitySold = quantitySold,
+                Gross = gross,
+            });
+        }
+
+		return reports;
 	}
 
 	public async Task<ActionResult<Stock>> PutStock(Stock stock) {
