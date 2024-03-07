@@ -10,7 +10,7 @@ namespace ComputingEPOS.Tills;
 public class ProductMixReportGrid : ReportGrid<ProductMixReportData> {
     public override string Title => "Product Mix";
 
-    protected async override Task<List<ProductMixReportData>> CollectData(TimeInterval interval) {
+    protected async override Task<(List<ProductMixReportData>, ProductMixReportData)> CollectData(TimeInterval interval) {
         List<ProductMixReportData> data = new();
 
         List<PmixReport> reports = await Api.Stock.GetAllStockPmix(interval.GetFromDate(), DateTime.Now);
@@ -23,7 +23,13 @@ public class ProductMixReportGrid : ReportGrid<ProductMixReportData> {
             });
         }
 
-        return data;
+        ProductMixReportData total = new() {
+            Stock = "Total",
+            QuantitySold = data.Sum(x => x.QuantitySold),
+            Gross = data.Sum(x => x.Gross),
+        };
+
+        return (data, total);
     }
 
     protected override List<DataGridColumnInfo> GetColumnInfo(TimeInterval interval) {

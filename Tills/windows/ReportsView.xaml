@@ -47,27 +47,46 @@
                 </StackPanel>
             </Grid>
         </Border>
-        <DockPanel Grid.Row="1" Margin="20" Background="LightGray" x:Name="GridContainer">
-            <DockPanel.Resources>
-                <Style TargetType="{x:Type DataGrid}">
-                    <Setter Property="AutoGenerateColumns" Value="False"/>
-                    <Setter Property="IsReadOnly" Value="True"/>
-                    <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
-                    <Setter Property="CanUserResizeColumns" Value="False"/>
-                    <Setter Property="CanUserResizeRows" Value="False"/>
-                    <Setter Property="CanUserReorderColumns" Value="False"/>
-                </Style>
-            </DockPanel.Resources>
-            <DataGrid x:Name="MainGrid" DockPanel.Dock="Top" BorderThickness="1"/>
-            <!--<DataGrid x:Name="EmptyGrid" HeadersVisibility="Row" BorderThickness="1, 0, 1, 1" VerticalScrollBarVisibility="Hidden"/>-->
-        </DockPanel>
+        <Grid Grid.Row="1" Margin="20, 20, 20, 0">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top">
+                    <Border  BorderBrush="DimGray" BorderThickness="1">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" x:Name="SV_ReportScrollViewer">
+                            <StackPanel x:Name="GridContainer">
+                                <StackPanel.Resources>
+                                    <Style TargetType="{x:Type DataGrid}">
+                                        <Setter Property="AutoGenerateColumns" Value="False"/>
+                                        <Setter Property="IsReadOnly" Value="True"/>
+                                        <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
+                                        <Setter Property="CanUserResizeColumns" Value="False"/>
+                                        <Setter Property="CanUserResizeRows" Value="False"/>
+                                        <Setter Property="CanUserReorderColumns" Value="False"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                                    </Style>
+                                </StackPanel.Resources>
+
+                                <DataGrid x:Name="DG_MainGrid" PreviewMouseWheel="DG_Scroll"/>
+                                <DataGrid x:Name="DG_TotalGrid" HeadersVisibility="Row" PreviewMouseWheel="DG_Scroll"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+                <Border Background="LightGray" BorderBrush="DimGray" DockPanel.Dock="Bottom" BorderThickness="1, 0, 1, 1"/>
+            </DockPanel>
+            <Grid x:Name="LoadingOverlay">
+                <Border Background="Black" Opacity="0.25"/>
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="100" FontStyle="Italic" Opacity="1">Loading...</TextBlock>
+            </Grid>
+        </Grid>
+
         <Grid Grid.Row="2" Margin="20, 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+            <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
                 <DockPanel Margin="5, 0">
                     <Label FontSize="16">Time Frame:</Label>
                     <ComboBox ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}" VerticalContentAlignment="Center" />

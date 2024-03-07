@@ -16,7 +16,6 @@ public class Client : Singleton<Client> {
 
     public static HttpClient HttpClient { get; private set; } = new() {
         BaseAddress = new Uri("http://localhost:5068/api"),
-        Timeout = TimeSpan.FromSeconds(5),
     };
 
     public static Task<HttpResponseMessage> GetAsync(string? requestUri) =>
@@ -30,15 +29,15 @@ public class Client : Singleton<Client> {
 
     async Task<T> GenericRequestAsync<T>(Func<Task<T>> taskFactory) {
         Trace.WriteLine("Executing Async Request");
-        FrameworkElement? previousView = null;
+        bool didTimeout = false;
 
         while (true) {
             try {
                 T res = await taskFactory();
 
-                if (previousView != null) {
+                if (didTimeout) {
                     UIDispatcher.DispatchOnUIThread(() => {
-                        MainWindow.Instance.RootViewManager.ShowView(previousView);
+                        ConnectionScreen.Instance.ShowPreviousScreen();
                         Modal.Instance.Hide();
                     });
                 }
@@ -48,7 +47,7 @@ public class Client : Singleton<Client> {
                 ex is HttpRequestException && ((HttpRequestException)ex).StatusCode == null ||
                 ex is TaskCanceledException && ex.InnerException is TimeoutException
             ) {
-                UIDispatcher.DispatchOnUIThread(() => previousView = MainWindow.Instance.RootViewManager.CurrentView);
+                didTimeout = true;
                 Instance.OnTimeout?.Invoke();
 
                 ConnectionScreen.Instance.SetConnectionDown(true);

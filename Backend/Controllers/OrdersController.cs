@@ -116,14 +116,14 @@ public class OrdersController : ControllerBase {
         await m_Service.GetOrderTransactions(id, m_TransactionsService);
 
     // PUT: api/Orders/5
-    /*[HttpPut("{id}")]
+    [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Order>> PutOrder(int id, Order order) {
-        if (id != order.OrderID) return BadRequest(); 
+        if (id != order.OrderID) return BadRequest();
         return await m_Service.PutOrder(order);
-    }*/
+    }
 
     // POST: api/Orders/5/CloseCheck?force=false
     [HttpPost("{id}/CloseCheck")]

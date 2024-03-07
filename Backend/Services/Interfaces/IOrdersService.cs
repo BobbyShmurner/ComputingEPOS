@@ -18,7 +18,7 @@ public interface IOrdersService {
     public Task<ActionResult<decimal>> GetAmountPaid(int id, ITransactionsService transactionsService);
     public Task<ActionResult<decimal>> GetAmountDue(int id, ITransactionsService transactionsService, IOrderItemsService orderItemsService);
 
-    // public Task<ActionResult<Order>> PutOrder(Order order);
+    public Task<ActionResult<Order>> PutOrder(Order order);
 
     public Task<ActionResult<Order>> PostOrder(Order order, int? parentId);
     public Task<ActionResult<Order>> FinaliseOrder(int id);

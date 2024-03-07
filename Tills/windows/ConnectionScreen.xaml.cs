@@ -41,6 +41,13 @@ public partial class ConnectionScreen : UserControl {
         }
     }
 
+    public void ShowPreviousScreen() {
+        UIDispatcher.DispatchOnUIThread(() => {
+            MainWindow.Instance.Modal.Hide();
+            MainWindow.Instance.RootViewManager.ShowView(previousView);
+        });
+    }
+
     public async Task Ping(bool setViewOnDown = true, bool setViewOnUp = true) {
         try {
             Trace.WriteLine("Ping!");
@@ -64,7 +71,10 @@ public partial class ConnectionScreen : UserControl {
         if (!updateView) return;
 
         UIDispatcher.DispatchOnUIThread(() => {
-            previousView = MainWindow.Instance.RootViewManager.CurrentView;
+            var currentView = MainWindow.Instance.RootViewManager.CurrentView;
+
+            if (currentView != this)
+                previousView = currentView;
 
             MainWindow.Instance.RootViewManager.ShowView(this);
             MainWindow.Instance.Modal.Show("Connection to the Tills Server Lost!\n\nRetrying...", false);
@@ -75,9 +85,6 @@ public partial class ConnectionScreen : UserControl {
         ConnectionUp = true;
 
         if (!updateView) return;
-        UIDispatcher.DispatchOnUIThread(() => {
-            MainWindow.Instance.Modal.Hide();
-            MainWindow.Instance.RootViewManager.ShowView(previousView);
-        });
+        ShowPreviousScreen();
     }
 }

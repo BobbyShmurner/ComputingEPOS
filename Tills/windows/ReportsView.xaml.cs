@@ -23,7 +23,8 @@ namespace ComputingEPOS.Tills;
 /// </summary>
 public partial class ReportsView : UserControl
 {
-    public DataGrid DataGrid { get; private set; }
+    public DataGrid DataGrid => DG_MainGrid;
+    public TotalGrid TotalGrid { get; }
 
     public List<IReportGrid> ReportGrids { get; }
 
@@ -31,11 +32,12 @@ public partial class ReportsView : UserControl
         InitializeComponent();
         DataContext = this;
 
-        DataGrid = MainGrid;
         ReportGrids = new List<IReportGrid> {
             new SalesReportGrid(),
             new ProductMixReportGrid(),
         };
+
+        TotalGrid = new(DG_TotalGrid);
 
         GenerateReportButtons();
     }
@@ -94,6 +96,10 @@ public partial class ReportsView : UserControl
     }
 
     public async Task ShowGrid(IReportGrid grid) {
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
+            LoadingOverlay.Visibility = Visibility.Visible;
+        });
+
         CurrentGrid = grid;
 
         DataGrid? dataGrid = null;
@@ -104,40 +110,35 @@ public partial class ReportsView : UserControl
             interval = Interval;
         });
 
-        await grid.ShowGrid(dataGrid!, interval!.Value);
+        await grid.ShowGrid(dataGrid!, TotalGrid, interval!.Value);
 
-        //UIDispatcher.EnqueueOnUIThread(() =>
-        //{
-        //    EmptyGrid.Columns.Clear();
+        UIDispatcher.EnqueueOnUIThread(() => {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+        });
+    }
 
-        //    for (int i = 0; i < DataGrid.Columns.Count; i++)
-        //    {
-        //        EmptyGrid.Columns.Add(new DataGridTextColumn
-        //        {
-        //            Width = DataGrid.Columns[i].Width
-        //        });
-        //    }
+    public void PrintCurrentReport() {
+        if (CurrentGrid == null) {
+            Modal.Instance.Show("No report selected");
+            return;
+        }
 
-        //    var items = new ObservableCollection<byte>();
-
-        //    int itemCount = 0;
-        //    foreach (var item in DataGrid.ItemsSource)
-        //    {
-        //        itemCount++;
-        //    }
-
-        //    for (int i = 0; i < 20; i++)
-        //    {
-        //        items.Add(0);
-        //    }
-
-        //    EmptyGrid.ItemsSource = items;
-        //});
+        PrintManager.PrintString($"This is a {CurrentGrid.Title} Report :)", $"{CurrentGrid.Title} Report");
     }
 
     private void BackButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => MainWindow.Instance.RootViewManager.ShowView(MainWindow.Instance.MenuView))
     );
 
-    private void PrintButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
+    private void PrintButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
+        UIDispatcher.EnqueueAndUpdateOnUIThread(PrintCurrentReport)
+    );
+
+    private void DG_Scroll(object sender, MouseWheelEventArgs e) {
+        var args = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta) {
+            RoutedEvent = MouseWheelEvent,
+        };
+
+        SV_ReportScrollViewer.RaiseEvent(args);
+    }
 }

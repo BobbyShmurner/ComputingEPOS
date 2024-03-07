@@ -369,7 +369,7 @@ public class OrderManager : INotifyPropertyChanged {
         LockOrder();
         CheckoutType = checkoutType;
 
-        await Api.Orders.FinaliseOrder(CurrentOrder);
+        CurrentOrder = await Api.Orders.FinaliseOrder(CurrentOrder);
         await FetchAmountPaid();
         OrderMenuManager.ShowPaymentScreen();
     }
@@ -460,7 +460,7 @@ public class OrderManager : INotifyPropertyChanged {
 
     async Task CloseCheck() {
         if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to close!");
-        await Api.Orders.CloseCheck(CurrentOrder, false);
+        CurrentOrder = await Api.Orders.CloseCheck(CurrentOrder, false);
     }
 
     async Task PayForOrder_Internal(decimal amount, PaymentMethods paymentMethod) {
