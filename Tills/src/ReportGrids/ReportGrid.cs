@@ -84,27 +84,30 @@ public abstract class ReportGrid<T> : IReportGrid where T : class {
 
     public Type Type => typeof(T);
 
-    public async Task ShowGrid(DataGrid grid, TimeInterval timeFrame) {
-        Data = new ObservableCollection<T>(await CollectData(timeFrame));
+    public async Task ShowGrid(DataGrid grid, TotalGrid totalGrid, TimeInterval timeFrame) {
+        (var data, var totalData) = await CollectData(timeFrame);
+        Data = new ObservableCollection<T>(data);
+
         ColumnInfo = GetColumnInfo(timeFrame);
 
         UIDispatcher.EnqueueOnUIThread(() => {
             grid.ItemsSource = Data;
             grid.Columns.Clear();
 
-            foreach (var columnInfo in ColumnInfo)
-            {
-                var dataColumn = new DataGridTextColumn
-                {
+            totalGrid.SetTotal<T>(totalData, ColumnInfo);
+
+            foreach (var columnInfo in ColumnInfo) {
+                var dataColumn = new DataGridTextColumn {
                     Header = columnInfo.Header,
                     Binding = new Binding(columnInfo.Binding) { StringFormat = columnInfo.Format},
                     Width = columnInfo.Width,
                 };
+
                 grid.Columns.Add(dataColumn);
             }
         });
     }
 
-    protected abstract Task<List<T>> CollectData(TimeInterval interval);
+    protected abstract Task<(List<T>, T)> CollectData(TimeInterval interval);
     protected abstract List<DataGridColumnInfo> GetColumnInfo(TimeInterval interval);
 }

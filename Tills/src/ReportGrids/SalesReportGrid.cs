@@ -9,7 +9,7 @@ namespace ComputingEPOS.Tills;
 public class SalesReportGrid : ReportGrid<SalesReportData> {
     public override string Title => "Sales";
 
-    protected async override Task<List<SalesReportData>> CollectData(TimeInterval interval) {
+    protected async override Task<(List<SalesReportData>, SalesReportData)> CollectData(TimeInterval interval) {
         List<SalesReportData> data = new();
 
         var intervals = interval.GetIntervals();
@@ -21,21 +21,26 @@ public class SalesReportGrid : ReportGrid<SalesReportData> {
             data.Add(new SalesReportData {
                 Date = intervals[i],
                 Gross = grossSales[i],
+                Interval = interval,
             });
         }
 
-        decimal grossSum = grossSales.Sum();
+        var total = new SalesReportData {
+            DateOverride = "Total",
+            Gross = grossSales.Sum(),
+            Interval = interval,
+        };
 
-        return data;
+        return (data, total);
     }
 
     protected override List<DataGridColumnInfo> GetColumnInfo(TimeInterval interval) {
         return new List<DataGridColumnInfo>
         {
-            new("Date", nameof(SalesReportData.Date), interval == TimeInterval.Hourly ? "HH:mm" : "dd/MM/yy"),
-            new("Net", nameof(SalesReportData.Net)),
-            new("Gross", nameof(SalesReportData.Gross)),
-            new("Tax", nameof(SalesReportData.Tax)),
+            new("Date", nameof(SalesReportData.DateString)),
+            new("Net", nameof(SalesReportData.Net), "£{0:n2}"),
+            new("Gross", nameof(SalesReportData.Gross), "£{0:n2}"),
+            new("Tax", nameof(SalesReportData.Tax), "£{0:n2}"),
         };
     }
 }
@@ -45,4 +50,10 @@ public class SalesReportData {
     public decimal Gross { get; set; } = 0m;
     public decimal Net => Gross * .8m;
     public decimal Tax => Gross * .2m;
+    public string DateString => DateOverride ?? DefaultDateString;
+
+    public TimeInterval Interval { get; set; }
+
+    string DefaultDateString => Date.ToString(Interval == TimeInterval.Hourly ? "HH:mm" : "dd/MM/yy");
+    public string? DateOverride { get; set; } = null;
 }

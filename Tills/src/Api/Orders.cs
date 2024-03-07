@@ -34,11 +34,12 @@ public static class Orders {
         }
     }
 
-    public static async Task FinaliseOrder(Order order) {
+    public static async Task<Order> FinaliseOrder(Order order) {
         var response = await Client.PostAsync($"api/Orders/{order.OrderID}/Finalise", null);
 
         try {
             response.EnsureSuccessStatusCode();
+            return (await response.Content.ReadFromJsonAsync<Order>())!;
         } catch (HttpRequestException ex) when (ex.StatusCode != null) {
             await Modal.Instance.ShowError($"Failed to finalise Order #{order.OrderNum} [ID: {order.OrderID}]", response);
             throw;
@@ -90,12 +91,12 @@ public static class Orders {
         }
     }
 
-    public static async Task CloseCheck(Order order, bool forceClose = false) {
+    public static async Task<Order> CloseCheck(Order order, bool forceClose = false) {
         var response = await Client.PostAsync($"api/Orders/{order.OrderID}/CloseCheck?force={forceClose}", null);
 
         try {
             response.EnsureSuccessStatusCode();
-            return;
+            return (await response.Content.ReadFromJsonAsync<Order>())!;
         } catch (HttpRequestException ex) {
             if (ex.StatusCode != null) {
                 await Modal.Instance.ShowError($"Failed to close Order #{order.OrderNum} [ID: {order.OrderID}]", response);

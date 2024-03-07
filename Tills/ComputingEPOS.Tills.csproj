@@ -7,6 +7,14 @@
     <NoWarn>CS0067</NoWarn>
 	  <LangVersion>preview</LangVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Resources\RecieptTemplate.txt" />
+    <None Remove="Resources\Templates\PricedItem.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Templates\PricedItem.txt" />
+    <Content Include="Resources\Templates\Reciept.txt" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Models\ComputingEPOS.Models.csproj" />
