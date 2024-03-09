@@ -1,4 +1,7 @@
+import numpy as np
+import win32gui
 import time
+import cv2
 import os
 
 from io import BytesIO
@@ -7,6 +10,39 @@ from PIL import Image, ImageGrab
 from docx import Document
 from docx.document import Document as DocumentType
 import msvcrt
+
+ENTER_KEY = 13
+ESCAPE_KEY = 27
+SPACE_KEY = 32
+Q_KEY = 113
+
+def edit_image(img: Image.Image, winName: str = "Edit Screenshot"):
+	cv2.namedWindow(winName)
+
+	def enumHandler(hwnd, _):
+		try:
+			if win32gui.GetWindowText(hwnd) == winName:
+				win32gui.SetForegroundWindow(hwnd)
+		except:
+			return
+
+	firstPass = True
+
+	while True:
+		cv2.imshow(winName, cv2.cvtColor(np.array(img), cv2.COLOR_RGBA2BGRA))
+
+		if firstPass:
+			win32gui.EnumWindows(enumHandler, None)
+			firstPass = False
+
+		c = cv2.waitKey(1) 
+		isWindowClosed = cv2.getWindowProperty(winName, cv2.WND_PROP_VISIBLE) < 1
+
+		if c == ENTER_KEY or c == ESCAPE_KEY or c == SPACE_KEY or c == Q_KEY or isWindowClosed:
+			cv2.destroyAllWindows() 
+			break
+
+	return img
 
 def cls():
 	os.system('cls')
@@ -33,11 +69,9 @@ def save_doc(doc: DocumentType, path: str):
 
 	print(f"Document saved to \"{path}\"")
 
-def grab_screenshot() -> BytesIO:
+def grab_screenshot() -> Image.Image:
 	old_img = ImageGrab.grabclipboard()
 	img = old_img
-
-	print("Waiting for screenshot...")
 
 	os.system("explorer ms-screenclip:")
 
@@ -49,7 +83,7 @@ def grab_screenshot() -> BytesIO:
 
 		time.sleep(0.1)
 
-	return img_to_stream(img)
+	return img
 
 def create_doc() -> DocumentType:
 	doc: DocumentType = Document()	
@@ -73,9 +107,17 @@ def main():
 				break
 			case b's':	
 				cls()
-
+				print("Waiting for screenshot...")
 				img = grab_screenshot()
-				doc.add_picture(img, width=doc.sections[0].page_width * 0.8)
+
+				cls()
+				print("Editing Screenshot...")
+				img = edit_image(img)
+
+				# Sometimes, the snipping tool popup can stop the window from being focused
+				time.sleep(0.1)
+
+				doc.add_picture(img_to_stream(img), width=doc.sections[0].page_width * 0.8)
 
 				status = "Screenshot Added!"
 			case b'p':
@@ -86,8 +128,8 @@ def main():
 
 				status = "Paragraph Added!"
 
-	cls()
-	save_doc(doc, "out.docx")
+		cls()
+		save_doc(doc, "out.docx")
 
 if __name__ == "__main__":
 	if os.name != "nt":
