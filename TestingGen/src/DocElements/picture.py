@@ -98,7 +98,7 @@ class Picture(IDocElement):
 		cls.cls()
 
 		while img is None:
-			print("Where would you like to get the picture from?\n\n[1] - Clipboard\n[2] - File\n[q] - Quit")
+			print("Where would you like to get the picture from?\n\n[1] - Clipboard\n[2] - File\n[q] - Cancel")
 			c = msvcrt.getch()
 
 			match c:

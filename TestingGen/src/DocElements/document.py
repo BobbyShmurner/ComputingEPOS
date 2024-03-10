@@ -100,7 +100,7 @@ class Document(IDocElement):
 		while True:
 			self.cls()
 			print(status, end="\n\n")
-			print("[1] - Add Element\n[2] - Edit Element\n[3] - Remove Element\n[q] - Quit")
+			print("[1] - Add Element\n[2] - Edit Element\n[3] - Remove Element\n[q] - Save and Quit")
 			c = msvcrt.getch()
 
 			match c:
@@ -121,7 +121,7 @@ class Document(IDocElement):
 		while True:
 			self.cls()
 			print(status, end="\n\n")
-			print("[1] - Paragraph\n[2] - Picture\n[3] - Screenshot\n[q] - Back")
+			print("[1] - Paragraph\n[2] - Picture\n[3] - Screenshot\n[q] - Cancel")
 			c = msvcrt.getch()
 
 			match c:
