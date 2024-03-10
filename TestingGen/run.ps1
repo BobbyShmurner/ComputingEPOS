@@ -1,1 +1,1 @@
-python main.py && start out.docx
+python $PSScriptRoot/main.py docs/testing && start out.docx
