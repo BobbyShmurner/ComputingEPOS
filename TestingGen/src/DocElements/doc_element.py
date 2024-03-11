@@ -43,5 +43,10 @@ class IDocElement:
 	def edit(self):
 		pass
 
-	def get_type(self) -> str:
-		return self.__class__.__name__
+	@classmethod
+	def display_name(cls) -> str:
+		return cls.get_type()
+
+	@classmethod
+	def get_type(cls) -> str:
+		return cls.__name__
