@@ -8,13 +8,14 @@ class ElementWizard:
 	status: str = "Please Choose an Option..."
 		
 	@classmethod
-	def wizard(cls, elements: list[IDocElement], path_title: str, can_add: bool = True, can_edit: bool = True, can_remove: bool = True, allowed_types_to_add: list[str] = None, ignored_types_to_add: list[str] = None, callback: Optional[callable] = None):
+	def wizard(cls, elements: list[IDocElement], path_title: str, can_add: bool = True, can_edit: bool = True, can_remove: bool = True, can_reorder: bool = True, allowed_types_to_add: list[str] = None, ignored_types_to_add: list[str] = None, callback: Optional[callable] = None):
 		with PathTree(path_title):
 			options = []
 
 			if can_add: options.append("Add Element")
 			if can_edit: options.append("Edit Element")
 			if can_remove: options.append("Remove Element")
+			if can_reorder: options.append("Reorder Element")
 
 			status = "Please Choose an Option..."
 
@@ -28,6 +29,7 @@ class ElementWizard:
 				if can_add: functions.append(lambda e: cls.add_wizard(e, allowed_types_to_add, ignored_types_to_add))
 				if can_edit: functions.append(cls.edit_wizard)
 				if can_remove: functions.append(cls.remove_wizard)
+				if can_reorder: functions.append(cls.reorder_wizard)
 
 				functions[index](elements)
 				if callback: callback()
@@ -46,7 +48,7 @@ class ElementWizard:
 			status = status if status else "Please Choose an Element to Add:"
 
 			while True:
-				index = cls.selection_wizard(choices, status, cancel_option)
+				index = cls.selection_wizard(choices, status=status, cancel_text=cancel_option)
 
 				if index == -1:
 					cls.status = "Cancelled"
@@ -66,7 +68,7 @@ class ElementWizard:
 			status = status if status else "Please Choose an Element to Edit:"
 
 			while True:
-				index = cls.selection_wizard(elements, status, cancel_option)
+				index = cls.selection_wizard(elements, status=status, cancel_text=cancel_option)
 
 				if index == -1:
 					cls.status = None
@@ -83,7 +85,7 @@ class ElementWizard:
 			status = status if status else "Please Choose an Element to Remove:"
 
 			while True:
-				index = cls.selection_wizard(elements, status, cancel_option)
+				index = cls.selection_wizard(elements, status=status, cancel_text=cancel_option)
 				
 				if index == -1:
 					cls.status = None
@@ -93,8 +95,32 @@ class ElementWizard:
 				status = f"Removed {e.get_type()}"
 
 	@classmethod
-	def selection_wizard(cls, items: list[str], status: Optional[str] = None, cancel_text: str = "Cancel") -> int:
-		index = 0
+	def reorder_wizard(cls, elements: list[IDocElement], status: Optional[str] = None, cancel_option: str = "Cancel"):
+		with PathTree("Reorder"):
+			status = status if status else "Please Choose an Element to Move:"
+
+			while True:
+				index = cls.selection_wizard(elements, status=status, cancel_text=cancel_option)
+
+				if index == -1:
+					cls.status = None
+					return
+				
+				with PathTree("Reordering..."):
+					new_index = cls.selection_wizard(elements, status="Please Choose a New Position:", cancel_text="Cancel", reorder_index=index)
+
+					if new_index == -1:
+						status = "Canceled"
+						continue
+					
+					e = elements.pop(index)
+					elements.insert(new_index, e)
+
+					status = f"Reordered {e.get_type()}"
+
+	@classmethod
+	def selection_wizard(cls, items: list[str], status: Optional[str] = None, cancel_text: str = "Cancel", reorder_index: Optional[int] = 0) -> int:
+		index = 0 if not reorder_index else reorder_index
 
 		if status:
 			cls.status = status
@@ -110,9 +136,27 @@ class ElementWizard:
 			options = items.copy()
 			options.append(cancel_text)
 
-			for i, element in enumerate(options):
+			for i in range(len(options)):
+				if reorder_index:
+					if index == len(options) - 1:
+						option_i = i
+					elif i == index:
+						option_i = reorder_index
+					elif index < reorder_index and i <= reorder_index and i > index:
+						option_i = i - 1
+					elif index > reorder_index and i >= reorder_index and i < index:
+						option_i = i + 1
+					else:
+						option_i = i
+				else:
+					option_i = i
+
 				prefix = "-" if i != index else ">"
-				print(f"{prefix} [{i + 1 if i < 9 else ('-' if i < len(options) - 1 else 'q')}] {element}")
+				
+				if reorder_index and i == index:
+					prefix = "  " + prefix
+
+				print(f"{prefix} [{option_i + 1 if option_i < 9 else ('-' if option_i < len(options) - 1 else 'q')}] {options[option_i]}")
 
 			c = ord(msvcrt.getch())
 
@@ -130,9 +174,9 @@ class ElementWizard:
 					c = ord(msvcrt.getch())
 					match c:
 						case 72: # Up Arrow
-							index = (index - 1) % (len(items) + 1)
+							index = (index - 1) % len(options)
 						case 80: # Down Arrow
-							index = (index + 1) % (len(items) + 1)
+							index = (index + 1) % len(options)
 
 		if index == len(items):
 			cls.status = "Cancled"
