@@ -1,4 +1,6 @@
 from typing import Optional
+
+from src.cancelable_input import CancelableInput
 from .doc_element import IDocElement
 
 from docx.document import Document as DocumentType
@@ -67,10 +69,11 @@ class Paragraph(IDocElement):
 	def edit(self):
 		self.cls()
 
-		try:
-			self.text = input(f"Current: {self.text}\nPlease enter new text:\n\n>> ")
-		except KeyboardInterrupt:
-			pass
+		out = CancelableInput.input("Paragraph: ", self.text)
+		if out == None:
+			return
+		
+		self.text = out
 
 	def __str__(self) -> str:
 		return f"Paragraph ({self.text})"
