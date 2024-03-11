@@ -1,6 +1,8 @@
 from typing import Optional
 from .doc_element import IDocElement
 
+from docx.document import Document as DocumentType
+
 class TestList(IDocElement):
 	def __init__(self, tests: list[dict]):
 		super().__init__()
@@ -36,7 +38,7 @@ class TestList(IDocElement):
 
 		# return cls(text, font, font_size, font_color)
 	
-	def doc_gen(self, doc):
+	def doc_gen(self, doc: DocumentType):
 		pass
 		# run = doc.add_paragraph().add_run(self.text)
 
