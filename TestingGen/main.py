@@ -4,9 +4,6 @@ import os
 from src.DocElements.document import Document
 from src.context import Context
 
-def cls():
-	os.system('cls')
-
 def main():
 	if sys.argv[1:]:
 		path = sys.argv[1]

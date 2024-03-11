@@ -13,6 +13,7 @@ from PIL import Image, ImageGrab
 from docx.document import Document as DocumentType
 
 from src.element_wizard import ElementWizard
+from src.path_tree import PathTree
 
 from .doc_element import IDocElement
 from ..context import Context
@@ -77,66 +78,47 @@ class Picture(IDocElement):
 		return index + 1
 
 	@classmethod
-	def screenshot_wizard(cls) -> Optional['Picture']:
-		cls.cls()
-		print("Waiting for screenshot...")
-
-		old_img = ImageGrab.grabclipboard()
-		img = old_img
-
-		os.system("explorer ms-screenclip:")
-
-		while True:
-			img = ImageGrab.grabclipboard()
-
-			if img != old_img and img != None:
-				break
-
-			time.sleep(0.1)
-
-		return cls.wizard(img)
-
-	@classmethod
 	def wizard(cls, img: Image.Image = None) -> Optional['Picture']:
-		cls.cls()
+		with PathTree("Picture"):
+			PathTree.cls()
 
-		status = "Where would you like to get the picture from?"
-		choices = ["Clipboard", "File"]
+			status = "Where would you like to get the picture from?"
+			choices = ["Clipboard", "File"]
 
-		while img is None:
-			choice = ElementWizard.selection_wizard(choices, status)
+			while img is None:
+				choice = ElementWizard.selection_wizard(choices, status)
 
-			match choice:
-				case -1:
-					return None
-				case 0:
-					img = ImageGrab.grabclipboard()
-					status = "No Image found in clipboard"
-				case 1:
-					cls.cls()
-					img = None
+				match choice:
+					case -1:
+						return None
+					case 0:
+						img = ImageGrab.grabclipboard()
+						status = "No Image found in clipboard"
+					case 1:
+						PathTree.cls()
+						img = None
 
-					try:
-						path = input("Enter the path of the picture:\n\n>> ")
+						try:
+							path = input("Enter the path of the picture:\n\n>> ")
 
-						if os.path.exists(path):
-							img = Image.open(path)
-							if img == None:
-								status = "Invalid Image"
-						else:
-							status = "File does not exist"
-					except PIL.UnidentifiedImageError:
-						status = "Invalid Image"
-						pass
-					except KeyboardInterrupt:
-						status = "Keyboard Interrupt"
-						pass
-					except PermissionError:
-						status = "Permission Denied"
-						pass
+							if os.path.exists(path):
+								img = Image.open(path)
+								if img == None:
+									status = "Invalid Image"
+							else:
+								status = "File does not exist"
+						except PIL.UnidentifiedImageError:
+							status = "Invalid Image"
+							pass
+						except KeyboardInterrupt:
+							status = "Keyboard Interrupt"
+							pass
+						except PermissionError:
+							status = "Permission Denied"
+							pass
 
-			if img:
-				break
+				if img:
+					break
 
 		index = cls.next_index()
 
@@ -157,73 +139,74 @@ class Picture(IDocElement):
 		return Image.fromarray(img, "RGBA")
 
 	def edit(self):
-		self.cls()
-		print("Editing Picture...")
+		with PathTree("Picture"):
+			PathTree.cls()
+			print("Editing Picture...")
 
-		win_name = "Edit Picture"
-		base_img = Image.open(self.picture_path())
-		
-		click_point = (0, 0)
-		mouse_down = False
-
-		rect_history = self.rects.copy()
-		current_rect_pointer = len(rect_history) - 1
-
-		def enumHandler(hwnd, _):
-			try:
-				if win32gui.GetWindowText(hwnd) == win_name:
-					# For some odd reason, you have to press alt to bring the window to the front
-					shell = win32com.client.Dispatch("WScript.Shell")
-					shell.SendKeys('%')
-
-					win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
-					win32gui.SetForegroundWindow(hwnd)
-			except Exception as e:
-				print(e)
-				return
+			win_name = "Edit Picture"
+			base_img = Image.open(self.picture_path())
 			
-		def onMouse(event, x, y, flags, param):
-			nonlocal mouse_down, click_point, current_rect_pointer, base_img, rect_history
+			click_point = (0, 0)
+			mouse_down = False
 
-			match event:
-				case cv2.EVENT_LBUTTONDOWN:
-					rect_history = rect_history[:current_rect_pointer + 1]
-					rect_history.append([x, y, x, y])
+			rect_history = self.rects.copy()
+			current_rect_pointer = len(rect_history) - 1
+
+			def enumHandler(hwnd, _):
+				try:
+					if win32gui.GetWindowText(hwnd) == win_name:
+						# For some odd reason, you have to press alt to bring the window to the front
+						shell = win32com.client.Dispatch("WScript.Shell")
+						shell.SendKeys('%')
+
+						win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
+						win32gui.SetForegroundWindow(hwnd)
+				except Exception as e:
+					print(e)
+					return
+				
+			def onMouse(event, x, y, flags, param):
+				nonlocal mouse_down, click_point, current_rect_pointer, base_img, rect_history
+
+				match event:
+					case cv2.EVENT_LBUTTONDOWN:
+						rect_history = rect_history[:current_rect_pointer + 1]
+						rect_history.append([x, y, x, y])
+						current_rect_pointer += 1
+
+						mouse_down = True
+					case cv2.EVENT_LBUTTONUP:
+						mouse_down = False
+					case cv2.EVENT_MOUSEMOVE:
+						if mouse_down:
+							rect_history[current_rect_pointer][2] = x
+							rect_history[current_rect_pointer][3] = y
+
+			cv2.namedWindow(win_name)
+			cv2.setMouseCallback(win_name, onMouse)
+
+			firstPass = True
+			while True:
+				cv2.imshow(win_name, cv2.cvtColor(np.array(self.add_rects_to_img(base_img, rect_history[:current_rect_pointer + 1])), cv2.COLOR_RGBA2BGRA))
+
+				if firstPass:
+					win32gui.EnumWindows(enumHandler, None)
+					firstPass = False
+
+				c = cv2.waitKey(1) 
+				isWindowClosed = cv2.getWindowProperty(win_name, cv2.WND_PROP_VISIBLE) < 1
+
+				if c == ENTER_KEY or c == ESCAPE_KEY or c == SPACE_KEY or c == Q_KEY or isWindowClosed:
+					cv2.destroyAllWindows() 
+					break
+
+				if c == Z_KEY and not mouse_down and current_rect_pointer >= 0:
+					current_rect_pointer -= 1
+
+				if c == Y_KEY and not mouse_down and current_rect_pointer < len(rect_history) - 1:
 					current_rect_pointer += 1
 
-					mouse_down = True
-				case cv2.EVENT_LBUTTONUP:
-					mouse_down = False
-				case cv2.EVENT_MOUSEMOVE:
-					if mouse_down:
-						rect_history[current_rect_pointer][2] = x
-						rect_history[current_rect_pointer][3] = y
-
-		cv2.namedWindow(win_name)
-		cv2.setMouseCallback(win_name, onMouse)
-
-		firstPass = True
-		while True:
-			cv2.imshow(win_name, cv2.cvtColor(np.array(self.add_rects_to_img(base_img, rect_history[:current_rect_pointer + 1])), cv2.COLOR_RGBA2BGRA))
-
-			if firstPass:
-				win32gui.EnumWindows(enumHandler, None)
-				firstPass = False
-
-			c = cv2.waitKey(1) 
-			isWindowClosed = cv2.getWindowProperty(win_name, cv2.WND_PROP_VISIBLE) < 1
-
-			if c == ENTER_KEY or c == ESCAPE_KEY or c == SPACE_KEY or c == Q_KEY or isWindowClosed:
-				cv2.destroyAllWindows() 
-				break
-
-			if c == Z_KEY and not mouse_down and current_rect_pointer >= 0:
-				current_rect_pointer -= 1
-
-			if c == Y_KEY and not mouse_down and current_rect_pointer < len(rect_history) - 1:
-				current_rect_pointer += 1
-
-		self.rects = rect_history[:current_rect_pointer + 1]
+			self.rects = rect_history[:current_rect_pointer + 1]
 
 	def __str__(self) -> str:
 		return f"Picture (Index: {self.index})"

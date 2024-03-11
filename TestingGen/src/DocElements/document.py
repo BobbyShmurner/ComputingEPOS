@@ -7,6 +7,7 @@ from typing import Optional
 
 from src.context import Context
 from src.element_wizard import ElementWizard
+from src.path_tree import PathTree
 from .doc_element import IDocElement
 from src.DocElements import Picture, Paragraph
 
@@ -98,20 +99,20 @@ class Document(IDocElement):
 				break
 			except PermissionError:
 				if not didPrint:
-					self.cls()
+					PathTree.cls(False)
 					print("Please close the document in order to save it...")
 					didPrint = True
 				
 				time.sleep(0.5)
 
-		self.cls()
+		PathTree.cls(False)
 		print(f"Document saved to \"{path}\"")
 
 		doc.save(path)
 
 	@classmethod
 	def wizard(cls) -> Optional['Document']:
-		cls.cls()
+		PathTree.cls()
 
 		doc = cls()
 		doc.edit()
@@ -119,10 +120,14 @@ class Document(IDocElement):
 		return doc
 	
 	def edit(self):
-		ElementWizard.wizard(self.elements, callback=self.serialize_to_disk)
+		ElementWizard.wizard(self.elements, "Doc", callback=self.serialize_to_disk)
+
+	@property
+	def doc_name(self) -> str:
+		return Path(self.context.project_path).name
 
 	def __str__(self) -> str:
-		return f"Document ({Path(self.context.project_path).parent.name})"
+		return f"Document ({self.doc_name})"
 	
 	def __repr__(self) -> str:
 		string = f"Document([{', '.join([repr(e) for e in self.elements])}]"
