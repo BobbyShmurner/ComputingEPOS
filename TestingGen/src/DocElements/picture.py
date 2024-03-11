@@ -53,7 +53,8 @@ class Picture(IDocElement):
 		pic_stream = BytesIO()
 		pic.save(pic_stream, format="PNG")
 
-		doc.add_picture(pic_stream, width=doc.sections[0].page_width * 0.8)
+		aspect = pic.width / pic.height
+		doc.add_picture(pic_stream, width=doc.sections[0].page_width * min(0.5 * aspect, 0.8))
 
 	def picture_path(self) -> str:
 		return os.path.join(self.picture_dir(), f"{self.index}.png")
