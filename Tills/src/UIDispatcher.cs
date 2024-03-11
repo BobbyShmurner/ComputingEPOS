@@ -64,6 +64,14 @@ public class UIDispatcher : Singleton<UIDispatcher> {
     public static void DispatchOnUIThread(Action action) =>
         Instance.dispatcher.Invoke(action);
 
+    /// <summary>
+    /// Immediatly dispatch an action on the UI thread. This does not trigger a UI Update.
+    /// </summary>
+    /// <param name="func">The function to execute.</param>
+    /// <returns>The result of the function.</returns>
+    public static T DispatchOnUIThread<T>(Func<T> func) =>
+        Instance.dispatcher.Invoke(func);
+
     public static void EnqueueOnUIThread(Action action) =>
         Instance.uiThreadActions.Enqueue(action);
 
@@ -87,8 +95,9 @@ public class UIDispatcher : Singleton<UIDispatcher> {
     /// </summary>
     public static void UpdateUI() {
         Instance.dispatcher.Invoke(() => {
-            while (Instance.uiThreadActions.Count > 0)
-                Instance.uiThreadActions.Dequeue().Invoke();
+            Action? action;
+            while (Instance.uiThreadActions.TryDequeue(out action))
+                action?.Invoke();
         });
     }
 }

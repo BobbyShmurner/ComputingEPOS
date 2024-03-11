@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Resources;
 using System.Windows.Threading;
 using static ComputingEPOS.Models.Transaction;
 
@@ -53,6 +55,8 @@ public class OrderManager : INotifyPropertyChanged {
     public bool CanDownsizeSelected => IsItemSelected;
     public bool CanModifySelected => IsItemSelected;
     public bool CanUpsizeSelected => IsItemSelected;
+
+    public List<OrderListItemView> AllItems => RootItems.SelectMany(item => item.AllChildren.Prepend(item)).ToList();
 
     OrderListItemView? m_Selected = null;
     public OrderListItemView? Selected {
@@ -376,6 +380,66 @@ public class OrderManager : INotifyPropertyChanged {
 
     public async Task FetchAmountPaid() =>
         AmountPaid = CurrentOrder != null ? (await Api.Orders.GetAmountPaid(CurrentOrder)).Value : 0;
+
+    public async Task PrintReceipt() {
+        if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to print receipt for!");
+        if (AllItems.Count == 0) throw new InvalidOperationException("Cannot print an empty receipt!");
+
+        Uri uri = new("/ComputingEPOS.Tills;component/Resources/Templates/Reciept.txt", UriKind.Relative);
+
+        StreamResourceInfo info = UIDispatcher.DispatchOnUIThread(() => 
+            Application.GetResourceStream(uri)
+        );
+
+        if (info == null) throw new ArgumentNullException(nameof(info), "Failed to load receipt template!");
+
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Show("Printing Receipt..."));
+
+        StreamReader reader = new(info.Stream);
+        int lineLength = int.Parse((await reader.ReadLineAsync())!.Trim());
+
+        var receipt = await reader.ReadToEndAsync();
+        var orderItemsStr = FormatOrderItems(lineLength);
+
+        receipt = string.Format(receipt, CurrentOrder.OrderNum, "Bobby", CurrentOrder.OrderDuration != null ? CurrentOrder.Date.AddSeconds(CurrentOrder.OrderDuration.Value) : DateTime.Now, orderItemsStr, "", "", SubTotal, Tax, Total);
+        PrintManager.PrintString(receipt, $"Order #{CurrentOrder.OrderNum} Receipt", 16, new("Consolas"));
+
+        UIDispatcher.EnqueueOnUIThread(Modal.Instance.Hide);
+    }
+
+    string FormatOrderItems(int lineLength) {
+        var sb = new StringBuilder();
+
+        foreach(var item in AllItems) {
+            string price = item.Price.HasValue ? $" £{item.Price.Value:n2}" : "";
+
+            string line = string.Empty;
+
+            for (int i = 0; i < item.IndentLevel; i++)
+                line += "  ";
+
+            line += "- ";
+
+            string itemText = item.Text;
+            int currentLen = line.Length + price.Length;
+
+            if (currentLen + itemText.Length > lineLength) {
+                itemText = itemText.Substring(0, lineLength - currentLen - 3) + "...";
+            }
+
+            line += itemText;
+            currentLen = line.Length + price.Length;
+
+            for (int i = 0; i < lineLength - currentLen; i++)
+                line += " ";
+
+            line += price;
+
+            sb.AppendLine(line);
+        }
+
+        return sb.ToString();
+    }
 
     public async Task PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special) {
         PaymentMethod = paymentMethod;

@@ -144,6 +144,14 @@ public partial class MenuView : UserControl
         MainWindow.Shutdown(restart: true)
     );
 
+    private void PrintReceiptButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        try { await OrderManager.PrintReceipt(); }
+        catch (Exception e) { UIDispatcher.EnqueueOnUIThread(() => 
+            Modal.Instance.Show($"Failed to print receipt!\n\nReason: {(e.Message != "" ? e.Message : "Unknown")}"));
+        }
+        finally { UIDispatcher.UpdateUI(); }
+    });
+
     private void ReportsButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
             MainWindow.Instance.RootViewManager.ShowView(MainWindow.Instance.ReportsView);

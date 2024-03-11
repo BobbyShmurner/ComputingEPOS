@@ -12,8 +12,8 @@
     <None Remove="Resources\Templates\PricedItem.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Templates\PricedItem.txt" />
-    <Content Include="Resources\Templates\Reciept.txt" />
+    <Resource Include="Resources\Templates\PricedItem.txt" />
+    <Resource Include="Resources\Templates\Reciept.txt" />
   </ItemGroup>
 
   <ItemGroup>

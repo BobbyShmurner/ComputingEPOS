@@ -30,7 +30,7 @@ public class OrderListItemView {
     }
 
     public List<OrderListItemView> AllChildren =>
-        Children.SelectMany(c => c.AllChildren.Append(c))
+        Children.SelectMany(c => c.AllChildren.Prepend(c))
         .ToList();
 
     public int Index
@@ -77,7 +77,8 @@ public class OrderListItemView {
         }
     }
 
-    public int Indent => Parent != null ? Parent.Indent + INDENT_AMOUNT : BASE_INDENT;
+    public int Indent => IndentLevel * INDENT_AMOUNT + BASE_INDENT;
+    public int IndentLevel => Parent != null ? Parent.IndentLevel + 1 : 0;
 
     bool m_Selected = false;
     public bool Selected
