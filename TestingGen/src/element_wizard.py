@@ -110,7 +110,7 @@ class ElementWizard:
 
 			for i, element in enumerate(options):
 				prefix = "-" if i != index else ">"
-				print(f"{prefix} [{i + 1 if i < 9 else '-'}] {element}")
+				print(f"{prefix} [{i + 1 if i < 9 else ('-' if i < len(options) - 1 else 'q')}] {element}")
 
 			c = ord(msvcrt.getch())
 
@@ -128,9 +128,9 @@ class ElementWizard:
 					c = ord(msvcrt.getch())
 					match c:
 						case 72: # Up Arrow
-							index = max(0, index - 1)
+							index = (index - 1) % (len(items) + 1)
 						case 80: # Down Arrow
-							index = min(len(items), index + 1)
+							index = (index + 1) % (len(items) + 1)
 
 		if index == len(items):
 			cls.status = "Cancled"
