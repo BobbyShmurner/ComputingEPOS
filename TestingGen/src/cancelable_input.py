@@ -10,6 +10,7 @@ class CancelableInput:
 		if prompt: print(prompt, end="", flush=True)
 
 		if ans:
+			ans = str(ans)
 			print(ans, end="", flush=True)
 		else:
 			ans = ""
