@@ -37,9 +37,10 @@ class TestList(IDocElement):
 		return cls(title, description, tests)
 	
 	def doc_gen(self, doc: DocumentType):
-		self.test_list_count += 1
+		cls = self.__class__
+		cls.test_list_count += 1
 
-		title_run = doc.add_paragraph().add_run(f"Test {self.test_list_count}: {self.title}")
+		title_run = doc.add_paragraph().add_run(f"Test {cls.test_list_count}: {self.title}")
 		title_run.underline = True
 		title_run.font.size = Pt(16)
 		title_run.bold = True
@@ -47,7 +48,7 @@ class TestList(IDocElement):
 		doc.add_paragraph(self.description)
 
 		for i, test in enumerate(self.tests):
-			test.doc_gen(doc, self.test_list_count, i + 1)
+			test.doc_gen(doc, cls.test_list_count, i + 1)
 		
 
 	@classmethod
