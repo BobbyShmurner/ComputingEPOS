@@ -66,7 +66,11 @@ class Paragraph(IDocElement):
 	
 	def edit(self):
 		self.cls()
-		self.text = input(f"Current: {self.text}\nPlease enter new text:\n\n>> ")
+
+		try:
+			self.text = input(f"Current: {self.text}\nPlease enter new text:\n\n>> ")
+		except KeyboardInterrupt:
+			pass
 
 	def __str__(self) -> str:
 		return f"Paragraph ({self.text})"
