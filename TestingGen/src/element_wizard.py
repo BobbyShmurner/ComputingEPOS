@@ -41,10 +41,12 @@ class ElementWizard:
 			if ignored_types:
 				allowed_types = [t for t in allowed_types if t not in ignored_types]
 
+			choices = [IDocElement.type_names[t].display_name() for t in allowed_types]
+
 			status = status if status else "Please Choose an Element to Add:"
 
 			while True:
-				index = cls.selection_wizard(allowed_types, status, cancel_option)
+				index = cls.selection_wizard(choices, status, cancel_option)
 
 				if index == -1:
 					cls.status = "Cancelled"

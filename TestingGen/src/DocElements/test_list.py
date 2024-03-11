@@ -102,6 +102,10 @@ class TestList(IDocElement):
 					case 2:
 						ElementWizard.wizard(self.tests, "Tests", allowed_types_to_add=["Test"])
 
+	@classmethod
+	def display_name(cls) -> str:
+		return "Test List"
+
 	def __str__(self) -> str:
 		return f"Test List ({self.title})"
 	
