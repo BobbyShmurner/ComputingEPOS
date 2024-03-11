@@ -18,6 +18,7 @@ def main():
 	else:
 		doc = Document.wizard()
 
+	doc = Document.deserialize_from_disk()
 	doc.doc_gen()
 
 if __name__ == "__main__":
