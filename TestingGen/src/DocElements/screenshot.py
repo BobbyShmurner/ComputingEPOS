@@ -14,7 +14,7 @@ class Screenshot(Picture):
 		old_img = ImageGrab.grabclipboard()
 		img = old_img
 
-		os.system("explorer ms-screenclip:")
+		# os.system("explorer ms-screenclip:")
 
 		while True:
 			try:
