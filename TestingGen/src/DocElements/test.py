@@ -131,14 +131,10 @@ class Test(IDocElement):
 			suffix_elements = [] if answers[5].strip().lower() == "y" else None
 
 			if prefix_elements != None:
-				loop = True
-				while loop:
-					loop = ElementWizard.add_wizard(prefix_elements, cls.allowed_elements, status="Please select a prefix element to add:", cancel_option="Back")
+				ElementWizard.add_wizard(prefix_elements, cls.allowed_elements, status="Please select a prefix element to add:", cancel_option="Back")
 
 			if suffix_elements != None:
-				loop = True
-				while loop:
-					loop = ElementWizard.add_wizard(suffix_elements, cls.allowed_elements, status="Please select a suffix element to add:", cancel_option="Back")
+				ElementWizard.add_wizard(suffix_elements, cls.allowed_elements, status="Please select a suffix element to add:", cancel_option="Back")
 
 			return cls(title, passed, description, expected_output, prefix_elements, suffix_elements)
 	

@@ -66,10 +66,7 @@ class TestList(IDocElement):
 			description = answers[1].strip()
 			tests = []
 
-			loop = True
-			while loop:
-				loop = ElementWizard.add_wizard(tests, ["Test"], status="Add a test?", cancel_option="Back")
-
+			ElementWizard.add_wizard(tests, ["Test"], status="Add a test?", cancel_option="Back")
 			return cls(title, description, tests)
 	
 	def edit(self):
