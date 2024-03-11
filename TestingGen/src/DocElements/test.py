@@ -137,7 +137,19 @@ class Test(IDocElement):
 		status = "Please select an option to edit:"
 
 		while True:	
-			options = ["Title", "Description", "Expected Output", "Passed", "Prefix Elements", "Suffix Elements"]
+			options = ["Title", "Description", "Expected Output", "Passed"]
+
+			prefix_option = "Prefix Elements"
+			if self.prefix_elements:
+				prefix_option += f" {[e for e in self.prefix_elements]}"
+
+			suffix_option = "Suffix Elements"
+			if self.suffix_elements:
+				suffix_option += f" {[e for e in self.suffix_elements]}"
+
+			options.append(prefix_option)
+			options.append(suffix_option)
+
 			option = ElementWizard.selection_wizard(options, status, "Back")
 
 			self.cls()
