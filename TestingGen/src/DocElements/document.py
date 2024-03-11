@@ -120,7 +120,7 @@ class Document(IDocElement):
 		return doc
 	
 	def edit(self):
-		ElementWizard.wizard(self.elements, "Doc", callback=self.serialize_to_disk)
+		ElementWizard.wizard(self.elements, "Doc", ignored_types_to_add=['TestList'], callback=self.serialize_to_disk)
 
 	@property
 	def doc_name(self) -> str:
