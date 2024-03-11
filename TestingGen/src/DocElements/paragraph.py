@@ -62,12 +62,11 @@ class Paragraph(IDocElement):
 		with PathTree("Paragraph"):
 			PathTree.cls()
 
-			text = input("Enter paragraph text: ")
-
-			if text == "":
+			out = CancelableInput.input("Enter paragraph text: ")
+			if not out:
 				return None
 
-			return Paragraph(text)
+			return Paragraph(out)
 	
 	def edit(self):
 		with PathTree("Paragraph"):
