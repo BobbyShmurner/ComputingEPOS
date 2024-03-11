@@ -3,6 +3,7 @@ from .doc_element import IDocElement
 
 from docx.shared import Pt
 from docx.shared import RGBColor
+from docx.document import Document as DocumentType
 
 class Test(IDocElement):
 	def __init__(self, title: str, passed: bool, expected_output: str):
@@ -29,8 +30,19 @@ class Test(IDocElement):
 
 		return cls(title, passed, expected_output)
 	
-	def doc_gen(self, doc):
-		title_run = doc.add_paragraph().add_run(self.title)
+	def doc_gen(self, doc: DocumentType, test_num: Optional[int] = None, subtest_num: Optional[int] = None):
+		title = self.title
+		if test_num:
+			prefix = f"Test {test_num}"
+
+			if subtest_num:
+				prefix += f".{subtest_num}: "
+			else:
+				prefix += ": "
+
+			title = prefix + title
+
+		title_run = doc.add_paragraph().add_run(title)
 		title_run.font.size = Pt(14)
 
 		doc.add_paragraph(f"Expected Output: {self.expected_output}")

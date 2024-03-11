@@ -1,18 +1,18 @@
-from io import BytesIO
 import msvcrt
 import os
+import cv2
 import time
-from typing import Optional
-import win32com.client
 import win32con
 import win32gui
-
-import cv2
 import numpy as np
+import win32com.client
+from io import BytesIO
+from typing import Optional
+from PIL import Image, ImageGrab
+from docx.document import Document as DocumentType
+
 from .doc_element import IDocElement
 from ..context import Context
-
-from PIL import Image, ImageGrab
 
 ENTER_KEY = 13
 ESCAPE_KEY = 27
@@ -42,7 +42,7 @@ class Picture(IDocElement):
 
 		return cls(index, rects)
 	
-	def doc_gen(self, doc):
+	def doc_gen(self, doc: DocumentType):
 		pic_path = self.context.get_content_path(f"Pictures/{self.index}.png")
 		pic = self.add_rects_to_img(Image.open(pic_path), self.rects)
 
@@ -211,4 +211,4 @@ class Picture(IDocElement):
 		return f"Picture (Index: {self.index})"
 	
 	def __repr__(self) -> str:
-		return f"Picture({self.index}, {self.rects})"
+		return f"Picture({repr(self.index)}, {repr(self.rects)})"

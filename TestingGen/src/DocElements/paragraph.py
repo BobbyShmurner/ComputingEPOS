@@ -1,6 +1,7 @@
 from typing import Optional
 from .doc_element import IDocElement
 
+from docx.document import Document as DocumentType
 from docx.shared import RGBColor
 from docx.shared import Pt
 
@@ -40,7 +41,7 @@ class Paragraph(IDocElement):
 
 		return cls(text, font, font_size, font_color)
 	
-	def doc_gen(self, doc):
+	def doc_gen(self, doc: DocumentType):
 		run = doc.add_paragraph().add_run(self.text)
 
 		if self.font:
@@ -71,4 +72,10 @@ class Paragraph(IDocElement):
 		return f"Paragraph ({self.text})"
 	
 	def __repr__(self) -> str:
-		return f"Paragraph({self.text})"
+		string = f"Paragraph({repr(self.text)}"
+
+		if self.font: string += ", font=" + repr(self.font)
+		if self.font_size: string += ", font_size=" + repr(self.font_size)
+		if self.font_color: string += ", font_color=" + repr(self.font_color)
+
+		return string + ")"
