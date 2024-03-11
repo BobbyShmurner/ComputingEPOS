@@ -15,6 +15,10 @@ class IDocElement:
 	def register_type(cls):
 		IDocElement.type_names[cls.__name__] = cls
 
+	@classmethod
+	def type_name_to_cls(cls, type_name: str) -> 'IDocElement':
+		return cls.type_names[type_name]
+
 	@abstractmethod
 	def serialize(self) -> dict:
 		pass

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from src.context import Context
+from src.element_wizard import ElementWizard
 from .doc_element import IDocElement
 from src.DocElements import Picture, Paragraph
 
@@ -23,12 +24,6 @@ class Document(IDocElement):
 
 	def add_element(self, element: 'IDocElement'):
 		self.elements.append(element)
-
-	def remove_element(self, index: int):
-		self.elements.pop(index)
-
-	def edit_element(self, index: int):
-		self.elements[index].edit()
 
 	def serialize(self) -> dict:
 		data = {
@@ -114,25 +109,7 @@ class Document(IDocElement):
 		return doc
 	
 	def edit(self):
-		status = "Please Choose an Option..."
-
-		while True:
-			self.cls()
-			print(status, end="\n\n")
-			print("[1] - Add Element\n[2] - Edit Element\n[3] - Remove Element\n[q] - Save and Quit")
-			c = msvcrt.getch()
-
-			match c:
-				case b'q':
-					break
-				case b'1':
-					self.add_wizard()
-				case b'2':
-					self.edit_wizard()
-				case b'3':
-					self.remove_wizard()
-
-			self.serialize_to_disk()
+		ElementWizard.wizard(self.elements, callback=self.serialize_to_disk)
 
 	def add_wizard(self):
 		status = "Please Choose an Option..."
@@ -176,54 +153,6 @@ class Document(IDocElement):
 						status = "Cancelled"
 
 					self.serialize_to_disk()
-
-	def edit_wizard(self):
-		index = self.selection_wizard("Please select an element to edit:")
-
-		if index != -1:
-			self.edit_element(index)
-
-		self.serialize_to_disk()
-
-	def remove_wizard(self):
-		index = self.selection_wizard("Please select an element to remove:")
-
-		if index != -1:
-			self.remove_element(index)
-
-		self.serialize_to_disk()
-
-	def selection_wizard(self, title) -> int:
-		index = 0
-		
-		while True:
-			self.cls()
-			print(f"{title}\n")
-
-			options = self.elements.copy()
-			options.append("Cancel")
-
-			for i, element in enumerate(options):
-				prefix = "-" if i != index else ">"
-				print(f"{prefix} {element}")
-
-			c = ord(msvcrt.getch())
-
-			match c:
-				case 113: # q
-					return -1
-				case 13: # Enter
-					if index == len(self.elements):
-						return -1
-
-					return index
-				case 224: # Special Key
-					c = ord(msvcrt.getch())
-					match c:
-						case 72: # Up Arrow
-							index = max(0, index - 1)
-						case 80: # Down Arrow
-							index = min(len(self.elements), index + 1)
 
 	def __str__(self) -> str:
 		return f"Document ({Path(self.context.project_path).parent.name})"

@@ -1,5 +1,6 @@
 import msvcrt
 import os
+import PIL
 import cv2
 import time
 import win32con
@@ -10,6 +11,8 @@ from io import BytesIO
 from typing import Optional
 from PIL import Image, ImageGrab
 from docx.document import Document as DocumentType
+
+from src.element_wizard import ElementWizard
 
 from .doc_element import IDocElement
 from ..context import Context
@@ -97,29 +100,43 @@ class Picture(IDocElement):
 	def wizard(cls, img: Image.Image = None) -> Optional['Picture']:
 		cls.cls()
 
+		status = "Where would you like to get the picture from?"
+		choices = ["Clipboard", "File"]
+
 		while img is None:
-			print("Where would you like to get the picture from?\n\n[1] - Clipboard\n[2] - File\n[q] - Cancel")
-			c = msvcrt.getch()
+			choice = ElementWizard.selection_wizard(choices, status)
 
-			match c:
-				case b'q':
+			match choice:
+				case -1:
 					return None
-				case b'1':	
+				case 0:
 					img = ImageGrab.grabclipboard()
-				case b'2':
+					status = "No Image found in clipboard"
+				case 1:
 					cls.cls()
-					path = input("Enter the path of the picture:\n\n>> ")
+					img = None
 
-					if os.path.exists(path):
-						img = Image.open(path)
-					else:
-						img = None
+					try:
+						path = input("Enter the path of the picture:\n\n>> ")
+
+						if os.path.exists(path):
+							img = Image.open(path)
+							if img == None:
+								status = "Invalid Image"
+						else:
+							status = "File does not exist"
+					except PIL.UnidentifiedImageError:
+						status = "Invalid Image"
+						pass
+					except KeyboardInterrupt:
+						status = "Keyboard Interrupt"
+						pass
+					except PermissionError:
+						status = "Permission Denied"
+						pass
 
 			if img:
 				break
-
-			cls.cls()
-			print("Image is None, please try again.\n")
 
 		index = cls.next_index()
 
@@ -141,6 +158,7 @@ class Picture(IDocElement):
 
 	def edit(self):
 		self.cls()
+		print("Editing Picture...")
 
 		win_name = "Edit Picture"
 		base_img = Image.open(self.picture_path())
