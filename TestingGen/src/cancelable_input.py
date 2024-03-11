@@ -6,7 +6,7 @@ from src.path_tree import PathTree
 
 class CancelableInput:
 	@staticmethod
-	def input(prompt: Optional[str], ans: Optional[str]) -> Optional[str]:
+	def input(prompt: Optional[str], ans: Optional[str] = None) -> Optional[str]:
 		if prompt: print(prompt, end="", flush=True)
 
 		if ans:
