@@ -3,88 +3,88 @@ import os
 from typing import Optional
 
 from src.DocElements.doc_element import IDocElement
-
+from src.path_tree import PathTree
 class ElementWizard:
 	status: str = "Please Choose an Option..."
-
-	@staticmethod
-	def cls():
-		os.system('cls')
 		
 	@classmethod
-	def wizard(cls, elements: list[IDocElement], can_add: bool = True, can_edit: bool = True, can_remove: bool = True, allowed_types_to_add: list[str] = None, ignored_types_to_add: list[str] = None, callback: Optional[callable] = None):
-		options = []
-		if can_add: options.append("Add Element")
-		if can_edit: options.append("Edit Element")
-		if can_remove: options.append("Remove Element")
+	def wizard(cls, elements: list[IDocElement], path_title: str, can_add: bool = True, can_edit: bool = True, can_remove: bool = True, allowed_types_to_add: list[str] = None, ignored_types_to_add: list[str] = None, callback: Optional[callable] = None):
+		with PathTree(path_title):
+			options = []
 
-		cls.status = "Please Choose an Option..."
+			if can_add: options.append("Add Element")
+			if can_edit: options.append("Edit Element")
+			if can_remove: options.append("Remove Element")
 
-		while True:
-			index = cls.selection_wizard(options, cancel_text="Save and Quit")
+			cls.status = "Please Choose an Option..."
 
-			if index == -1:
-				return
+			while True:
+				index = cls.selection_wizard(options, cancel_text="Save and Quit")
 
-			functions = []
-			if can_add: functions.append(lambda e: cls.add_wizard(e, allowed_types_to_add, ignored_types_to_add))
-			if can_edit: functions.append(cls.edit_wizard)
-			if can_remove: functions.append(cls.remove_wizard)
+				if index == -1:
+					return
 
-			functions[index](elements)
-			if callback: callback()
+				functions = []
+				if can_add: functions.append(lambda e: cls.add_wizard(e, allowed_types_to_add, ignored_types_to_add))
+				if can_edit: functions.append(cls.edit_wizard)
+				if can_remove: functions.append(cls.remove_wizard)
 
+				functions[index](elements)
+				if callback: callback()
 
 	@classmethod
 	def add_wizard(cls, elements: list[IDocElement], allowed_types: Optional[list[str]] = None, ignored_types: Optional[list[str]] = None, status: Optional[str] = None, cancel_option: str = "Cancel") -> bool:
-		if not allowed_types:
-			allowed_types = [str(k) for k in IDocElement.type_names.keys()]
+		with PathTree("Add"):
+			if not allowed_types:
+				allowed_types = [str(k) for k in IDocElement.type_names.keys()]
 
-		if ignored_types:
-			allowed_types = [t for t in allowed_types if t not in ignored_types]
+			if ignored_types:
+				allowed_types = [t for t in allowed_types if t not in ignored_types]
 
-		status = status if status else "Please Choose an Element to Add:"
-		index = cls.selection_wizard(allowed_types, status, cancel_option)
+			status = status if status else "Please Choose an Element to Add:"
+			index = cls.selection_wizard(allowed_types, status, cancel_option)
 
-		if index == -1:
-			cls.status = "Cancelled"
-			return False
+			if index == -1:
+				cls.status = "Cancelled"
+				return False
 
-		e = IDocElement.type_name_to_cls(allowed_types[index]).wizard()
-		
-		if e:
-			elements.append(e)
-			cls.status = f"Added {e.get_type()}"
-			return True
-		else:
-			cls.status = "Cancelled"
-			return False
+			e = IDocElement.type_name_to_cls(allowed_types[index]).wizard()
+			
+			if e:
+				elements.append(e)
+				cls.status = f"Added {e.get_type()}"
+				return True
+			else:
+				cls.status = "Cancelled"
+				return False
 
 	@classmethod
 	def edit_wizard(cls, elements: list[IDocElement], status: Optional[str] = None, cancel_option: str = "Cancel"):
-		status = status if status else "Please Choose an Element to Edit:"
-		index = cls.selection_wizard(elements, status, cancel_option)
+		with PathTree("Edit"):
+			status = status if status else "Please Choose an Element to Edit:"
+			index = cls.selection_wizard(elements, status, cancel_option)
 
-		if index == -1:
-			cls.status = "Cancelled"
-			return
+			if index == -1:
+				cls.status = "Cancelled"
+				return
 
-		e = elements[index]
-		e.edit()
+			e = elements[index]
+			e.edit()
 
-		cls.status = f"Edited {e.get_type()}"
+			cls.status = f"Edited {e.get_type()}"
 
 	@classmethod
 	def remove_wizard(cls, elements: list[IDocElement], status: Optional[str] = None, cancel_option: str = "Cancel"):
-		status = status if status else "Please Choose an Element to Remove:"
-		index = cls.selection_wizard(elements, status, cancel_option)
-		
-		if index == -1:
-			cls.status = "Cancelled"
-			return
+		with PathTree("Remove"):
+			status = status if status else "Please Choose an Element to Remove:"
+			index = cls.selection_wizard(elements, status, cancel_option)
+			
+			if index == -1:
+				cls.status = "Cancelled"
+				return
 
-		e = elements.pop(index)
-		cls.status = f"Removed {e.get_type()}"
+			e = elements.pop(index)
+			cls.status = f"Removed {e.get_type()}"
 
 	@classmethod
 	def selection_wizard(cls, items: list[str], status: Optional[str] = None, cancel_text: str = "Cancel") -> int:
@@ -94,7 +94,7 @@ class ElementWizard:
 			cls.status = status
 		
 		while True:
-			cls.cls()
+			PathTree.cls()
 			print(f"{cls.status}\n")
 
 			options = items.copy()
@@ -102,7 +102,7 @@ class ElementWizard:
 
 			for i, element in enumerate(options):
 				prefix = "-" if i != index else ">"
-				print(f"{prefix} [{i + 1}] {element}")
+				print(f"{prefix} [{i + 1 if i < 9 else '-'}] {element}")
 
 			c = ord(msvcrt.getch())
 

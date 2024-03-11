@@ -1,6 +1,7 @@
 from typing import Optional
 
 from src.cancelable_input import CancelableInput
+from src.path_tree import PathTree
 from .doc_element import IDocElement
 
 from docx.document import Document as DocumentType
@@ -58,22 +59,25 @@ class Paragraph(IDocElement):
 
 	@classmethod
 	def wizard(cls) -> Optional['Paragraph']:
-		cls.cls()
-		text = input("Enter paragraph text: ")
+		with PathTree("Paragraph"):
+			PathTree.cls()
 
-		if text == "":
-			return None
+			text = input("Enter paragraph text: ")
 
-		return Paragraph(text)
+			if text == "":
+				return None
+
+			return Paragraph(text)
 	
 	def edit(self):
-		self.cls()
+		with PathTree("Paragraph"):
+			PathTree.cls()
 
-		out = CancelableInput.input("Paragraph: ", self.text)
-		if out == None:
-			return
-		
-		self.text = out
+			out = CancelableInput.input("Paragraph: ", self.text)
+			if out == None:
+				return
+			
+			self.text = out
 
 	def __str__(self) -> str:
 		return f"Paragraph ({self.text})"

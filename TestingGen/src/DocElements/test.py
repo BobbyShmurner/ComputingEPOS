@@ -1,6 +1,7 @@
 from typing import Optional
 
 from src.element_wizard import ElementWizard
+from src.path_tree import PathTree
 from .doc_element import IDocElement
 
 from docx.shared import Pt
@@ -70,6 +71,7 @@ class Test(IDocElement):
 
 		title_run = doc.add_paragraph().add_run(title)
 		title_run.font.size = Pt(14)
+		title_run.underline = True
 
 		if self.description:
 			doc.add_paragraph(self.description)
@@ -83,9 +85,17 @@ class Test(IDocElement):
 			for e in self.prefix_elements:
 				e.doc_gen(doc)
 
-		passed_run = doc.add_paragraph().add_run("Test: PASSED" if self.passed else "Test: FAILED")
-		passed_run.font.color.rgb = RGBColor(0, 128, 0) if self.passed else RGBColor(255, 0, 0)
+		passed_col = RGBColor(0, 128, 0) if self.passed else RGBColor(255, 0, 0)
+
+		passed_paragraph = doc.add_paragraph()
+		passed_run_pre = passed_paragraph.add_run("Result: ")
+		passed_run_pre.font.color.rgb = passed_col
+		passed_run_pre.font.bold = True
+
+		passed_run = passed_paragraph.add_run("PASSED" if self.passed else "FAILED")
+		passed_run.font.color.rgb = passed_col
 		passed_run.font.bold = True
+		passed_run.font.underline = True
 
 		if self.suffix_elements:
 			for e in self.suffix_elements:
@@ -93,108 +103,110 @@ class Test(IDocElement):
 
 	@classmethod
 	def wizard(cls) -> Optional['Test']:
-		cls.cls()
+		with PathTree("Test"):
+			PathTree.cls()
 
-		answers = CancelableInput.input_chain([
-			"Title: ",
-			"Description: ",
-			"Expected Output: ",
-			"Passed (y/n): ",
-			"Add prefix element? (y/n): ",
-			"Add suffix element? (y/n): ",
-		])
+			answers = CancelableInput.input_chain([
+				"Test Title: ",
+				"Description: ",
+				"Expected Output: ",
+				"Passed (y/n): ",
+				"Add prefix element? (y/n): ",
+				"Add suffix element? (y/n): ",
+			])
 
-		title = answers[0]
+			if not answers: return None
 
-		description = answers[1].strip()
-		description = description if description != "" else None
+			title = answers[0]
 
-		expected_output = answers[2].strip()
-		expected_output = expected_output if expected_output != "" else None
+			description = answers[1].strip()
+			description = description if description != "" else None
 
-		passed = answers[3].strip().lower() == "y"
+			expected_output = answers[2].strip()
+			expected_output = expected_output if expected_output != "" else None
 
-		prefix_elements = [] if answers[4].strip().lower() == "y" else None
-		suffix_elements = [] if answers[5].strip().lower() == "y" else None
+			passed = answers[3].strip().lower() == "y"
 
-		
+			prefix_elements = [] if answers[4].strip().lower() == "y" else None
+			suffix_elements = [] if answers[5].strip().lower() == "y" else None
 
-		if prefix_elements != None:
-			loop = True
-			while loop:
-				loop = ElementWizard.add_wizard(prefix_elements, cls.allowed_elements, status="Please select a prefix element to add:", cancel_option="Back")
+			if prefix_elements != None:
+				loop = True
+				while loop:
+					loop = ElementWizard.add_wizard(prefix_elements, cls.allowed_elements, status="Please select a prefix element to add:", cancel_option="Back")
 
-		if suffix_elements != None:
-			loop = True
-			while loop:
-				loop = ElementWizard.add_wizard(suffix_elements, cls.allowed_elements, status="Please select a suffix element to add:", cancel_option="Back")
+			if suffix_elements != None:
+				loop = True
+				while loop:
+					loop = ElementWizard.add_wizard(suffix_elements, cls.allowed_elements, status="Please select a suffix element to add:", cancel_option="Back")
 
-		return cls(title, passed, description, expected_output, prefix_elements, suffix_elements)
+			return cls(title, passed, description, expected_output, prefix_elements, suffix_elements)
 	
 	def edit(self):
-		self.cls()
+		with PathTree("Test"):
+			PathTree.cls()
 
-		status = "Please select an option to edit:"
+			status = "Please select an option to edit:"
 
-		while True:	
-			options = ["Title", "Description", "Expected Output", "Passed"]
+			while True:	
+				options = ["Title", "Description", "Expected Output", "Passed"]
 
-			prefix_option = "Prefix Elements"
-			if self.prefix_elements:
-				prefix_option += f" {[e for e in self.prefix_elements]}"
+				prefix_option = "Prefix Elements"
+				if self.prefix_elements:
+					prefix_option += f" {[e for e in self.prefix_elements]}"
 
-			suffix_option = "Suffix Elements"
-			if self.suffix_elements:
-				suffix_option += f" {[e for e in self.suffix_elements]}"
+				suffix_option = "Suffix Elements"
+				if self.suffix_elements:
+					suffix_option += f" {[e for e in self.suffix_elements]}"
 
-			options.append(prefix_option)
-			options.append(suffix_option)
+				options.append(prefix_option)
+				options.append(suffix_option)
 
-			option = ElementWizard.selection_wizard(options, status, "Back")
+				option = ElementWizard.selection_wizard(options, status, "Back")
 
-			self.cls()
+				PathTree.cls()
 
-			match option:
-				case -1:
-					return
-				case 0:
-					out = CancelableInput.input("Title: ", self.title)
+				match option:
+					case -1:
+						return
+					case 0:
+						out = CancelableInput.input("Title: ", self.title)
 
-					if out:
-						self.title = out
-						status = "Title changed"
-					else:
-						status = "Title not changed"
-				case 1:
-					out = CancelableInput.input("Description: ", self.description)
+						if out:
+							self.title = out
+							status = "Title changed"
+						else:
+							status = "Title not changed"
+					case 1:
+						out = CancelableInput.input("Description: ", self.description)
 
-					if out:
-						self.description = out
-						status = "Description changed"
-					else:
-						status = "Description not changed"
-				case 2:
-					out = CancelableInput.input("Expected Output: ", self.expected_output)
+						if out:
+							self.description = out
+							status = "Description changed"
+						else:
+							status = "Description not changed"
+					case 2:
+						out = CancelableInput.input("Expected Output: ", self.expected_output)
 
-					if out:
-						self.expected_output = out
-						status = "Expected Output changed"
-					else:
-						status = "Expected Output not changed"
-				case 3:
-					out = CancelableInput.input("Passed (y/n): ", "y" if self.passed else "n")
+						if out:
+							self.expected_output = out
+							status = "Expected Output changed"
+						else:
+							status = "Expected Output not changed"
+					case 3:
+						out = CancelableInput.input("Passed (y/n): ", "y" if self.passed else "n")
 
-					if out:
-						self.passed = out.strip().lower() == "y"
-						status = "Passed changed"
-					else:
-						status = "Passed not changed"
-				case 4:
-					self.prefix_elements = self.prefix_elements if self.prefix_elements else []
-					ElementWizard.wizard(self.prefix_elements, allowed_types_to_add=self.__class__.allowed_elements)
-				case 5:
-					self.suffix_elements = self.suffix_elements if self.suffix_elements else []
-					ElementWizard.wizard(self.suffix_elements, allowed_types_to_add=self.__class__.allowed_elements)
+						if out:
+							self.passed = out.strip().lower() == "y"
+							status = "Passed changed"
+						else:
+							status = "Passed not changed"
+					case 4:
+						self.prefix_elements = self.prefix_elements if self.prefix_elements else []
+						ElementWizard.wizard(self.prefix_elements, "Prefix", allowed_types_to_add=self.__class__.allowed_elements)
+					case 5:
+						self.suffix_elements = self.suffix_elements if self.suffix_elements else []
+						ElementWizard.wizard(self.suffix_elements, "Suffix", allowed_types_to_add=self.__class__.allowed_elements)
 				
 
 	def __str__(self) -> str:

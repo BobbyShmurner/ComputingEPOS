@@ -1,75 +1,112 @@
 from typing import Optional
+
+from src.DocElements.test import Test
+from src.cancelable_input import CancelableInput
+from src.element_wizard import ElementWizard
+from src.path_tree import PathTree
 from .doc_element import IDocElement
 
 from docx.document import Document as DocumentType
+from docx.shared import Pt
 
 class TestList(IDocElement):
-	def __init__(self, tests: list[dict]):
+	test_list_count = 0
+
+	def __init__(self, title: str, description: str, tests: list[Test]):
 		super().__init__()
 
+		self.title = title
+		self.description = description
 		self.tests = tests
 		
 
 	def serialize(self) -> dict:
-		pass
-		# data = {
-		# 	"type": self.get_type(),
-		# 	"text": self.text
-		# }
-
-		# if (self.font):
-		# 	data["font"] = self.font
-
-		# if (self.font_size):
-		# 	data["font_size"] = self.font_size
-
-		# if (self.font_color):
-		# 	data["font_color"] = self.font_color
-
-		# return data
+		return {
+			"type": self.get_type(),
+			"title": self.title,
+			"description": self.description,
+			"tests": [t.serialize() for t in self.tests]
+		}
 
 	@classmethod
 	def deserialize(cls, data) -> 'TestList':
-		pass
-		# text = data["text"]
-		# font = data["font"] if "font" in data else None
-		# font_size = data["font_size"] if "font_size" in data else None
-		# font_color = data["font_color"] if "font_color" in data else None
+		title = data["title"]
+		description = data["description"]
+		tests = [Test.deserialize(t) for t in data["tests"]]
 
-		# return cls(text, font, font_size, font_color)
+		return cls(title, description, tests)
 	
 	def doc_gen(self, doc: DocumentType):
-		pass
-		# run = doc.add_paragraph().add_run(self.text)
+		self.test_list_count += 1
 
-		# if self.font:
-		# 	run.font.name = self.font
+		title_run = doc.add_paragraph().add_run(f"Test {self.test_list_count}: {self.title}")
+		title_run.underline = True
+		title_run.font.size = Pt(16)
+		title_run.bold = True
 
-		# if self.font_size:
-		# 	run.font.size = Pt(self.font_size)
+		doc.add_paragraph(self.description)
 
-		# if self.font_color:
-		# 	run.font.color.rgb = RGBColor(*self.font_color)
+		for i, test in enumerate(self.tests):
+			test.doc_gen(doc, self.test_list_count, i + 1)
 		
 
 	@classmethod
 	def wizard(cls) -> Optional['TestList']:
-		cls.cls()
-		# text = input("Enter paragraph text: ")
+		with PathTree("Test List"):
+			PathTree.cls()
 
-		# if text == "":
-		# 	return None
+			answers = CancelableInput.input_chain([
+				"Test List Title: ",
+				"Description: ",
+			])
 
-		# return Paragraph(text)
+			if not answers: return None
+
+			title = answers[0]
+			description = answers[1].strip()
+			tests = []
+
+			loop = True
+			while loop:
+				loop = ElementWizard.add_wizard(tests, ["Test"], status="Add a test?", cancel_option="Back")
+
+			return cls(title, description, tests)
 	
 	def edit(self):
-		self.cls()
-		# self.text = input(f"Current: {self.text}\nPlease enter new text:\n\n>> ")
+		with PathTree("Test List"):
+			PathTree.cls()
+			status = "Please select an option to edit:"
+
+			while True:	
+				options = ["Title", "Description", "Tests"]
+				option = ElementWizard.selection_wizard(options, status, "Back")
+
+				PathTree.cls()
+
+				match option:
+					case -1:
+						return
+					case 0:
+						out = CancelableInput.input("Title: ", self.title)
+
+						if out:
+							self.title = out
+							status = "Title changed"
+						else:
+							status = "Title not changed"
+					case 1:
+						out = CancelableInput.input("Description: ", self.description)
+
+						if out:
+							self.description = out
+							status = "Description changed"
+						else:
+							status = "Description not changed"
+					case 2:
+						ElementWizard.wizard(self.tests, "Tests", allowed_types_to_add=["Test"])
 
 	def __str__(self) -> str:
-		pass
-		# return f"Paragraph ({self.text})"
+		return f"Test List ({self.title})"
 	
 	def __repr__(self) -> str:
-		pass
-		# return f"Paragraph({self.text})"
+		return f"TestList({repr(self.title)}, {repr(self.description)}, {repr(self.tests)})"

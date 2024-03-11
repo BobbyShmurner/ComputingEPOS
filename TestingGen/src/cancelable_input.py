@@ -2,6 +2,8 @@ import msvcrt
 import os
 from typing import Optional
 
+from src.path_tree import PathTree
+
 class CancelableInput:
 	@staticmethod
 	def input(prompt: Optional[str], ans: Optional[str]) -> Optional[str]:
@@ -41,21 +43,17 @@ class CancelableInput:
 
 	@staticmethod
 	def input_chain(prompts: list[str]) -> Optional[list[str]]:
-		def cls():
-			os.system('cls')
-
 		answers = ["" for _ in prompts]
 		i = 0
 
 		while i < len(prompts):
-			cls()
+			PathTree.cls()
 			for j in range(i):
 				print(f"{prompts[j]}{answers[j]}")
 			
 			res = CancelableInput.input(prompts[i], answers[i])
 
 			if res == None:
-				input(res)
 				i -= 1
 				if i < 0:
 					return None

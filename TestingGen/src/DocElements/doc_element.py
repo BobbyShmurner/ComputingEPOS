@@ -43,9 +43,5 @@ class IDocElement:
 	def edit(self):
 		pass
 
-	@staticmethod
-	def cls():
-		os.system("cls")
-
 	def get_type(self) -> str:
 		return self.__class__.__name__
