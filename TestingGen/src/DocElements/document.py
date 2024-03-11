@@ -56,8 +56,18 @@ class Document(IDocElement):
 		path = self.context.get_content_path("Document.json")
 		os.makedirs(os.path.dirname(path), exist_ok=True)
 
-		with open(path, "w+") as file:
-			file.write(json.dumps(self.serialize(), indent=4))
+		back = ""
+		with open(path, "r+") as file:
+			back = file.read()
+
+		try:
+			with open(path, "w+") as file:
+				file.write(json.dumps(self.serialize(), indent=4))
+		except:
+			with open(path, "w+") as file:
+				file.write(back)
+
+			raise	
 
 	@classmethod
 	def deserialize_from_disk(cls) -> 'Document':
@@ -110,49 +120,6 @@ class Document(IDocElement):
 	
 	def edit(self):
 		ElementWizard.wizard(self.elements, callback=self.serialize_to_disk)
-
-	def add_wizard(self):
-		status = "Please Choose an Option..."
-
-		while True:
-			self.cls()
-			print(status, end="\n\n")
-			print("[1] - Paragraph\n[2] - Picture\n[3] - Screenshot\n[q] - Cancel")
-			c = msvcrt.getch()
-
-			match c:
-				case b'q':
-					break
-				case b'1':
-					para = Paragraph.wizard()
-
-					if para:
-						self.add_element(para)
-						status = "Paragraph Added!"
-					else:
-						status = "Cancelled"
-
-					self.serialize_to_disk()
-				case b'2':	
-					img = Picture.wizard()
-					
-					if img:
-						self.add_element(img)
-						status = "Picture Added!"
-					else:
-						status = "Cancelled"
-
-					self.serialize_to_disk()
-				case b'3':
-					img = Picture.screenshot_wizard()
-					
-					if img:
-						self.add_element(img)
-						status = "Picture Added!"
-					else:
-						status = "Cancelled"
-
-					self.serialize_to_disk()
 
 	def __str__(self) -> str:
 		return f"Document ({Path(self.context.project_path).parent.name})"

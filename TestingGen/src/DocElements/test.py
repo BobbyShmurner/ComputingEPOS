@@ -1,34 +1,60 @@
 from typing import Optional
+
+from src.element_wizard import ElementWizard
 from .doc_element import IDocElement
 
 from docx.shared import Pt
 from docx.shared import RGBColor
 from docx.document import Document as DocumentType
 
+from src.cancelable_input import CancelableInput
+
 class Test(IDocElement):
-	def __init__(self, title: str, passed: bool, expected_output: str):
+	allowed_elements = ["Paragraph", "Picture", "Screenshot"]
+
+	def __init__(self, title: str, passed: bool, description: Optional[str] = None, expected_output: Optional[str] = None, prefix_elements: Optional[list[IDocElement]] = None, suffix_elements: Optional[list[IDocElement]] = None):
 		super().__init__()
 
 		self.title = title
 		self.passed = passed
+		self.description = description
 		self.expected_output = expected_output
-		
+		self.prefix_elements = prefix_elements
+		self.suffix_elements = suffix_elements
 
 	def serialize(self) -> dict:
-		return {
+		data = {
 			"type": self.get_type(),
 			"title": self.title,
 			"passed": self.passed,
-			"expected_output": self.expected_output
 		}
+
+		if self.description:
+			data["description"] = self.description
+
+		if self.expected_output:
+			data["expected_output"] = self.expected_output
+
+		if self.prefix_elements:
+			data["prefix_elements"] = [e.serialize() for e in self.prefix_elements]
+
+		if self.suffix_elements:
+			data["suffix_elements"] = [e.serialize() for e in self.suffix_elements]
+
+		return data
 
 	@classmethod
 	def deserialize(cls, data) -> 'Test':
 		title = data["title"]
 		passed = data["passed"]
-		expected_output = data["expected_output"]
 
-		return cls(title, passed, expected_output)
+		description = data["description"] if "description" in data else None
+		expected_output = data["expected_output"] if "expected_output" in data else None
+
+		prefix_elements = [IDocElement.deserialize(e) for e in data["prefix_elements"]] if "prefix_elements" in data else None
+		suffix_elements = [IDocElement.deserialize(e) for e in data["suffix_elements"]] if "suffix_elements" in data else None
+
+		return cls(title, passed, description, expected_output, prefix_elements, suffix_elements)
 	
 	def doc_gen(self, doc: DocumentType, test_num: Optional[int] = None, subtest_num: Optional[int] = None):
 		title = self.title
@@ -45,29 +71,130 @@ class Test(IDocElement):
 		title_run = doc.add_paragraph().add_run(title)
 		title_run.font.size = Pt(14)
 
-		doc.add_paragraph(f"Expected Output: {self.expected_output}")
+		if self.description:
+			doc.add_paragraph(self.description)
+
+		if self.expected_output:
+			expected_paragraph = doc.add_paragraph()
+			expected_paragraph.add_run("Expected Output:").underline = True
+			expected_paragraph.add_run(f" {self.expected_output}")
+
+		if self.prefix_elements:
+			for e in self.prefix_elements:
+				e.doc_gen(doc)
 
 		passed_run = doc.add_paragraph().add_run("Test: PASSED" if self.passed else "Test: FAILED")
-		passed_run.font.color.rgb = RGBColor(0, 255, 0) if self.passed else RGBColor(255, 0, 0)
+		passed_run.font.color.rgb = RGBColor(0, 128, 0) if self.passed else RGBColor(255, 0, 0)
+		passed_run.font.bold = True
+
+		if self.suffix_elements:
+			for e in self.suffix_elements:
+				e.doc_gen(doc)
 
 	@classmethod
 	def wizard(cls) -> Optional['Test']:
 		cls.cls()
-		# text = input("Enter paragraph text: ")
 
-		# if text == "":
-		# 	return None
+		answers = CancelableInput.input_chain([
+			"Title: ",
+			"Description: ",
+			"Expected Output: ",
+			"Passed (y/n): ",
+			"Add prefix element? (y/n): ",
+			"Add suffix element? (y/n): ",
+		])
 
-		# return Paragraph(text)
+		title = answers[0]
+
+		description = answers[1].strip()
+		description = description if description != "" else None
+
+		expected_output = answers[2].strip()
+		expected_output = expected_output if expected_output != "" else None
+
+		passed = answers[3].strip().lower() == "y"
+
+		prefix_elements = [] if answers[4].strip().lower() == "y" else None
+		suffix_elements = [] if answers[5].strip().lower() == "y" else None
+
+		
+
+		if prefix_elements != None:
+			loop = True
+			while loop:
+				loop = ElementWizard.add_wizard(prefix_elements, cls.allowed_elements, status="Please select a prefix element to add:", cancel_option="Back")
+
+		if suffix_elements != None:
+			loop = True
+			while loop:
+				loop = ElementWizard.add_wizard(suffix_elements, cls.allowed_elements, status="Please select a suffix element to add:", cancel_option="Back")
+
+		return cls(title, passed, description, expected_output, prefix_elements, suffix_elements)
 	
 	def edit(self):
 		self.cls()
-		# self.text = input(f"Current: {self.text}\nPlease enter new text:\n\n>> ")
+
+		status = "Please select an option to edit:"
+
+		while True:	
+			options = ["Title", "Description", "Expected Output", "Passed", "Prefix Elements", "Suffix Elements"]
+			option = ElementWizard.selection_wizard(options, status, "Back")
+
+			self.cls()
+
+			match option:
+				case -1:
+					return
+				case 0:
+					out = CancelableInput.input("Title: ", self.title)
+
+					if out:
+						self.title = out
+						status = "Title changed"
+					else:
+						status = "Title not changed"
+				case 1:
+					out = CancelableInput.input("Description: ", self.description)
+
+					if out:
+						self.description = out
+						status = "Description changed"
+					else:
+						status = "Description not changed"
+				case 2:
+					out = CancelableInput.input("Expected Output: ", self.expected_output)
+
+					if out:
+						self.expected_output = out
+						status = "Expected Output changed"
+					else:
+						status = "Expected Output not changed"
+				case 3:
+					out = CancelableInput.input("Passed (y/n): ", "y" if self.passed else "n")
+
+					if out:
+						self.passed = out.strip().lower() == "y"
+						status = "Passed changed"
+					else:
+						status = "Passed not changed"
+				case 4:
+					self.prefix_elements = self.prefix_elements if self.prefix_elements else []
+					ElementWizard.wizard(self.prefix_elements, allowed_types_to_add=self.__class__.allowed_elements)
+				case 5:
+					self.suffix_elements = self.suffix_elements if self.suffix_elements else []
+					ElementWizard.wizard(self.suffix_elements, allowed_types_to_add=self.__class__.allowed_elements)
+				
 
 	def __str__(self) -> str:
-		pass
-		# return f"Paragraph ({self.text})"
+		return f"Test ({self.title})"
 	
 	def __repr__(self) -> str:
-		pass
-		# return f"Paragraph({self.text})"
+		string = f"Test({repr(self.title)}, {repr(self.passed)}"
+
+		if self.description: string += f", description={repr(self.description)}"
+		if self.expected_output: string += f", expected_output={repr(self.expected_output)}"
+		if self.prefix_elements: string += f", prefix_elements={repr(self.prefix_elements)}"
+		if self.suffix_elements: string += f", suffix_elements={repr(self.suffix_elements)}"
+
+		return string
+		
