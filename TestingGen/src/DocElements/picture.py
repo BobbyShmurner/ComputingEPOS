@@ -54,7 +54,7 @@ class Picture(IDocElement):
 		pic.save(pic_stream, format="PNG")
 
 		aspect = pic.width / pic.height
-		doc.add_picture(pic_stream, width=doc.sections[0].page_width * min(0.5 * aspect, 0.8))
+		doc.add_picture(pic_stream, width=doc.sections[0].page_width * min(0.4 * aspect, 0.8))
 
 	def picture_path(self) -> str:
 		return os.path.join(self.picture_dir(), f"{self.index}.png")
@@ -134,7 +134,7 @@ class Picture(IDocElement):
 			if discard:
 				if os.path.exists(pic.picture_path()):
 					os.remove(pic.picture_path())
-					
+
 				return None
 
 		return pic
