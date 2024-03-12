@@ -1,0 +1,442 @@
+{
+    "type": "Document",
+    "elements": [
+        {
+            "type": "TestList",
+            "title": "Orders",
+            "description": "The following tests will test the functionality of Order entities in the database.",
+            "tests": [
+                {
+                    "type": "Test",
+                    "title": "Creating a new Order.",
+                    "passed": true,
+                    "description": "When a user first logs on, or a previous order completes, a new order is created.",
+                    "expected_output": "A new open order is created, with the correct date and time",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is the orders table before opening the tills software. Take note of the current latest order."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 3,
+                            "rects": [
+                                [
+                                    2,
+                                    498,
+                                    875,
+                                    530
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The new order is correctly created."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 4,
+                            "rects": [
+                                [
+                                    2,
+                                    443,
+                                    874,
+                                    503
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 5,
+                            "rects": [
+                                [
+                                    8,
+                                    49,
+                                    117,
+                                    94
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Deleting Current Order when shutting down.",
+                    "passed": true,
+                    "description": "When the tills are shutdown, the current order should be deleted.",
+                    "expected_output": "The current order on the tills should be removed from the database once the till is shutdown",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The current order on the till is Order #2 [OrderID: 741]"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 6,
+                            "rects": [
+                                [
+                                    8,
+                                    24,
+                                    117,
+                                    59
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 7,
+                            "rects": [
+                                [
+                                    52,
+                                    436,
+                                    872,
+                                    464
+                                ],
+                                [
+                                    52,
+                                    10,
+                                    121,
+                                    40
+                                ],
+                                [
+                                    326,
+                                    10,
+                                    402,
+                                    41
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "After closing, Order #2 no longer exists."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 8,
+                            "rects": [
+                                [
+                                    5,
+                                    468,
+                                    870,
+                                    500
+                                ],
+                                [
+                                    325,
+                                    44,
+                                    403,
+                                    75
+                                ],
+                                [
+                                    55,
+                                    41,
+                                    117,
+                                    73
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Don't allow the deletion of an order which has been partially paid for",
+                    "passed": true,
+                    "description": "When attempting to shutdown, if an order has already been partially paid for, the order cannot be deleted, as this would cause the foregin key constraints to fail. As such, orders which have an associated transaction cannot be deleted.",
+                    "expected_output": "Shutdown should be canceled, and the order should remain in the database.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is Order #2, which has had \u00a32 paid for already."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 9,
+                            "rects": [
+                                [
+                                    603,
+                                    136,
+                                    976,
+                                    273
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 10,
+                            "rects": [
+                                [
+                                    313,
+                                    468,
+                                    403,
+                                    504
+                                ],
+                                [
+                                    55,
+                                    472,
+                                    117,
+                                    500
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 11,
+                            "rects": [
+                                [
+                                    153,
+                                    440,
+                                    318,
+                                    468
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "After attempting to close the till software, I received the following pop-up:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 12,
+                            "rects": [
+                                [
+                                    480,
+                                    320,
+                                    751,
+                                    373
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "After checking the database, the order is still present."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 13,
+                            "rects": [
+                                [
+                                    40,
+                                    469,
+                                    114,
+                                    500
+                                ],
+                                [
+                                    313,
+                                    474,
+                                    398,
+                                    500
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Closing an order once fully paid.",
+                    "passed": true,
+                    "description": "Once an order has been fully paid for, the order should close, and a new one should be created.",
+                    "expected_output": "The current order should be marked as close once the final transaction has been made, and a new order should be created.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is the same partially paid order:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 14,
+                            "rects": [
+                                [
+                                    600,
+                                    136,
+                                    972,
+                                    277
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 15,
+                            "rects": [
+                                [
+                                    61,
+                                    468,
+                                    116,
+                                    496
+                                ],
+                                [
+                                    321,
+                                    471,
+                                    407,
+                                    499
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Once the remainder of the order is paid for, a new order is created and the previous order is closed."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 16,
+                            "rects": [
+                                [
+                                    10,
+                                    27,
+                                    114,
+                                    66
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 17,
+                            "rects": [
+                                [
+                                    43,
+                                    449,
+                                    117,
+                                    505
+                                ],
+                                [
+                                    789,
+                                    447,
+                                    867,
+                                    504
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Assigning an Order Number",
+                    "passed": true,
+                    "description": "When an order is created, it is assigned a user-friendly Order Number which allows both customers and staff to easily identify an order.",
+                    "expected_output": "The new order should be 1 higher than the previous order. In this case, the previous number was 3, so the new order's number should be 4.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is the current order, with an order number of 3. When this order completes and a new order is created, it should have an order number of 4."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 18,
+                            "rects": [
+                                [
+                                    8,
+                                    50,
+                                    113,
+                                    86
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 19,
+                            "rects": [
+                                [
+                                    5,
+                                    464,
+                                    872,
+                                    498
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Once the previous order was completed, the new order was correctly assigned an order number of 4."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 20,
+                            "rects": [
+                                [
+                                    6,
+                                    26,
+                                    116,
+                                    59
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 21,
+                            "rects": [
+                                [
+                                    43,
+                                    443,
+                                    871,
+                                    499
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Assigning an Order Number - Max Value",
+                    "passed": true,
+                    "description": "The largest order number an order can have is 99. Once 99 is reached, order numbers should wrap around.",
+                    "expected_output": "Once Order #99 Completes, the new order should have an order number of 1.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is the current order, with a number of 99. Once this order completes, the new order should have a number of 1."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 22,
+                            "rects": [
+                                [
+                                    9,
+                                    25,
+                                    130,
+                                    62
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The new order was correctly assigned an order number of 1."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 23,
+                            "rects": [
+                                [
+                                    9,
+                                    26,
+                                    110,
+                                    60
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 24,
+                            "rects": [
+                                [
+                                    43,
+                                    442,
+                                    866,
+                                    493
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
