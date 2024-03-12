@@ -58,8 +58,9 @@ class Document(IDocElement):
 		os.makedirs(os.path.dirname(path), exist_ok=True)
 
 		back = ""
-		with open(path, "r+") as file:
-			back = file.read()
+		if os.path.exists(path):
+			with open(path, "r+") as file:
+				back = file.read()
 
 		try:
 			with open(path, "w+") as file:
