@@ -119,6 +119,16 @@ class ElementWizard:
 					status = f"Reordered {e.get_type()}"
 
 	@classmethod
+	def confirmation_wizard(cls, status: str, path_name: str = "Confirm") -> bool:
+		with PathTree(path_name):
+			index = cls.selection_wizard(["Yes"], status=status, cancel_text="No")
+			
+			if index == -1:
+				return False
+			
+			return True
+
+	@classmethod
 	def selection_wizard(cls, items: list[str], status: Optional[str] = None, cancel_text: str = "Cancel", reorder_index: Optional[int] = 0) -> int:
 		index = 0 if not reorder_index else reorder_index
 

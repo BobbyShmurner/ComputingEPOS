@@ -79,7 +79,7 @@ class Picture(IDocElement):
 		return index + 1
 
 	@classmethod
-	def wizard(cls, img: Image.Image = None) -> Optional['Picture']:
+	def wizard(cls, img: Image.Image = None, prompt_discard: bool = False) -> Optional['Picture']:
 		with PathTree("Picture"):
 			PathTree.cls()
 
@@ -128,6 +128,14 @@ class Picture(IDocElement):
 
 		pic = Picture(int(index))
 		pic.edit()
+
+		if prompt_discard:
+			discard = not ElementWizard.confirmation_wizard("Save Picture", "Save?")
+			if discard:
+				if os.path.exists(pic.picture_path()):
+					os.remove(pic.picture_path())
+					
+				return None
 
 		return pic
 	

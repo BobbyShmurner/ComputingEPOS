@@ -29,4 +29,4 @@ class Screenshot(Picture):
 				except KeyboardInterrupt:
 					return None
 
-			return Picture.wizard(img)
+			return Picture.wizard(img, prompt_discard=True)
