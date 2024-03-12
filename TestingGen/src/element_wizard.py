@@ -35,8 +35,8 @@ class ElementWizard:
 				if callback: callback()
 
 	@classmethod
-	def add_wizard(cls, elements: list[IDocElement], allowed_types: Optional[list[str]] = None, ignored_types: Optional[list[str]] = None, status: Optional[str] = None, cancel_option: str = "Cancel"):
-		with PathTree("Add"):
+	def add_wizard(cls, elements: list[IDocElement], allowed_types: Optional[list[str]] = None, ignored_types: Optional[list[str]] = None, status: Optional[str] = None, cancel_option: str = "Cancel", path_name: str = "Add"):
+		with PathTree(path_name):
 			if not allowed_types:
 				allowed_types = [str(k) for k in IDocElement.type_names.keys()]
 
@@ -63,8 +63,8 @@ class ElementWizard:
 					cls.status = None
 
 	@classmethod
-	def edit_wizard(cls, elements: list[IDocElement], status: Optional[str] = None, cancel_option: str = "Cancel"):
-		with PathTree("Edit"):
+	def edit_wizard(cls, elements: list[IDocElement], status: Optional[str] = None, cancel_option: str = "Cancel", path_name: str = "Edit"):
+		with PathTree(path_name):
 			status = status if status else "Please Choose an Element to Edit:"
 
 			while True:
@@ -80,8 +80,8 @@ class ElementWizard:
 				status = f"Edited {e.get_type()}"
 
 	@classmethod
-	def remove_wizard(cls, elements: list[IDocElement], status: Optional[str] = None, cancel_option: str = "Cancel"):
-		with PathTree("Remove"):
+	def remove_wizard(cls, elements: list[IDocElement], status: Optional[str] = None, cancel_option: str = "Cancel", path_name: str = "Remove"):
+		with PathTree(path_name):
 			status = status if status else "Please Choose an Element to Remove:"
 
 			while True:
@@ -95,8 +95,8 @@ class ElementWizard:
 				status = f"Removed {e.get_type()}"
 
 	@classmethod
-	def reorder_wizard(cls, elements: list[IDocElement], status: Optional[str] = None, cancel_option: str = "Cancel"):
-		with PathTree("Reorder"):
+	def reorder_wizard(cls, elements: list[IDocElement], status: Optional[str] = None, cancel_option: str = "Cancel", path_name: str = "Reorder"):
+		with PathTree(path_name):
 			status = status if status else "Please Choose an Element to Move:"
 
 			while True:

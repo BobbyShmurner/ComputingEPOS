@@ -18,6 +18,7 @@ def main():
 	else:
 		doc = Document.wizard()
 
+	doc.serialize_to_disk()
 	doc = Document.deserialize_from_disk()
 	doc.doc_gen()
 

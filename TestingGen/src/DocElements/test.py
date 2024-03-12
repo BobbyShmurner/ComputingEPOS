@@ -110,7 +110,6 @@ class Test(IDocElement):
 				"Test Title: ",
 				"Description: ",
 				"Expected Output: ",
-				"Passed (y/n): ",
 				"Add prefix element? (y/n): ",
 				"Add suffix element? (y/n): ",
 			])
@@ -125,16 +124,17 @@ class Test(IDocElement):
 			expected_output = answers[2].strip()
 			expected_output = expected_output if expected_output != "" else None
 
-			passed = answers[3].strip().lower() == "y"
-
-			prefix_elements = [] if answers[4].strip().lower() == "y" else None
-			suffix_elements = [] if answers[5].strip().lower() == "y" else None
+			prefix_elements = [] if answers[3].strip().lower() == "y" else None
+			suffix_elements = [] if answers[4].strip().lower() == "y" else None
 
 			if prefix_elements != None:
-				ElementWizard.add_wizard(prefix_elements, cls.allowed_elements, status="Please select a prefix element to add:", cancel_option="Back")
+				ElementWizard.add_wizard(prefix_elements, cls.allowed_elements, status="Please select a prefix element to add:", cancel_option="Back", path_name="Add Prefix")
 
 			if suffix_elements != None:
-				ElementWizard.add_wizard(suffix_elements, cls.allowed_elements, status="Please select a suffix element to add:", cancel_option="Back")
+				ElementWizard.add_wizard(suffix_elements, cls.allowed_elements, status="Please select a suffix element to add:", cancel_option="Back", path_name="Add Suffix")
+
+			PathTree.cls()
+			passed = CancelableInput.input("Passed (y/n): ").strip().lower() == "y"
 
 			return cls(title, passed, description, expected_output, prefix_elements, suffix_elements)
 	
