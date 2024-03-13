@@ -26,29 +26,39 @@ Y_KEY = 121
 Z_KEY = 122
 
 class Picture(IDocElement):
-	def __init__(self, index: int, rects: list[list[int, int, int, int]] = []):
+	def __init__(self, index: int, rects: list[list[int, int, int, int]] = [], shade: Optional[list[int, int, int, int]] = None):
 		super().__init__()
 
 		self.index = index
 		self.rects = rects
+		self.shade = shade
 
 	def serialize(self) -> dict:
-		return {
+		data = {
 			"type": self.get_type(),
 			"index": self.index,
-			"rects": self.rects
+			"rects": self.rects,
+			
 		}
+
+		if self.shade: data["shade"] = self.shade
+
+		return data
 
 	@classmethod
 	def deserialize(cls, data: dict) -> 'Picture':
 		index = data["index"]
 		rects = data["rects"] if "rects" in data else []
+		shade = data["shade"] if "shade" in data else None
 
-		return cls(index, rects)
+		return cls(index, rects, shade)
 	
 	def doc_gen(self, doc: DocumentType):
 		pic_path = self.context.get_content_path(f"Pictures/{self.index}.png")
-		pic = self.add_rects_to_img(Image.open(pic_path), self.rects)
+		pic = Image.open(pic_path)
+		
+		if self.shade: pic = self.add_shade_to_img(pic, [self.shade])
+		pic = self.add_rects_to_img(pic, self.rects)
 
 		pic_stream = BytesIO()
 		pic.save(pic_stream, format="PNG")
@@ -139,13 +149,30 @@ class Picture(IDocElement):
 
 		return pic
 	
-	def add_rects_to_img(self, img: Image.Image, rects: list[list[int, int, int, int]]) -> Image.Image:
+	@classmethod
+	def add_rects_to_img(cls, img: Image.Image, rects: list[list[int, int, int, int]]) -> Image.Image:
 		img = np.array(img)
 		
 		for rect in rects:
 			cv2.rectangle(img, (rect[0], rect[1]), (rect[2], rect[3]), (255, 0, 0, 255), 2)
 
 		return Image.fromarray(img, "RGBA")
+	
+	@classmethod
+	def add_shade_to_img(cls, img: Image.Image, shades: list[list[int, int, int, int]], alpha: float = 0.2) -> Image.Image:
+		img = np.array(img)
+		overlay = np.zeros_like(img)
+
+		for shade in shades:
+			cv2.rectangle(overlay, (shade[0], shade[1]), (shade[2], shade[3]), (255, 255, 255, 0), -1)
+
+		dst = cv2.addWeighted(overlay, 1-alpha, img , alpha, 0)
+		res = np.where(overlay==(255, 255, 255, 0), img, dst)
+
+		return Image.fromarray(res, "RGBA")
+
+	def get_img(self) -> Image.Image:
+		return Image.open(self.picture_path())
 
 	def edit(self):
 		with PathTree("Picture"):
@@ -153,13 +180,19 @@ class Picture(IDocElement):
 			print("Editing Picture...")
 
 			win_name = "Edit Picture"
-			base_img = Image.open(self.picture_path())
+			base_img = self.get_img()
 			
 			click_point = (0, 0)
-			mouse_down = False
+			lmb_down = False
+			rmb_down = False
 
 			rect_history = self.rects.copy()
 			current_rect_pointer = len(rect_history) - 1
+			shade = self.shade if self.shade else None
+
+			def check_shade(shade: list[int, int, int, int]) -> bool:
+				if not shade: return False
+				return shade[0] != shade[2] and shade[1] != shade[3]
 
 			def enumHandler(hwnd, _):
 				try:
@@ -175,28 +208,43 @@ class Picture(IDocElement):
 					return
 				
 			def onMouse(event, x, y, flags, param):
-				nonlocal mouse_down, click_point, current_rect_pointer, base_img, rect_history
+				nonlocal lmb_down, rmb_down, click_point, current_rect_pointer, base_img, rect_history, shade
 
 				match event:
 					case cv2.EVENT_LBUTTONDOWN:
+						if rmb_down: return
+						lmb_down = True
+
 						rect_history = rect_history[:current_rect_pointer + 1]
 						rect_history.append([x, y, x, y])
 						current_rect_pointer += 1
-
-						mouse_down = True
 					case cv2.EVENT_LBUTTONUP:
-						mouse_down = False
+						lmb_down = False
+					case cv2.EVENT_RBUTTONDOWN:
+						if lmb_down: return
+						rmb_down = True
+
+						shade = [x, y, x, y]
+					case cv2.EVENT_RBUTTONUP:
+						rmb_down = False
 					case cv2.EVENT_MOUSEMOVE:
-						if mouse_down:
+						if lmb_down:
 							rect_history[current_rect_pointer][2] = x
 							rect_history[current_rect_pointer][3] = y
+						elif rmb_down:
+							shade[2] = x
+							shade[3] = y
 
 			cv2.namedWindow(win_name)
 			cv2.setMouseCallback(win_name, onMouse)
 
 			firstPass = True
 			while True:
-				cv2.imshow(win_name, cv2.cvtColor(np.array(self.add_rects_to_img(base_img, rect_history[:current_rect_pointer + 1])), cv2.COLOR_RGBA2BGRA))
+				display_img = base_img.copy()
+				if check_shade(shade): display_img = self.add_shade_to_img(display_img, [shade])
+				display_img = self.add_rects_to_img(display_img, rect_history[:current_rect_pointer + 1])
+
+				cv2.imshow(win_name, cv2.cvtColor(np.array(display_img), cv2.COLOR_RGBA2BGRA))
 
 				if firstPass:
 					win32gui.EnumWindows(enumHandler, None)
@@ -209,13 +257,14 @@ class Picture(IDocElement):
 					cv2.destroyAllWindows() 
 					break
 
-				if c == Z_KEY and not mouse_down and current_rect_pointer >= 0:
+				if c == Z_KEY and not lmb_down and current_rect_pointer >= 0:
 					current_rect_pointer -= 1
 
-				if c == Y_KEY and not mouse_down and current_rect_pointer < len(rect_history) - 1:
+				if c == Y_KEY and not lmb_down and current_rect_pointer < len(rect_history) - 1:
 					current_rect_pointer += 1
 
 			self.rects = rect_history[:current_rect_pointer + 1]
+			self.shade = shade if check_shade(shade) else None
 
 	def __str__(self) -> str:
 		return f"Picture (Index: {self.index})"
