@@ -168,17 +168,23 @@
                             "index": 10,
                             "rects": [
                                 [
-                                    313,
-                                    468,
-                                    403,
-                                    504
+                                    62,
+                                    475,
+                                    117,
+                                    499
                                 ],
                                 [
-                                    55,
-                                    472,
-                                    117,
-                                    500
+                                    362,
+                                    473,
+                                    402,
+                                    499
                                 ]
+                            ],
+                            "shade": [
+                                2,
+                                469,
+                                871,
+                                504
                             ]
                         },
                         {
@@ -431,6 +437,382 @@
                                     442,
                                     866,
                                     493
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Assigning an Order Number - New Day",
+                    "passed": true,
+                    "description": "Order Numbers rest back to 1 at the start of each day. As such, the first order of the day should have an order number of 1.",
+                    "expected_output": "The new order will have an order number of 1.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "At the time of this test, the date is the 12/03/2024."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 25,
+                            "rects": []
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "Below you can see that no orders have been made on this date."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 26,
+                            "rects": [
+                                [
+                                    615,
+                                    41,
+                                    686,
+                                    495
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Once the tills have been open for the first time today, the newly created order is correctly assigned a number of 1."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 27,
+                            "rects": [
+                                [
+                                    10,
+                                    17,
+                                    116,
+                                    63
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 28,
+                            "rects": [
+                                [
+                                    311,
+                                    445,
+                                    397,
+                                    504
+                                ],
+                                [
+                                    605,
+                                    448,
+                                    683,
+                                    501
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "TestList",
+            "title": "Order Basket",
+            "description": "The order basket displays what order items are currently in the basket, as well as a running total of the order's cost. The basket also allows for the deletion and modification of order items.",
+            "tests": [
+                {
+                    "type": "Test",
+                    "title": "Add Item",
+                    "passed": true,
+                    "description": "When a menu button is clicked, the menu item is the appended to the end of the basket.",
+                    "expected_output": "The clicked menu button should add it's respecitve menu item to the end of the order basket, as well as create a new associated OrderItem entry in the database. The stock of the item should also decrement by 1.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "In this test, I will click on the \"Burger\" menu button, which should add 1 burger item to the order basket."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 29,
+                            "rects": [
+                                [
+                                    406,
+                                    98,
+                                    603,
+                                    257
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "The burger item has a Stock ID of 0, meaning a new Order Item should be created which references both StockID 0, as well as OrderID 748 (The current Order)."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 30,
+                            "rects": [
+                                [
+                                    37,
+                                    85,
+                                    431,
+                                    123
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 31,
+                            "rects": [
+                                [
+                                    44,
+                                    467,
+                                    119,
+                                    497
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "As seen below, there is no Order Item which corresponds to Order ID 748:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 32,
+                            "rects": [
+                                [
+                                    157,
+                                    96,
+                                    224,
+                                    493
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "When the \"Burger\" button is pressed, the respective Burger item is added to the basket and selected."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 33,
+                            "rects": [
+                                [
+                                    3,
+                                    91,
+                                    392,
+                                    146
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "A new OrderItem entry is also created:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 34,
+                            "rects": [
+                                [
+                                    83,
+                                    468,
+                                    431,
+                                    499
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "The stock for the Burger is also decremented by 1:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 35,
+                            "rects": [
+                                [
+                                    352,
+                                    57,
+                                    390,
+                                    78
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "The subtotal is also correctly updated:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 36,
+                            "rects": [
+                                [
+                                    9,
+                                    685,
+                                    386,
+                                    796
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Remove Item",
+                    "passed": true,
+                    "description": "Cashiers should be able to remove items from the order basket.",
+                    "expected_output": "When the \"Delete\" button is pressed while an order item is selected in the basket, it should be removed from the basket, the subtotal should update, the order item should be deleted from the database, and the stock should be updated to reflect this.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is the same order as the previous test, with the same Burger item in the basket."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 37,
+                            "rects": [
+                                [
+                                    5,
+                                    97,
+                                    391,
+                                    139
+                                ],
+                                [
+                                    500,
+                                    726,
+                                    600,
+                                    810
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The order item is correctly removed from the basket, the subtotal is set back to 0, and the delete (as well as the other modification buttons) are disabled, as no order item is selected."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 38,
+                            "rects": [
+                                [
+                                    14,
+                                    101,
+                                    379,
+                                    153
+                                ],
+                                [
+                                    12,
+                                    679,
+                                    382,
+                                    799
+                                ],
+                                [
+                                    405,
+                                    727,
+                                    799,
+                                    810
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "The order item has also been deleted, as there are now no items corrisponding to OrderID 748"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 39,
+                            "rects": [
+                                [
+                                    152,
+                                    12,
+                                    222,
+                                    467
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "The stock has also been updated to reflect the deletion of the order item, brining it back up to the starting quantity of 50"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 40,
+                            "rects": [
+                                [
+                                    186,
+                                    96,
+                                    428,
+                                    130
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Creating A Meal",
+                    "passed": true,
+                    "description": "Cashiers should be able to select items in the basket and make them into a meal when the \"Combo\" button is pressed.",
+                    "expected_output": "When the \"Combo\" button is pressed, The selected item should become a meal, and a \"Fries\" and a \"Coke\" should be added as part of the meal. These items should be added as Order Items in the database, and their stock should decrease by 1. The subtotal should also update to reflect the new items.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is an order containing a Cheese Burger item in the basket. When the combo button is pressed, a Cheese Burger Meal should be created, containing the Cheese Burger, as well as a Coke and Fries"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 42,
+                            "rects": [
+                                [
+                                    2,
+                                    99,
+                                    395,
+                                    139
+                                ],
+                                [
+                                    602,
+                                    728,
+                                    696,
+                                    809
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The meal was successfully created, and the subtotal was correctly updated to reflect this"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 43,
+                            "rects": [
+                                [
+                                    5,
+                                    92,
+                                    391,
+                                    231
+                                ],
+                                [
+                                    8,
+                                    682,
+                                    385,
+                                    795
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "These 2 new items can also be found in the database:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 44,
+                            "rects": [
+                                [
+                                    53,
+                                    423,
+                                    434,
+                                    502
                                 ]
                             ]
                         }
