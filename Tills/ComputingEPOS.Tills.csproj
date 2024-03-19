@@ -27,4 +27,10 @@
   <ItemGroup>
     <Folder Include="src\Interfaces\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="windows\DbView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

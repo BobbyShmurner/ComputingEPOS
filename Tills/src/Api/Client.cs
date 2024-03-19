@@ -24,6 +24,9 @@ public class Client : Singleton<Client> {
     public static Task<HttpResponseMessage> PostAsync(string? requestUri, HttpContent? content) =>
         Instance.GenericRequestAsync(() => HttpClient.PostAsync(requestUri, content));
 
+    public static Task<HttpResponseMessage> PutAsync(string? requestUri, HttpContent? content) =>
+        Instance.GenericRequestAsync(() => HttpClient.PutAsync(requestUri, content));
+
     public static Task<HttpResponseMessage> DeleteAsync(string? requestUri) =>
         Instance.GenericRequestAsync(() => HttpClient.DeleteAsync(requestUri));
 

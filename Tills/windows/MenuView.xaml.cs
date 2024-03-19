@@ -156,7 +156,17 @@ public partial class MenuView : UserControl
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
             MainWindow.Instance.RootViewManager.ShowView(MainWindow.Instance.ReportsView);
         });
+
         await MainWindow.Instance.ReportsView.RefreshCurrentGrid();
+        UIDispatcher.UpdateUI();
+    });
+
+    private void ManageDBButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
+            MainWindow.Instance.RootViewManager.ShowView(MainWindow.Instance.DbView);
+        });
+
+        await MainWindow.Instance.DbView.RefreshCurrentGrid();
         UIDispatcher.UpdateUI();
     });
 
