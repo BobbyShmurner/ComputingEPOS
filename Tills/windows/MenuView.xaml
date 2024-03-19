@@ -228,7 +228,7 @@
                     <TextBlock>Force Close<LineBreak/>All Checks</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="1" Click="NotImplementedButton_Click">
+                <Button Grid.Row="2" Grid.Column="1" Click="ManageDBButton_Click">
                     <TextBlock>Manage<LineBreak/>Database</TextBlock>
                 </Button>
 

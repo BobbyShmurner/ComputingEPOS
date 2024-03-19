@@ -14,6 +14,7 @@ static class Program {
         builder.Services.AddScoped<IMenusService, MenusService>();
         builder.Services.AddScoped<IStockService, StockService>();
         builder.Services.AddScoped<IOrdersService, OrdersService>();
+        builder.Services.AddScoped<IEmployeesService, EmployeesService>();
         builder.Services.AddScoped<IOrderItemsService, OrderItemsService>();
         builder.Services.AddScoped<ITransactionsService, TransactionsService>();
 

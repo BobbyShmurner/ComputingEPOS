@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ComputingEPOS.Models;
 
 [Table("Employees")]
-public class Employee {
+public class Employee : ICopyable<Employee> {
 	[Key]
 	public int EmployeeID { get; set; }
 
@@ -34,7 +34,18 @@ public class Employee {
 	[Required]
 	public string? Mobile { get; set; } = "+44 7777777777";
 
-	public enum Roles {
+    public Employee Copy() => new Employee {
+        EmployeeID = EmployeeID,
+        WageID = WageID,
+        FirstNames = FirstNames,
+        LastName = LastName,
+        Role = Role,
+        DateJoined = DateJoined,
+        Email = Email,
+        Mobile = Mobile,
+    };
+
+    public enum Roles {
 		Cashier,
 		Kitchen,
 		Supervisor,

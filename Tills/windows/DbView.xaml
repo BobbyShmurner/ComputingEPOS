@@ -1,0 +1,120 @@
+﻿<UserControl x:Class="ComputingEPOS.Tills.DbView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ComputingEPOS.Tills"
+             xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+             mc:Ignorable="d" 
+             d:DesignHeight="570" d:DesignWidth="800">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="180" />
+        </Grid.RowDefinitions>
+        <Border BorderBrush="DimGray" Background="LightGray" BorderThickness="0, 1">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="15, 0, 0 ,0">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Margin" Value="5, 5, 0, 5"/>
+                            <Setter Property="Width" Value="60"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Click="BackButton_Click">Back</Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0, 0, 15 ,0">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Margin" Value="0, 5, 5, 5"/>
+                            <Setter Property="Width" Value="60"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Click="PrintButton_Click">Print</Button>
+                    <Button Click="DeleteButton_Click">Delete</Button>
+                    <Button Click="SaveButton_Click">Save</Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Name="ReportButtonsStackPanel">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Margin" Value="2, 5, 3, 5"/>
+                            <Setter Property="Width" Value="60"/>
+                        </Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextAlignment" Value="Center"/>
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                        </Style>
+                    </StackPanel.Resources>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1" Margin="20, 20, 20, 0">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top">
+                    <Border  BorderBrush="DimGray" BorderThickness="1">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" x:Name="SV_ReportScrollViewer">
+                            <StackPanel x:Name="GridContainer">
+                                <StackPanel.Resources>
+                                    <Style TargetType="{x:Type DataGrid}">
+                                        <Setter Property="AutoGenerateColumns" Value="False"/>
+                                        <Setter Property="IsReadOnly" Value="True"/>
+                                        <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
+                                        <Setter Property="CanUserResizeColumns" Value="False"/>
+                                        <Setter Property="CanUserResizeRows" Value="False"/>
+                                        <Setter Property="CanUserReorderColumns" Value="False"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                                    </Style>
+                                </StackPanel.Resources>
+
+                                <DataGrid x:Name="DG_MainGrid" PreviewMouseWheel="DG_Scroll"/>
+                                <DataGrid x:Name="DG_TotalGrid" HeadersVisibility="Row" PreviewMouseWheel="DG_Scroll"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+                <Border Background="LightGray" BorderBrush="DimGray" DockPanel.Dock="Bottom" BorderThickness="1, 0, 1, 1"/>
+            </DockPanel>
+            <Grid x:Name="LoadingOverlay">
+                <Border Background="Black" Opacity="0.25"/>
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="100" FontStyle="Italic" Opacity="1">Loading...</TextBlock>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2" Margin="20, 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="{x:Type StackPanel}">
+                    <Setter Property="Orientation" Value="Vertical"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+            </Grid.Resources>
+            <StackPanel Grid.Column="0"  x:Name="DataLeft">
+                <DockPanel Margin="5">
+                    <Label FontSize="16">String Label:</Label>
+                    <TextBox/>
+                </DockPanel>
+                <DockPanel Margin="5">
+                    <Label FontSize="16">String Label:</Label>
+                    <TextBox/>
+                </DockPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" x:Name="DataCenter">
+                <DockPanel Margin="5, 0">
+                    <Label FontSize="16">Time Frame:</Label>
+                    <ComboBox ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}" VerticalContentAlignment="Center" />
+                </DockPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Vertical" VerticalAlignment="Center" x:Name="DataRight">
+                <DockPanel Margin="5, 0">
+                    <Label FontSize="16">Time Frame:</Label>
+                    <ComboBox ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}" VerticalContentAlignment="Center" />
+                </DockPanel>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
