@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ComputingEPOS.Models;
 
 [Table("Stock")]
-public class Stock {
+public class Stock : ICopyable<Stock> {
 	[Key]
 	public int StockID { get; set; }
 
@@ -15,4 +15,11 @@ public class Stock {
 	public string? Name { get; set; }
 
 	public float Quantity { get; set; } = 0;
+
+    public Stock Copy() => new Stock {
+        StockID = StockID,
+		SupplierID = SupplierID,
+		Name = Name,
+		Quantity = Quantity,
+    };
 }
