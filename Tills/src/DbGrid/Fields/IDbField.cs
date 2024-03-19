@@ -9,7 +9,7 @@ namespace ComputingEPOS.Tills;
 
 public interface IDbField {
     public Type Type { get; }
-    public void SetData(object data);
+    public void SetData(object? data);
     public void UpdateData(ref object data);
 
     public FrameworkElement Display();

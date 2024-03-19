@@ -14,8 +14,15 @@ public class EmployeeDbGrid : DbGrid<Employee> {
     protected override Task<List<Employee>> CollectData() =>
         Api.Employees.GetEmployees();
 
-    protected override Task<Employee> SaveChanges(Employee employee) =>
-        Api.Employees.PutEmployee(employee);
+    protected override Task<Employee> SaveChanges(Employee employee, bool createNew) {
+        if (!createNew)
+            return Api.Employees.PutEmployee(employee);
+        else
+            return Api.Employees.Create(employee)!;
+    }
+
+    protected override Task Delete(Employee employee) =>
+        Api.Employees.DeleteEmployee(employee);
 
     protected override List<List<IDbField>> CollectFields() {
         var leftFields = new List<IDbField>();

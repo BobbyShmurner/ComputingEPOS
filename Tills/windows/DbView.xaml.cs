@@ -24,6 +24,7 @@ namespace ComputingEPOS.Tills;
 public partial class DbView : UserControl
 {
     public DataGrid DataGrid => DG_MainGrid;
+    public DataGrid AddGrid => DG_AddGrid;
 
     public List<IDbGrid> DbGrids { get; }
     public IDbGrid? CurrentGrid { get; private set; }
@@ -64,16 +65,19 @@ public partial class DbView : UserControl
 
     public async Task ShowGrid(IDbGrid grid, bool resetSelection) {
         DataGrid? dataGrid = null;
+        DataGrid? addGrid = null;
 
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
             LoadingOverlay.Visibility = Visibility.Visible;
 
             dataGrid = DataGrid;
-            grid.HideGrid(dataGrid!);
+            addGrid = AddGrid;
+
+            grid.HideGrid();
         });
 
         CurrentGrid = grid;
-        await grid.ShowGrid(dataGrid!, DataLeft, DataCenter, DataRight, resetSelection);
+        await grid.ShowGrid(dataGrid!, addGrid!, DataLeft, DataCenter, DataRight, resetSelection);
 
         UIDispatcher.EnqueueOnUIThread(() => {
             LoadingOverlay.Visibility = Visibility.Collapsed;
@@ -115,9 +119,23 @@ public partial class DbView : UserControl
         UIDispatcher.UpdateUI();
     });
 
-    private void DeleteButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
-        Modal.Instance.ShowNotImplementedModal()
-    );
+    private void DeleteButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        IDbGrid? currentGrid = null;
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
+            if (CurrentGrid == null) return;
+
+            currentGrid = CurrentGrid;
+            Modal.Instance.Show("Deleting...", false);
+        });
+
+        if (currentGrid == null) return;
+        await currentGrid.DeleteCurrent();
+
+        UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Hide());
+
+        await RefreshCurrentGrid();
+        UIDispatcher.UpdateUI();
+    });
 
     private void DG_Scroll(object sender, MouseWheelEventArgs e) {
         var args = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta) {

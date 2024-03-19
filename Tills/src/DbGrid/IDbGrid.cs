@@ -13,7 +13,8 @@ public interface IDbGrid {
     public Type Type { get; }
     public string Title { get; }
 
-    public void HideGrid(DataGrid grid);
-    public Task ShowGrid(DataGrid grid, StackPanel leftPanel, StackPanel centerPanel, StackPanel rightPanel, bool resetSelection);
+    public void HideGrid();
+    public Task ShowGrid(DataGrid grid, DataGrid addGrid, StackPanel leftPanel, StackPanel centerPanel, StackPanel rightPanel, bool resetSelection);
     public Task SaveChanges();
+    public Task DeleteCurrent();
 }

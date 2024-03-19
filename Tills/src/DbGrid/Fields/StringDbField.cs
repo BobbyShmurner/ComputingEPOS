@@ -22,6 +22,6 @@ public class StringDbField<T> : BaseDbField<T, string> {
     protected override string GetData() =>
         TextBox.Text.Trim();
 
-    protected override void SetData(string data) =>
-        TextBox.Text = data;
+    protected override void SetData(string? data) =>
+        TextBox.Text = data ?? "";
 }
