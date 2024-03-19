@@ -4,6 +4,9 @@ import os
 from src.DocElements.document import Document
 from src.context import Context
 
+def cls():
+	os.system("cls")
+
 def main():
 	if sys.argv[1:]:
 		path = sys.argv[1]
@@ -18,8 +21,15 @@ def main():
 	else:
 		doc = Document.wizard()
 
+	cls()
+
+	print("Saving To Disk...")
 	doc.serialize_to_disk()
+
+	print("Loading Document...")
 	doc = Document.deserialize_from_disk()
+
+	print("Generating Document...")
 	doc.doc_gen()
 
 if __name__ == "__main__":

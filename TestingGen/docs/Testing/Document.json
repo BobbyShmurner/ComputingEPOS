@@ -817,6 +817,147 @@
                             ]
                         }
                     ]
+                },
+                {
+                    "type": "Test",
+                    "title": "De-Comboing a meal down to it's main item",
+                    "passed": true,
+                    "description": "There are many times an employee may wish to de-combo a meal (E.g. A customer changes their mind). Therefore, it is important for cashiers to be able to convert a selected meal back to its core item by pressing the \"Combo\" button again.",
+                    "expected_output": "When the \"Combo\" button is pressed, the Cheese Burger Meal should become just a Cheese Burger, and the Coke and Fries should be removed from the order. The Database and subtotal should both reflect this.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is the Cheeseburger meal. Once the Combo button is pressed, it should return to just a Cheese Burger, and the subtotal should update."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 47,
+                            "rects": [
+                                [
+                                    4,
+                                    95,
+                                    394,
+                                    236
+                                ],
+                                [
+                                    10,
+                                    682,
+                                    389,
+                                    798
+                                ],
+                                [
+                                    597,
+                                    724,
+                                    696,
+                                    808
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "These are the 3 meal items associated with this order:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 48,
+                            "rects": [],
+                            "shade": [
+                                0,
+                                420,
+                                458,
+                                588
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The meal correctly became just a Cheese Burger, and the subtotal was updated to reflect this."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 49,
+                            "rects": [
+                                [
+                                    3,
+                                    99,
+                                    396,
+                                    144
+                                ],
+                                [
+                                    3,
+                                    681,
+                                    395,
+                                    811
+                                ]
+                            ],
+                            "shade": [
+                                0,
+                                2,
+                                401,
+                                873
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "The Coke and Fries items where also removed from the database"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 50,
+                            "rects": [],
+                            "shade": [
+                                0,
+                                477,
+                                479,
+                                593
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "TestList",
+            "title": "Payment",
+            "description": "A vital part of this system is the ability for customers to pay for their orders. Customers can pay via both Cash and Card, and this software should allow for flexibility. This software should make it easy for cashiers to allow customer to pay however they please.",
+            "tests": [
+                {
+                    "type": "Test",
+                    "title": "Payment Keypad - Max Value",
+                    "passed": false,
+                    "description": "There should be a limit to how much you can type into the payment keypad. In this test, I will repeatidly press the 9 button on the keypad until there is some form of feedback",
+                    "expected_output": "The value displayed on the keypad should stop growing in size at a reasonable point.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is the Payment Keypad before any value has been inputed:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 51,
+                            "rects": [
+                                [
+                                    853,
+                                    199,
+                                    973,
+                                    321
+                                ]
+                            ],
+                            "shade": [
+                                594,
+                                91,
+                                991,
+                                697
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The software crashed after repeatidly pressing the 9 button."
+                        }
+                    ]
                 }
             ]
         }
