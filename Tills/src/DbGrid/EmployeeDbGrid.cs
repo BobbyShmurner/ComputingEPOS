@@ -27,7 +27,7 @@ public class EmployeeDbGrid : DbGrid<Employee> {
 
         rightFields.Add(new StringDbField<Employee>("Email", nameof(Employee.Email)));
         rightFields.Add(new StringDbField<Employee>("Mobile", nameof(Employee.Mobile)));
-        rightFields.Add(new StringDbField<Employee>("Role", nameof(Employee.Role)));
+        rightFields.Add(new EnumDbField<Employee, Employee.Roles>("Role", nameof(Employee.Role)));
 
         return new List<List<IDbField>> { leftFields, centerFields, rightFields };
     }
