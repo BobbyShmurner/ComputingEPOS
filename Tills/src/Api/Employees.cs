@@ -24,6 +24,22 @@ public static class Employees {
         }
     }
 
+    public static async Task<Employee?> Create(Employee item) {
+        var response = await Client.PostAsync("api/Employees", new StringContent(
+            JsonSerializer.Serialize(item),
+            Encoding.UTF8,
+            "application/json"
+        ));
+
+        try {
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Employee>();
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to create employee!", response);
+            throw;
+        }
+    }
+
     public static async Task<Employee> PutEmployee(Employee employee) {
         var response = await Client.PutAsync($"api/Employees/{employee.EmployeeID}", new StringContent(
             JsonSerializer.Serialize(employee),
@@ -36,6 +52,17 @@ public static class Employees {
             return (await response.Content.ReadFromJsonAsync<Employee>())!;
         } catch (HttpRequestException ex) when (ex.StatusCode != null) {
             await Modal.Instance.ShowError($"Failed to update Employee!", response);
+            throw;
+        }
+    }
+
+    public static async Task DeleteEmployee(Employee employee) {
+        var response = await Client.DeleteAsync($"api/Employees/{employee.EmployeeID}");
+
+        try {
+            response.EnsureSuccessStatusCode();
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to delete Employee [ID: {employee.EmployeeID}]", response);
             throw;
         }
     }

@@ -9,7 +9,7 @@ using System.Windows.Data;
 
 namespace ComputingEPOS.Tills;
 
-public abstract class DbGrid<T> : IDbGrid where T : ICopyable<T> {
+public abstract class DbGrid<T> : IDbGrid where T : class, ICopyable<T>, new() {
     public ObservableCollection<T>? Data { get; private set; }
     public List<DataGridColumnInfo>? ColumnInfo { get; private set; }
     public List<List<IDbField>>? Fields { get; private set; }
@@ -18,22 +18,27 @@ public abstract class DbGrid<T> : IDbGrid where T : ICopyable<T> {
     public Type Type => typeof(T);
     public int? SelectedIndex { get; private set; }
 
-    protected abstract Task<T> SaveChanges(T data);
+    protected abstract Task Delete(T data);
     protected abstract Task<List<T>> CollectData();
     protected abstract List<List<IDbField>> CollectFields();
     protected abstract List<DataGridColumnInfo> GetColumnInfo();
+    protected abstract Task<T> SaveChanges(T data, bool createNew);
 
     public T? EditingData { get; private set; }
 
-    public void HideGrid(DataGrid grid) {
-        grid.SelectionChanged -= OnSelectionChanged;
+    DataGrid? Grid;
+    DataGrid? AddGrid;
+
+    public void HideGrid() {
+        if (Grid != null) Grid.SelectionChanged -= OnSelectionChanged;
+        if (AddGrid != null) AddGrid.SelectionChanged -= OnAddGridSelectionChanged;
     }
 
     public async Task SaveChanges() {
-        if (Data == null || Fields == null || SelectedIndex == null || EditingData == null) return;
+        if (Fields == null || Data == null) return;
 
         object editingData = UIDispatcher.DispatchOnUIThread(() => {
-            object data = EditingData.Copy();
+            object data = EditingData?.Copy() ?? new T{ };
 
             foreach (var field in Fields.SelectMany(x => x)) {
                 field.UpdateData(ref data);
@@ -42,16 +47,38 @@ public abstract class DbGrid<T> : IDbGrid where T : ICopyable<T> {
             return data;
         });
 
-        T newData = await SaveChanges((T)editingData);
+        T newData = await SaveChanges((T)editingData, SelectedIndex == null);
+
         UIDispatcher.DispatchOnUIThread(() => {
-            int index = SelectedIndex.Value;
-            Data[index] = newData;
-            SelectedIndex = index;
+            if (SelectedIndex != null) {
+                int index = SelectedIndex.Value;
+                Data[SelectedIndex.Value] = newData;
+                SelectedIndex = index;
+            } else { 
+                Data.Add(newData);
+                SelectedIndex = Data.Count - 1;
+            }
+
+            if (Grid != null) Grid.SelectedIndex = SelectedIndex.Value;
+            if (AddGrid != null) AddGrid.SelectedIndex = SelectedIndex.Value;
         });
     }
 
-    public async Task ShowGrid(DataGrid grid, StackPanel leftPanel, StackPanel centerPanel, StackPanel rightPanel, bool resetSelection) {
-        HideGrid(grid);
+    public async Task DeleteCurrent() {
+        if (Data == null) return;
+        if (SelectedIndex == null) return;
+
+        await Delete(Data[SelectedIndex.Value]);
+
+        SelectedIndex = null;
+    }
+
+    public async Task ShowGrid(DataGrid grid, DataGrid addGrid, StackPanel leftPanel, StackPanel centerPanel, StackPanel rightPanel, bool resetSelection) {
+        HideGrid();
+        Grid = grid;
+        AddGrid = addGrid;
+
+        if (Grid == null || AddGrid == null) return;
 
         var data = await CollectData();
         Data = new ObservableCollection<T>(data);
@@ -59,20 +86,36 @@ public abstract class DbGrid<T> : IDbGrid where T : ICopyable<T> {
         ColumnInfo = GetColumnInfo();
 
         UIDispatcher.EnqueueOnUIThread(() => {
-            grid.ItemsSource = Data;
-            grid.Columns.Clear();
-            grid.SelectionChanged += OnSelectionChanged;
+            AddGrid.SelectionChanged += OnAddGridSelectionChanged;
+
+            var addSource = new string[1][];
+            addSource[0] = new string[ColumnInfo.Count];
+            AddGrid.ItemsSource = addSource;
+            AddGrid.Columns.Clear();
+
+            Grid.ItemsSource = Data;
+            Grid.Columns.Clear();
+            Grid.SelectionChanged += OnSelectionChanged;
             
             if (resetSelection) SelectedIndex = null;
 
-            foreach (var columnInfo in ColumnInfo) {
+            for (int i = 0; i < ColumnInfo.Count; i++) {
+                var columnInfo = ColumnInfo[i];
+
                 var dataColumn = new DataGridTextColumn {
                     Header = columnInfo.Header,
                     Binding = new Binding(columnInfo.Binding) { StringFormat = columnInfo.Format},
                     Width = columnInfo.Width,
                 };
 
-                grid.Columns.Add(dataColumn);
+                Grid.Columns.Add(dataColumn);
+
+                var addColumn = new DataGridTextColumn {
+                    Width = columnInfo.Width,
+                    Binding = new Binding($"[{i}]"),
+                };
+
+                AddGrid.Columns.Add(addColumn);
             }
 
             CreateFields(leftPanel, centerPanel, rightPanel);
@@ -84,20 +127,35 @@ public abstract class DbGrid<T> : IDbGrid where T : ICopyable<T> {
         DataGrid dataGrid = (DataGrid)sender;
 
         int index = dataGrid.SelectedIndex;
-        SelectElement(index == -1 ? null : index);
+        if (index == -1) return;
+
+        SelectElement(index);
+    }
+
+    void OnAddGridSelectionChanged(object sender, SelectionChangedEventArgs e) {
+        DataGrid addGrid = (DataGrid)sender;
+
+        int index = addGrid.SelectedIndex;
+        if (index == -1) return;
+
+        SelectElement(null);
     }
 
     public void SelectElement(int? i) {
         SelectedIndex = i;
-        if (i == null || Data == null || Data.Count < i) return;
+        if (SelectedIndex == null || Data == null || i == null) {
+            EditingData = null;
+            if (Grid != null) Grid.SelectedIndex = -1;
+        } else {
+            EditingData = Data[i.Value].Copy();
+            if (AddGrid != null) AddGrid.SelectedIndex = -1;
+        }
 
-        EditingData = Data[i.Value].Copy();
         UpdateFields();
     }
 
     void UpdateFields() {
         if (Fields == null) return;
-        if (EditingData == null) return;
 
         foreach (var field in Fields.SelectMany(x => x)) {
             field.SetData(EditingData);
