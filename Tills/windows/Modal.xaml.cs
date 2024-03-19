@@ -6,6 +6,8 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -51,7 +53,16 @@ public partial class Modal : UserControl
     public async Task ShowError(string error, HttpResponseMessage response, bool hideOnClick = true)
     {
         var content = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
-        var reason = content != null && content.ContainsKey("detail") ? content["detail"].ToString() : "Unknown";
+        string? reason = null;
+
+        if (content != null) {
+            if (content.ContainsKey("detail")) {
+                reason = content["detail"].ToString();
+            }
+            else if (content.ContainsKey("title")) {
+                reason = content["title"].ToString();
+            }
+        }
 
         StringBuilder sb = new(error);
 
@@ -60,6 +71,21 @@ public partial class Modal : UserControl
         sb.Append(")");
         sb.Append("\n\nReason: ");
         sb.Append(reason ?? "Unknown");
+
+        if (response.StatusCode == HttpStatusCode.BadRequest && content != null && content.ContainsKey("errors")) {
+            var errors = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(content["errors"].ToString()!)!;
+
+            foreach (var errorPair in errors) {
+                sb.Append($"\n{errorPair.Key}: ");
+
+                for (int i = 0; i < errorPair.Value.Count; i++) {
+                    var e = errorPair.Value[i];
+
+                    if (i > 0) sb.Append(" ");
+                    sb.Append($"{e.ToString()}");
+                }
+            }
+        }
 
         UIDispatcher.EnqueueOnUIThread(() => Show(sb.ToString()));
         UIDispatcher.UpdateUI();
