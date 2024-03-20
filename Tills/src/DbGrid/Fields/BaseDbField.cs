@@ -8,7 +8,7 @@ using System.Windows.Controls;
 
 namespace ComputingEPOS.Tills;
 
-public abstract class BaseDbField<T, U> : IDbField where U : class {
+public abstract class BaseDbField<T, U> : IDbField {
     public string Label { get; private set; }
     public string FieldName { get; private set; }
 
@@ -46,7 +46,7 @@ public abstract class BaseDbField<T, U> : IDbField where U : class {
             if (!(data is T)) throw new ArgumentException("Invalid data type");
             SetData((U)Type.GetProperty(FieldName)!.GetValue(data)!);
         } else {
-            SetData(null);
+            SetData(default);
         }
     }
 

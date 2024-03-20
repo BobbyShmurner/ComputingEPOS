@@ -33,8 +33,12 @@ public class EnumDbField<T, TEnum> : BaseDbField<T, string>, INotifyPropertyChan
 
     protected override string GetData() => Value?.ToString() ?? "";
     protected override void SetData(string? data) {
-        if (data != null) Value = null;
-        if (Enum.TryParse(data, true, out TEnum res)) {
+        if (data == null) {
+            Value = null;
+            return;
+        }
+
+        if (Enum.TryParse((string)data, true, out TEnum res)) {
             Value = res;
         } else {
             Value = default!;

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -73,10 +74,9 @@ public partial class DbView : UserControl
 
             dataGrid = DataGrid;
             addGrid = AddGrid;
-
-            grid.HideGrid();
         });
 
+        CurrentGrid?.HideGrid();
         CurrentGrid = grid;
         await grid.ShowGrid(dataGrid!, addGrid!, DataLeft, DataCenter, DataRight, resetSelection);
 
@@ -112,7 +112,13 @@ public partial class DbView : UserControl
         });
 
         if (currentGrid == null) return;
-        await currentGrid.SaveChanges();
+
+        try {
+            await currentGrid.SaveChanges();
+        } catch (Exception e) when (e is not HttpRequestException) {
+            UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Show(e.Message));
+            throw;
+        }
 
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Hide());
 

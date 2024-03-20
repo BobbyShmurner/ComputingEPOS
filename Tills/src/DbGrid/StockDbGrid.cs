@@ -30,7 +30,7 @@ public class StockDbGrid : DbGrid<Stock> {
         var rightFields = new List<IDbField>();
 
         leftFields.Add(new StringDbField<Stock>("Name", nameof(Stock.Name)));
-        rightFields.Add(new StringDbField<Stock>("Quantity", nameof(Stock.Quantity)));
+        rightFields.Add(new FloatDbField<Stock>("Quantity", nameof(Stock.Quantity)));
 
         return new List<List<IDbField>> { leftFields, centerFields, rightFields };
     }

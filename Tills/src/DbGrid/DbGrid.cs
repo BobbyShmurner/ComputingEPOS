@@ -74,11 +74,11 @@ public abstract class DbGrid<T> : IDbGrid where T : class, ICopyable<T>, new() {
     }
 
     public async Task ShowGrid(DataGrid grid, DataGrid addGrid, StackPanel leftPanel, StackPanel centerPanel, StackPanel rightPanel, bool resetSelection) {
+        if (grid == null || addGrid == null) return;
+
         HideGrid();
         Grid = grid;
         AddGrid = addGrid;
-
-        if (Grid == null || AddGrid == null) return;
 
         var data = await CollectData();
         Data = new ObservableCollection<T>(data);
