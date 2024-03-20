@@ -8,20 +8,7 @@ using System.Windows.Controls;
 
 namespace ComputingEPOS.Tills;
 
-public class StringDbField<T> : BaseDbField<T, string> {
-    public TextBox TextBox { get; private set; }
-    protected override FrameworkElement GetElement() => TextBox;
-
-    public StringDbField(string label, string fieldName) : base(label, fieldName) {
-        TextBox = new TextBox {
-            FontSize = 16,
-            VerticalContentAlignment = VerticalAlignment.Center
-        };
-    }
-
-    protected override string GetData() =>
-        TextBox.Text.Trim();
-
-    protected override void SetData(string? data) =>
-        TextBox.Text = data ?? "";
+public class StringDbField<T> : TextBoxDbField<T, string> {
+    public StringDbField(string label, string fieldName) : base(label, fieldName) { }
+    protected override string FromString(string? data) => data ?? "";
 }
