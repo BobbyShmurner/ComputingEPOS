@@ -21,8 +21,9 @@ public static class PrintManager {
 
         var paragraph = new Paragraph(run);
 
-        var doc = new FlowDocument(paragraph);
-        doc.PagePadding = padding ?? new Thickness(100);
+        var doc = new FlowDocument(paragraph) {
+            PagePadding = padding ?? new Thickness(100),
+        };
 
         dialog.PrintDocument(((IDocumentPaginatorSource)doc).DocumentPaginator, caption);
     }
