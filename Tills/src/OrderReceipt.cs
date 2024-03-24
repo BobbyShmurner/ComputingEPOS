@@ -21,12 +21,15 @@ namespace ComputingEPOS.Tills;
 
 public class OrderReceipt {
     public OrderManager OrderManager { get; private set; }
-    public int Width { get; set; }
     public StringBuilder Sb { get; private set; } = new StringBuilder();
 
-    public OrderReceipt(OrderManager orderManager, int width) {
+    public int Width { get; set; }
+    public decimal? Change { get; set; }
+
+    public OrderReceipt(OrderManager orderManager, int width, decimal? change = null) {
         OrderManager = orderManager;
         Width = width;
+        Change = change;
     }
 
     public override string ToString() => PrintReceipt();
@@ -91,15 +94,21 @@ public class OrderReceipt {
             AppendCenterLine("No Payments Made!");
             AppendBlankLine();
         } else {
-            List<Transaction> transactions = OrderManager.Transactions
-                .Where(t => t.Method != "Cash")
-                .Append(
-                    new Transaction {
-                        AmountPaid = OrderManager.Transactions.Where(t => t.Method == "Cash").Sum(t => t.AmountPaid),
-                        Method = "Cash"
-                    }
-                )
-                .ToList();
+            List<Transaction> transactions;
+
+            if (OrderManager.Transactions.Any(t => t.Method == "Cash")) {
+                transactions = OrderManager.Transactions
+                    .Where(t => t.Method != "Cash")
+                    .Append(
+                        new Transaction {
+                            AmountPaid = OrderManager.Transactions.Where(t => t.Method == "Cash").Sum(t => t.AmountPaid),
+                            Method = "Cash"
+                        }
+                    )
+                    .ToList();
+            } else {
+                transactions = OrderManager.Transactions;
+            }
 
             foreach(var transaction in transactions) {
                 string amount = $" £{transaction.AmountPaid:n2}";
@@ -116,8 +125,11 @@ public class OrderReceipt {
         AppendBlankLine();
 
         AppendLine("Total", suffix: $" £{OrderManager.Total:n2}");
+
         if (OrderManager.Outstanding > 0)
             AppendLine("Outstanding", suffix: $" £{OrderManager.Outstanding:n2}");
+        else if (Change.HasValue)
+            AppendLine("Change", suffix: $" £{Change.Value:n2}");
 
         AppendBlankLine();
     }

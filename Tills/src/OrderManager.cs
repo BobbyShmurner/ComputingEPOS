@@ -387,13 +387,13 @@ public class OrderManager : INotifyPropertyChanged {
         Transactions = await Api.Transactions.GetTransactions(CurrentOrder);
     }
 
-    public void PrintReceipt() {
+    public void PrintReceipt(decimal? change = null) {
         if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to print receipt for!");
         if (AllItems.Count == 0) throw new InvalidOperationException("Cannot print an empty receipt!");
 
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Show("Printing Receipt..."));
 
-        string receipt = new OrderReceipt(this, 35).ToString();
+        string receipt = new OrderReceipt(this, 35, change).ToString();
         PrintManager.PrintString(receipt, $"Order #{CurrentOrder.OrderNum} Receipt", 16, new("Consolas"));
 
         UIDispatcher.EnqueueOnUIThread(Modal.Instance.Hide);
@@ -432,12 +432,14 @@ public class OrderManager : INotifyPropertyChanged {
         
         await PayForOrder_Internal(amount.Value, paymentMethod);
 
-        if (Outstanding <= 0)
-        {
-            if (Outstanding < 0) await HandleChange();
+        if (Outstanding <= 0) {
+            decimal? change = null;
+            PrintReceipt(Outstanding < 0 ? -Outstanding : null);
+            
+            if (Outstanding < 0) change = await HandleChange();
             await CloseCheck();
             
-            PrintReceipt();
+            if (change != null) UIDispatcher.EnqueueOnUIThread(() => Modal.Instance.Show($"Change: £{change}"));
             await NextOrder();
         }
 
@@ -475,11 +477,11 @@ public class OrderManager : INotifyPropertyChanged {
         return value / 100M;
     }
 
-    async Task HandleChange() {
+    async Task<decimal> HandleChange() {
         decimal change = -Outstanding;
 
         await PayForOrder_Internal(Outstanding, PaymentMethods.Cash);
-        UIDispatcher.EnqueueOnUIThread(() => Modal.Instance.Show($"Change: £{change}"));
+        return change;
     }
 
     async Task CloseCheck() {
