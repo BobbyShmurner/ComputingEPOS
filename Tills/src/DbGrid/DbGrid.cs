@@ -20,9 +20,9 @@ public abstract class DbGrid<T> : IDbGrid where T : class, ICopyable<T>, new() {
 
     protected abstract Task Delete(T data);
     protected abstract Task<List<T>> CollectData();
-    protected abstract List<List<IDbField>> CollectFields();
     protected abstract List<DataGridColumnInfo> GetColumnInfo();
     protected abstract Task<T> SaveChanges(T data, bool createNew);
+    protected abstract void CollectFields(List<IDbField> leftFields, List<IDbField> centerFields, List<IDbField> rightFields);
 
     public T? EditingData { get; private set; }
 
@@ -167,7 +167,13 @@ public abstract class DbGrid<T> : IDbGrid where T : class, ICopyable<T>, new() {
         centerPanel.Children.Clear();
         rightPanel.Children.Clear();
 
-        Fields = CollectFields();
+        Fields = new List<List<IDbField>>{
+            new List<IDbField>(),
+            new List<IDbField>(),
+            new List<IDbField>(),
+        };
+
+        CollectFields(Fields[0], Fields[1], Fields[2]);
 
         for (int i = 0; i < Fields.Count; i++) {
             for (int j = 0; j < Fields[i].Count; j++) {

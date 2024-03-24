@@ -24,11 +24,7 @@ public class EmployeeDbGrid : DbGrid<Employee> {
     protected override Task Delete(Employee employee) =>
         Api.Employees.DeleteEmployee(employee);
 
-    protected override List<List<IDbField>> CollectFields() {
-        var leftFields = new List<IDbField>();
-        var centerFields = new List<IDbField>();
-        var rightFields = new List<IDbField>();
-
+    protected override void CollectFields(List<IDbField> leftFields, List<IDbField> centerFields, List<IDbField> rightFields) {
         leftFields.Add(new StringDbField<Employee>("First Names", nameof(Employee.FirstNames)));
         leftFields.Add(new StringDbField<Employee>("Surname", nameof(Employee.LastName)));
         leftFields.Add(new IntDbField<Employee>("Age", nameof(Employee.Age)));
@@ -38,8 +34,6 @@ public class EmployeeDbGrid : DbGrid<Employee> {
 
         rightFields.Add(new DecimalDbField<Employee>("Wage", nameof(Employee.Wage)));
         rightFields.Add(new EnumDbField<Employee, Employee.Roles>("Role", nameof(Employee.Role)));
-
-        return new List<List<IDbField>> { leftFields, centerFields, rightFields };
     }
 
     protected override List<DataGridColumnInfo> GetColumnInfo() {
@@ -51,7 +45,7 @@ public class EmployeeDbGrid : DbGrid<Employee> {
             new DataGridColumnInfo("Wage", nameof(Employee.Wage), width: new DataGridLength(40)),
             new DataGridColumnInfo("Role", nameof(Employee.Role), width: new DataGridLength(80)),
             new DataGridColumnInfo("Email", nameof(Employee.Email), width: new DataGridLength(2, DataGridLengthUnitType.Star)),
-            new DataGridColumnInfo("Mobile", nameof(Employee.Mobile), width: new DataGridLength(80)),
+            new DataGridColumnInfo("Mobile", nameof(Employee.Mobile), width: new DataGridLength(85)),
             new DataGridColumnInfo("Joined", nameof(Employee.DateJoined), format: "{0:dd/MM/yyyy}", width: new DataGridLength(70)),
         };
     }
