@@ -31,9 +31,12 @@ public class EmployeeDbGrid : DbGrid<Employee> {
 
         leftFields.Add(new StringDbField<Employee>("First Names", nameof(Employee.FirstNames)));
         leftFields.Add(new StringDbField<Employee>("Surname", nameof(Employee.LastName)));
+        leftFields.Add(new IntDbField<Employee>("Age", nameof(Employee.Age)));
 
-        rightFields.Add(new StringDbField<Employee>("Email", nameof(Employee.Email)));
-        rightFields.Add(new StringDbField<Employee>("Mobile", nameof(Employee.Mobile)));
+        centerFields.Add(new StringDbField<Employee>("Email", nameof(Employee.Email)));
+        centerFields.Add(new StringDbField<Employee>("Mobile", nameof(Employee.Mobile)));
+
+        rightFields.Add(new DecimalDbField<Employee>("Wage", nameof(Employee.Wage)));
         rightFields.Add(new EnumDbField<Employee, Employee.Roles>("Role", nameof(Employee.Role)));
 
         return new List<List<IDbField>> { leftFields, centerFields, rightFields };
@@ -41,13 +44,15 @@ public class EmployeeDbGrid : DbGrid<Employee> {
 
     protected override List<DataGridColumnInfo> GetColumnInfo() {
         return new List<DataGridColumnInfo> {
-            new DataGridColumnInfo("ID", nameof(Employee.EmployeeID), width: new DataGridLength(50)),
-            new DataGridColumnInfo("First Names", nameof(Employee.FirstNames)),
-            new DataGridColumnInfo("Surname", nameof(Employee.LastName)),
-            new DataGridColumnInfo("Role", nameof(Employee.Role)),
-            new DataGridColumnInfo("Date Joined", nameof(Employee.DateJoined), format: "{0:dd/MM/yyyy}"),
-            new DataGridColumnInfo("Email", nameof(Employee.Email)),
-            new DataGridColumnInfo("Mobile", nameof(Employee.Mobile)),
+            new DataGridColumnInfo("ID", nameof(Employee.EmployeeID), width: new DataGridLength(25)),
+            new DataGridColumnInfo("First Names", nameof(Employee.FirstNames), width: new DataGridLength(1, DataGridLengthUnitType.Star)),
+            new DataGridColumnInfo("Surname", nameof(Employee.LastName), width: new DataGridLength(1, DataGridLengthUnitType.Star)),
+            new DataGridColumnInfo("Age", nameof(Employee.Age), width: new DataGridLength(35)),
+            new DataGridColumnInfo("Wage", nameof(Employee.Wage), width: new DataGridLength(40)),
+            new DataGridColumnInfo("Role", nameof(Employee.Role), width: new DataGridLength(80)),
+            new DataGridColumnInfo("Email", nameof(Employee.Email), width: new DataGridLength(2, DataGridLengthUnitType.Star)),
+            new DataGridColumnInfo("Mobile", nameof(Employee.Mobile), width: new DataGridLength(80)),
+            new DataGridColumnInfo("Joined", nameof(Employee.DateJoined), format: "{0:dd/MM/yyyy}", width: new DataGridLength(70)),
         };
     }
 }
