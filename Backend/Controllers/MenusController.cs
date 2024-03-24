@@ -37,16 +37,16 @@ public class MenusController : ControllerBase {
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Menu>> PutMenu(int id, Menu menus) {
-        if (id != menus.MenuID) return BadRequest(); 
-        return await m_Service.PutMenu(menus);
+    public async Task<ActionResult<Menu>> PutMenu(int id, Menu menu) {
+        if (id != menu.MenuID) return BadRequest(); 
+        return await m_Service.PutMenu(menu);
     }
 
     // POST: api/Menus
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<Menu>> PostMenu(Menu menus)  {
-        ActionResult<Menu> newMenuRes = await m_Service.PostMenu(menus);
+    public async Task<ActionResult<Menu>> PostMenu(Menu menu)  {
+        ActionResult<Menu> newMenuRes = await m_Service.PostMenu(menu);
         if (newMenuRes.Result != null) return newMenuRes.Result;
         Menu newMenu = newMenuRes.Value!;
         
