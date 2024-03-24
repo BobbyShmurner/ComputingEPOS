@@ -37,6 +37,18 @@ public static class Transactions {
         }
     }
 
+    public static async Task<List<Transaction>> GetTransactions(Order? order) {
+        var response = await Client.GetAsync($"api/Transactions?orderId={order?.OrderID}");
+
+        try {
+            response.EnsureSuccessStatusCode();
+            return (await response.Content.ReadFromJsonAsync<List<Transaction>>())!;
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to get transactions!", response);
+            throw;
+        }
+    }
+
     public static async Task<List<decimal>> GetGrossSalesInIntervals(DateTime from, DateTime? to, long intervalInSeconds)
     {
         var response = await Client.GetAsync($"api/Transactions/GrossSalesInIntervals?from={from.ToUniversalTime():r}&to={to?.ToUniversalTime().ToString("r")}&intervalInSeconds={intervalInSeconds}");
