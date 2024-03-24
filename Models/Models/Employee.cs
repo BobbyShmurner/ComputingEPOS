@@ -9,15 +9,16 @@ public class Employee : ICopyable<Employee> {
 	public int EmployeeID { get; set; }
 
 	[Required]
-	public int WageID { get; set; }
-
-	[Required]
 	[RegularExpression(@"^[a-zA-Z ,.'-]+$")]
 	public string? FirstNames { get; set; } = "John";
 
 	[Required]
 	[RegularExpression(@"^[a-zA-Z,.'-]+$")]
 	public string? LastName { get; set; } = "Doe";
+
+	[Required]
+	[Range(16, 100)]
+	public int Age { get; set; }
 
 	[Required]
 	[EnumDataType(typeof(Roles))]
@@ -34,15 +35,19 @@ public class Employee : ICopyable<Employee> {
 	[Required]
 	public string? Mobile { get; set; } = "+44 7777777777";
 
+	[Required]
+	public decimal Wage { get; set; }
+
     public Employee Copy() => new Employee {
         EmployeeID = EmployeeID,
-        WageID = WageID,
         FirstNames = FirstNames,
         LastName = LastName,
+		Age = Age,
         Role = Role,
         DateJoined = DateJoined,
         Email = Email,
         Mobile = Mobile,
+		Wage = Wage,
     };
 
     public enum Roles {
