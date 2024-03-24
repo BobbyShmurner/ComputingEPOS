@@ -24,15 +24,9 @@ public class StockDbGrid : DbGrid<Stock> {
     protected override Task Delete(Stock stock) =>
         Api.Stock.DeleteStock(stock);
 
-    protected override List<List<IDbField>> CollectFields() {
-        var leftFields = new List<IDbField>();
-        var centerFields = new List<IDbField>();
-        var rightFields = new List<IDbField>();
-
+    protected override void CollectFields(List<IDbField> leftFields, List<IDbField> centerFields, List<IDbField> rightFields) {
         leftFields.Add(new StringDbField<Stock>("Name", nameof(Stock.Name)));
         rightFields.Add(new FloatDbField<Stock>("Quantity", nameof(Stock.Quantity)));
-
-        return new List<List<IDbField>> { leftFields, centerFields, rightFields };
     }
 
     protected override List<DataGridColumnInfo> GetColumnInfo() {
