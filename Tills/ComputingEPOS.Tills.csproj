@@ -8,12 +8,7 @@
 	  <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Resources\RecieptTemplate.txt" />
-    <None Remove="Resources\Templates\PricedItem.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Templates\PricedItem.txt" />
-    <Resource Include="Resources\Templates\Reciept.txt" />
+    <Resource Include="Resources\**" />
   </ItemGroup>
 
   <ItemGroup>

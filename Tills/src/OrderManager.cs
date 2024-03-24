@@ -162,6 +162,7 @@ public class OrderManager : INotifyPropertyChanged {
     public decimal SubTotal => Total * 0.8M;
     public decimal Tax => Total * 0.2M;
     public decimal Outstanding => Total - AmountPaid;
+    public List<Transaction> Transactions = new List<Transaction>();
 
     public string OutstandingStr => FetchingAmountPaid
         ? "Outstanding: ..."
@@ -378,8 +379,10 @@ public class OrderManager : INotifyPropertyChanged {
         OrderMenuManager.ShowPaymentScreen();
     }
 
-    public async Task FetchAmountPaid() =>
+    public async Task FetchAmountPaid() {
         AmountPaid = CurrentOrder != null ? (await Api.Orders.GetAmountPaid(CurrentOrder)).Value : 0;
+        Transactions = await Api.Transactions.GetTransactions(CurrentOrder);
+    }
 
     public async Task PrintReceipt() {
         if (CurrentOrder == null) throw new ArgumentNullException(nameof(CurrentOrder), "No order to print receipt for!");
@@ -397,17 +400,32 @@ public class OrderManager : INotifyPropertyChanged {
 
         StreamReader reader = new(info.Stream);
         int lineLength = int.Parse((await reader.ReadLineAsync())!.Trim());
+        string? linePrefix = await reader.ReadLineAsync()!;
+        string? lineSuffix = await reader.ReadLineAsync()!;
 
-        var receipt = await reader.ReadToEndAsync();
-        var orderItemsStr = FormatOrderItems(lineLength);
+        string receipt = await reader.ReadToEndAsync();
+        string orderItemsStr = FormatOrderItems(lineLength, linePrefix, lineSuffix);
+        string paymentsStr = FormatPayments(lineLength, linePrefix, lineSuffix);
+        string cashier = FormatLineForReceipt("Bobby", lineLength, 9);
+        string endMessage = FormatEndMessage(lineLength, linePrefix, lineSuffix);
 
-        receipt = string.Format(receipt, CurrentOrder.OrderNum, "Bobby", CurrentOrder.OrderDuration != null ? CurrentOrder.Date.AddSeconds(CurrentOrder.OrderDuration.Value) : DateTime.Now, orderItemsStr, "", "", SubTotal, Tax, Total);
+        receipt = string.Format(receipt, CurrentOrder.OrderNum, cashier, CurrentOrder.OrderDuration != null ? CurrentOrder.Date.AddSeconds(CurrentOrder.OrderDuration.Value) : DateTime.Now, orderItemsStr, paymentsStr, endMessage);
         PrintManager.PrintString(receipt, $"Order #{CurrentOrder.OrderNum} Receipt", 16, new("Consolas"));
 
         UIDispatcher.EnqueueOnUIThread(Modal.Instance.Hide);
     }
 
-    string FormatOrderItems(int lineLength) {
+    string FormatLineForReceipt(string line, int lineLength, int prefixLength = 0, string suffix = "") {
+        if (line.Length - prefixLength + suffix.Length > lineLength) {
+            line = line.Substring(0, lineLength - suffix.Length - 3) + "...";
+        } else {
+            line += new string(' ', lineLength - line.Length - prefixLength - suffix.Length);
+        }
+
+        return line + suffix;
+    }
+
+    string FormatOrderItems(int lineLength, string? linePrefix, string? lineSuffix) {
         var sb = new StringBuilder();
 
         foreach(var item in AllItems) {
@@ -418,27 +436,81 @@ public class OrderManager : INotifyPropertyChanged {
             for (int i = 0; i < item.IndentLevel; i++)
                 line += "  ";
 
-            line += "- ";
+            line += $"- {item.Text}";
 
-            string itemText = item.Text;
-            int currentLen = line.Length + price.Length;
+            if (item.IndentLevel == 0)
+                AppendBlankLineToReceipt(sb, lineLength, linePrefix, lineSuffix);
+            AppendLineToReceipt(sb, line, lineLength, linePrefix, lineSuffix, suffix: price);
+        }
 
-            if (currentLen + itemText.Length > lineLength) {
-                itemText = itemText.Substring(0, lineLength - currentLen - 3) + "...";
+        AppendBlankLineToReceipt(sb, lineLength, linePrefix, lineSuffix);
+        return sb.ToString();
+    }
+
+    string FormatPayments(int lineLength, string? linePrefix, string? lineSuffix) {
+        var sb = new StringBuilder();
+
+        if (Transactions.Count == 0) {
+            AppendCenterLineToReceipt(sb, "No Payments Made!", lineLength, linePrefix, lineSuffix);
+            AppendBlankLineToReceipt(sb, lineLength, linePrefix, lineSuffix);
+        } else {
+            List<Transaction> transactions = Transactions
+                .Where(t => t.Method != "Cash")
+                .Append(
+                    new Transaction {
+                        AmountPaid = Transactions.Where(t => t.Method == "Cash").Sum(t => t.AmountPaid),
+                        Method = "Cash"
+                    }
+                )
+                .ToList();
+
+            foreach(var transaction in transactions) {
+                string amount = $" £{transaction.AmountPaid:n2}";
+                string method = $" - {transaction.Method ?? "Unknown"} Payment";
+
+                AppendLineToReceipt(sb, method, lineLength, linePrefix, lineSuffix, suffix: amount);
+                AppendBlankLineToReceipt(sb, lineLength, linePrefix, lineSuffix);
             }
+        }
 
-            line += itemText;
-            currentLen = line.Length + price.Length;
+        AppendLineToReceipt(sb, "Subtotal", lineLength, linePrefix, lineSuffix, suffix: $" £{SubTotal:n2}");
+        AppendLineToReceipt(sb, "Tax", lineLength, linePrefix, lineSuffix, suffix: $" £{Tax:n2}");
 
-            for (int i = 0; i < lineLength - currentLen; i++)
-                line += " ";
+        AppendBlankLineToReceipt(sb, lineLength, linePrefix, lineSuffix);
 
-            line += price;
+        AppendLineToReceipt(sb, "Total", lineLength, linePrefix, lineSuffix, suffix: $" £{Total:n2}");
+        if (Outstanding > 0)
+            AppendLineToReceipt(sb, "Outstanding", lineLength, linePrefix, lineSuffix, suffix: $" £{Outstanding:n2}");
 
-            sb.AppendLine(line);
+        return sb.ToString();
+    }
+
+    string FormatEndMessage(int lineLength, string? linePrefix, string? lineSuffix) {
+        var sb = new StringBuilder();
+
+        if (Outstanding > 0) {
+            AppendCenterLineToReceipt(sb, "Please Pay For The Remainder", lineLength, linePrefix, lineSuffix);
+            AppendCenterLineToReceipt(sb, "Of Your Order!", lineLength, linePrefix, lineSuffix);
+        } else {
+            AppendCenterLineToReceipt(sb, "Thank You For Your Purchase!", lineLength, linePrefix, lineSuffix);
+            AppendCenterLineToReceipt(sb, "Please Come Again!", lineLength, linePrefix, lineSuffix);
         }
 
         return sb.ToString();
+    }
+
+    void AppendBlankLineToReceipt(StringBuilder sb, int lineLength, string? linePrefix, string? lineSuffix, bool preNewLine = true, bool postNewLine = false) {
+        AppendLineToReceipt(sb, new string(' ', lineLength), lineLength, linePrefix, lineSuffix, preNewLine, postNewLine);
+    }
+
+    void AppendCenterLineToReceipt(StringBuilder sb, string line, int lineLength, string? linePrefix, string? lineSuffix, bool preNewLine = true, bool postNewLine = false, string suffix = "") {
+        AppendLineToReceipt(sb, new string(' ', (int)Math.Floor((lineLength - line.Length) / 2f)) + line + new string(' ', (int)Math.Ceiling((lineLength - line.Length) / 2f)), lineLength, linePrefix, lineSuffix, preNewLine, postNewLine, suffix: suffix);
+    }
+
+    void AppendLineToReceipt(StringBuilder sb, string line, int lineLength, string? linePrefix, string? lineSuffix, bool preNewLine = true, bool postNewLine = false, string suffix = "") {
+        if (preNewLine) sb.Append("\n");
+        sb.Append((linePrefix ?? "") + FormatLineForReceipt(line, lineLength, 0, suffix) + (lineSuffix ?? ""));
+        if (postNewLine) sb.Append("\n");
     }
 
     public async Task PayForOrder(decimal? amount, PaymentMethods paymentMethod, TransactionButton.SpecialFunctions special) {
