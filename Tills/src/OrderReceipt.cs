@@ -119,17 +119,17 @@ public class OrderReceipt {
             }
         }
 
-        AppendLine("Subtotal", suffix: $" £{OrderManager.SubTotal:n2}");
-        AppendLine("Tax", suffix: $" £{OrderManager.Tax:n2}");
+        AppendLine("Subtotal: ", suffix: $" £{OrderManager.SubTotal:n2}");
+        AppendLine("Tax: ", suffix: $" £{OrderManager.Tax:n2}");
 
         AppendBlankLine();
 
-        AppendLine("Total", suffix: $" £{OrderManager.Total:n2}");
+        AppendLine("Total: ", suffix: $" £{OrderManager.Total:n2}");
 
         if (OrderManager.Outstanding > 0)
-            AppendLine("Outstanding", suffix: $" £{OrderManager.Outstanding:n2}");
+            AppendLine("Outstanding: ", suffix: $" £{OrderManager.Outstanding:n2}");
         else if (Change.HasValue)
-            AppendLine("Change", suffix: $" £{Change.Value:n2}");
+            AppendLine("Change: ", suffix: $" £{Change.Value:n2}");
 
         AppendBlankLine();
     }
