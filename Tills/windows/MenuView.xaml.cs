@@ -144,8 +144,8 @@ public partial class MenuView : UserControl
         MainWindow.Shutdown(restart: true)
     );
 
-    private void PrintReceiptButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
-        try { await OrderManager.PrintReceipt(); }
+    private void PrintReceiptButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() => {
+        try { OrderManager.PrintReceipt(); }
         catch (Exception e) { UIDispatcher.EnqueueOnUIThread(() => 
             Modal.Instance.Show($"Failed to print receipt!\n\nReason: {(e.Message != "" ? e.Message : "Unknown")}"));
         }
