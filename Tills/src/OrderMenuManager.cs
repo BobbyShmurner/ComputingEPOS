@@ -227,7 +227,6 @@ public class OrderMenuManager {
         button.Click += (_, _) =>
         {
             ShowMenu(menu);
-            OrderManager.UnlockOrder();
             UIDispatcher.UpdateUI();
         };
 
@@ -252,6 +251,7 @@ public class OrderMenuManager {
         }
 
         OnMenuChanged?.Invoke(menu);
+        OrderManager.UnlockOrder();
 
         UIDispatcher.EnqueueOnUIThread(() => {
             Buttons.ForEach(b => MenuView.Children.Remove(b));
