@@ -42,7 +42,7 @@ public class EmployeeDbGrid : DbGrid<Employee> {
             new DataGridColumnInfo("First Names", nameof(Employee.FirstNames), width: new DataGridLength(1, DataGridLengthUnitType.Star)),
             new DataGridColumnInfo("Surname", nameof(Employee.LastName), width: new DataGridLength(1, DataGridLengthUnitType.Star)),
             new DataGridColumnInfo("Age", nameof(Employee.Age), width: new DataGridLength(35)),
-            new DataGridColumnInfo("Wage", nameof(Employee.Wage), width: new DataGridLength(40)),
+            new DataGridColumnInfo("Wage", nameof(Employee.Wage), format: "£{0:n2}", width: new DataGridLength(45)),
             new DataGridColumnInfo("Role", nameof(Employee.Role), width: new DataGridLength(80)),
             new DataGridColumnInfo("Email", nameof(Employee.Email), width: new DataGridLength(2, DataGridLengthUnitType.Star)),
             new DataGridColumnInfo("Mobile", nameof(Employee.Mobile), width: new DataGridLength(85)),

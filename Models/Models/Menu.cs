@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ComputingEPOS.Models;
 
 [Table("Menus")]
-public class Menu {
+public class Menu : ICopyable<Menu> {
 	[Key]
 	public int MenuID { get; set; }
 
@@ -12,8 +12,16 @@ public class Menu {
 	public string Name { get; set; } = "Menu";
 
 	[DataType(DataType.DateTime)]
-	public DateTime Date { get; set; }
+	public DateTime Date { get; set; } = DateTime.Now;
 
-	public int? Rows { get; set; }
+    public int? Rows { get; set; }
 	public int? Columns { get; set; }
+
+	public Menu Copy() => new Menu {
+        MenuID = MenuID,
+        Name = Name,
+        Date = Date,
+        Rows = Rows,
+        Columns = Columns
+    };
 }
