@@ -22,8 +22,8 @@ public class MenusController : ControllerBase {
     // GET: api/Menus
     [HttpGet]
 	[ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<Menu>>> GetMenus() =>
-        await m_Service.GetMenus();
+    public async Task<ActionResult<List<Menu>>> GetMenus(bool? visible) =>
+        await m_Service.GetMenus(visible);
 
     // GET: api/Menus/5
     [HttpGet("{id}")]

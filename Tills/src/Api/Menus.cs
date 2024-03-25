@@ -14,9 +14,9 @@ namespace ComputingEPOS.Tills.Api;
 using Menu = ComputingEPOS.Models.Menu;
 
 public static class Menus {
-    public static async Task<List<Menu>> GetMenus()
+    public static async Task<List<Menu>> GetMenus(bool? visible = null)
     {
-        var response = await Client.GetAsync($"api/Menus");
+        var response = await Client.GetAsync($"api/Menus?visible={visible}");
 
         try
         {

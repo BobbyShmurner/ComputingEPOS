@@ -68,7 +68,7 @@ public class OrderMenuManager {
     public async Task RefreshMenusFromDB() {
         LoadingMenus = true;
 
-        List<Models.Menu> menuModels = await Api.Menus.GetMenus();
+        List<Models.Menu> menuModels = await Api.Menus.GetMenus(visible: true);
         List<Models.MenuItem> menuItemModels = await Api.MenuItems.GetMenuItems();
         List<Models.Menu_MenuItem> menu_MenuItemModels = await Api.Menu_MenuItems.GetMenu_MenuItems();
         List<Models.Stock> stockModels = await Api.Stock.GetStock();

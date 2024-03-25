@@ -17,11 +17,14 @@ public class Menu : ICopyable<Menu> {
     public int? Rows { get; set; }
 	public int? Columns { get; set; }
 
+	public bool Visible { get; set; } = true;
+
 	public Menu Copy() => new Menu {
         MenuID = MenuID,
         Name = Name,
         Date = Date,
         Rows = Rows,
-        Columns = Columns
+        Columns = Columns,
+		Visible = Visible,
     };
 }

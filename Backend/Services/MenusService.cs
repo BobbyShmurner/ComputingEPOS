@@ -15,8 +15,8 @@ public class MenusService : IMenusService {
 
     public MenusService(BaseDbContext context) =>  _context = context;
 
-    public async Task<ActionResult<List<Menu>>> GetMenus() =>
-        await _context.Menus.ToListAsync();
+    public async Task<ActionResult<List<Menu>>> GetMenus(bool? visible) =>
+        await _context.Menus.Where(m => visible == null || m.Visible == visible).ToListAsync();
 
     public async Task<ActionResult<Menu>> GetMenu(int id) {
         Menu? menu = await _context.Menus.FindAsync(id);
