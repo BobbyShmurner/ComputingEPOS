@@ -44,9 +44,9 @@ public class MenuItemsDbGrid : DbGrid<MenuItemInfo> {
         return new List<DataGridColumnInfo> {
             new DataGridColumnInfo("ID", nameof(MenuItemInfo.MenuItemID), width: new DataGridLength(50)),
             new DataGridColumnInfo("Stock ID", nameof(MenuItemInfo.StockID), width: new DataGridLength(75)),
-            new DataGridColumnInfo("Stock Name", nameof(MenuItemInfo.StockName)),
-            new DataGridColumnInfo("Note", nameof(MenuItemInfo.Note)),
-            new DataGridColumnInfo("Price", nameof(MenuItemInfo.Price)),
+            new DataGridColumnInfo("Stock Name", nameof(MenuItemInfo.StockName), width: new DataGridLength(1, DataGridLengthUnitType.Star)),
+            new DataGridColumnInfo("Price", nameof(MenuItemInfo.Price), format: "£{0:n2}", width: new DataGridLength(65)),
+            new DataGridColumnInfo("Note", nameof(MenuItemInfo.Note), width: new DataGridLength(2, DataGridLengthUnitType.Star)),
         };
     }
 }

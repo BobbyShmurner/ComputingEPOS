@@ -26,6 +26,7 @@ public class StockDbGrid : DbGrid<Stock> {
 
     protected override void CollectFields(List<IDbField> leftFields, List<IDbField> centerFields, List<IDbField> rightFields) {
         leftFields.Add(new StringDbField<Stock>("Name", nameof(Stock.Name)));
+        centerFields.Add(new IntDbField<Stock>("Supplier ID", nameof(Stock.SupplierID)));
         rightFields.Add(new FloatDbField<Stock>("Quantity", nameof(Stock.Quantity)));
     }
 
