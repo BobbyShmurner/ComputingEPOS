@@ -14,9 +14,14 @@ static class Program {
         builder.Services.AddScoped<IMenusService, MenusService>();
         builder.Services.AddScoped<IStockService, StockService>();
         builder.Services.AddScoped<IOrdersService, OrdersService>();
+        builder.Services.AddScoped<IShiftsService, ShiftsService>();
         builder.Services.AddScoped<IEmployeesService, EmployeesService>();
+        builder.Services.AddScoped<IMenuItemsService, MenuItemsService>();
+        builder.Services.AddScoped<ISuppliersService, SuppliersService>();
+        builder.Services.AddScoped<IClockInOutService, ClockInOutService>();
         builder.Services.AddScoped<IOrderItemsService, OrderItemsService>();
         builder.Services.AddScoped<ITransactionsService, TransactionsService>();
+        builder.Services.AddScoped<IMenu_MenuItemsService, Menu_MenuItemsService>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();

@@ -62,8 +62,7 @@ public static class TimeIntervalExtensions {
     }
 }
 
-public struct DataGridColumnInfo
-{
+public struct DataGridColumnInfo {
     public string Header { get; }
     public string Binding { get; }
     public string Format { get; }
