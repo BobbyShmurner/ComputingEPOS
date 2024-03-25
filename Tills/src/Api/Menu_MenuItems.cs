@@ -49,7 +49,7 @@ public static class Menu_MenuItems {
     }
 
     public static async Task<Menu_MenuItem> PutMenu_MenuItem(Menu_MenuItem menu_MenuItem) {
-        var response = await Client.PutAsync($"api/Menu_MenuItems/{menu_MenuItem.MenuID}", new StringContent(
+        var response = await Client.PutAsync($"api/Menu_MenuItems/{menu_MenuItem.Menu_MenuItemID}", new StringContent(
             JsonSerializer.Serialize(menu_MenuItem),
             Encoding.UTF8,
             "application/json"
@@ -62,14 +62,14 @@ public static class Menu_MenuItems {
         }
         catch (HttpRequestException ex) when (ex.StatusCode != null)
         {
-            await Modal.Instance.ShowError($"Failed to update Menu_MenuItem [ID: {menu_MenuItem.MenuID}]", response);
+            await Modal.Instance.ShowError($"Failed to update Menu_MenuItem [ID: {menu_MenuItem.Menu_MenuItemID}]", response);
             throw;
         }
     }
 
     public static async Task DeleteMenu_MenuItem(Menu_MenuItem menu_MenuItem)
     {
-        var response = await Client.DeleteAsync($"api/Menu_MenuItems/{menu_MenuItem.MenuID}");
+        var response = await Client.DeleteAsync($"api/Menu_MenuItems/{menu_MenuItem.Menu_MenuItemID}");
 
         try
         {
@@ -77,7 +77,7 @@ public static class Menu_MenuItems {
         }
         catch (HttpRequestException ex) when (ex.StatusCode != null)
         {
-            await Modal.Instance.ShowError($"Failed to delete Menu_MenuItem [ID: {menu_MenuItem.MenuID}]", response);
+            await Modal.Instance.ShowError($"Failed to delete Menu_MenuItem [ID: {menu_MenuItem.Menu_MenuItemID}]", response);
             throw;
         }
     }

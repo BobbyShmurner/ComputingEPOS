@@ -48,6 +48,7 @@ public abstract class DbGrid<T> : IDbGrid where T : class, ICopyable<T>, new() {
         });
 
         T newData = await SaveChanges((T)editingData, SelectedIndex == null);
+        await MainWindow.Instance.MenuView.OrderMenuManager.RefreshMenusFromDB();
 
         UIDispatcher.DispatchOnUIThread(() => {
             if (SelectedIndex != null) {

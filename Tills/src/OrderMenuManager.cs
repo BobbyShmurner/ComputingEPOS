@@ -31,11 +31,9 @@ public class OrderMenuManager {
     public List<Button> Buttons { get; private set; } = [];
 
     int m_Rows;
-    public int Rows
-    {
+    public int Rows {
         get => m_Rows;
-        set
-        {
+        set {
             m_Rows = value;
 
             UIDispatcher.EnqueueOnUIThread(() => {
@@ -49,11 +47,9 @@ public class OrderMenuManager {
     }
 
     int m_Columns;
-    public int Columns
-    {
+    public int Columns {
         get => m_Columns;
-        set
-        {
+        set {
             m_Columns = value;
 
             UIDispatcher.EnqueueOnUIThread(() => {
@@ -64,6 +60,39 @@ public class OrderMenuManager {
                     ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             });
         }
+    }
+
+    public async Task RefreshMenusFromDB() {
+        List<Models.Menu> menuModels = await Api.Menus.GetMenus();
+        List<Models.MenuItem> menuItemModels = await Api.MenuItems.GetMenuItems();
+        List<Models.Menu_MenuItem> menu_MenuItemModels = await Api.Menu_MenuItems.GetMenu_MenuItems();
+        List<Models.Stock> stockModels = await Api.Stock.GetStock();
+
+        UIDispatcher.EnqueueOnUIThread(() => {
+            Dictionary<int, OrderListItem> listItmes = new();
+            UnregisterAllMenus();
+
+            foreach (var menuItemModel in menuItemModels) {
+                var stock = stockModels.First(s => s.StockID == menuItemModel.StockID);
+                listItmes[menuItemModel.MenuItemID] = new OrderListItem(stock.Name ?? "UNKNOWN", stock.StockID, menuItemModel.Price);
+            }
+
+            foreach (var menuModel in menuModels) {
+                var joinModels = menu_MenuItemModels.Where(mmi => mmi.MenuID == menuModel.MenuID).ToList();
+
+                int rows = joinModels.Count > 0 ? joinModels.Max(mmi => mmi.Row) + 1 : 0;
+                int columns = joinModels.Count > 0 ? joinModels.Max(mmi => mmi.Column) + 1 : 0;
+
+                MenuButton[,] menuItems = new MenuButton[rows, columns];
+
+                foreach (var joinModel in joinModels) {
+                    menuItems[joinModel.Row, joinModel.Column] = new PremadeItemMenuButton(listItmes[joinModel.MenuItemID]);
+                }
+
+                Menu menu = new(menuModel.Name, menuItems, menuModel.Rows, menuModel.Columns);
+                RegisterMenu(menu);
+            }
+        });
     }
 
     public static OrderMenuManager CreateTestMenus(MenuView menu)
@@ -192,6 +221,11 @@ public class OrderMenuManager {
         };
 
         Menu.SP_MenuList.Children.Add(button);
+    }
+
+    public void UnregisterAllMenus() {
+        Menu.SP_MenuList.Children.Clear();
+        RegisteredMenus.Clear();
     }
 
     public void ShowMenu(Menu? menu)
