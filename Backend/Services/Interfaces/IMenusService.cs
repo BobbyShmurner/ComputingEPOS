@@ -4,7 +4,7 @@ using ComputingEPOS.Models;
 namespace ComputingEPOS.Backend.Services;
 
 public interface IMenusService {
-	public Task<ActionResult<List<Menu>>> GetMenus();
+	public Task<ActionResult<List<Menu>>> GetMenus(bool? visible);
 	public Task<ActionResult<Menu>> GetMenu(int id);
 
 	public Task<ActionResult<Menu>> PutMenu(Menu menu);

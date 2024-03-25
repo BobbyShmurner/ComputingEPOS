@@ -26,6 +26,7 @@ public class MenuDbGrid : DbGrid<Models.Menu> {
 
     protected override void CollectFields(List<IDbField> leftFields, List<IDbField> centerFields, List<IDbField> rightFields) {
         leftFields.Add(new StringDbField<Models.Menu>("Name", nameof(Models.Menu.Name)));
+        leftFields.Add(new BoolDbField<Models.Menu>("Visibile", nameof(Models.Menu.Visible)));
         rightFields.Add(new IntNullDbField<Models.Menu>("Rows", nameof(Models.Menu.Rows)));
         rightFields.Add(new IntNullDbField<Models.Menu>("Columns", nameof(Models.Menu.Columns)));
     }
@@ -37,6 +38,7 @@ public class MenuDbGrid : DbGrid<Models.Menu> {
             new DataGridColumnInfo("Date Created", nameof(Models.Menu.Date), format: "{0:dd/MM/yyyy}"),
             new DataGridColumnInfo("Rows", nameof(Models.Menu.Rows)),
             new DataGridColumnInfo("Columns", nameof(Models.Menu.Columns)),
+            new DataGridColumnInfo("Visible", nameof(Models.Menu.Visible)),
         };
     }
 }
