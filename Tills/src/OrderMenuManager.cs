@@ -14,6 +14,7 @@ namespace ComputingEPOS.Tills;
 public class OrderMenuManager {
     public Action<Menu?>? OnMenuChanged;
     public Action? OnShowPaymentScreen;
+    public Action OnMenusLoaded;
 
     public MenuView Menu { get; private set; }
     public Grid Root => Menu.Grid_MenuButtons;
@@ -29,6 +30,8 @@ public class OrderMenuManager {
     public List<Menu> RegisteredMenus { get; private set; } = [];
 
     public List<Button> Buttons { get; private set; } = [];
+
+    public bool LoadingMenus { get; private set; }
 
     int m_Rows;
     public int Rows {
@@ -63,6 +66,8 @@ public class OrderMenuManager {
     }
 
     public async Task RefreshMenusFromDB() {
+        LoadingMenus = true;
+
         List<Models.Menu> menuModels = await Api.Menus.GetMenus();
         List<Models.MenuItem> menuItemModels = await Api.MenuItems.GetMenuItems();
         List<Models.Menu_MenuItem> menu_MenuItemModels = await Api.Menu_MenuItems.GetMenu_MenuItems();
@@ -92,6 +97,9 @@ public class OrderMenuManager {
                 Menu menu = new(menuModel.Name, menuItems, menuModel.Rows, menuModel.Columns);
                 RegisterMenu(menu);
             }
+
+            LoadingMenus = false;
+            OnMenusLoaded?.Invoke();
         });
     }
 
