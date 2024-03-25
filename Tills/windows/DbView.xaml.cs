@@ -37,6 +37,7 @@ public partial class DbView : UserControl
         DbGrids = new List<IDbGrid> {
             new EmployeeDbGrid(),
             new StockDbGrid(),
+            new MenuItemsDbGrid(),
         };
 
         GenerateDbButtons();

@@ -16,8 +16,9 @@ namespace ComputingEPOS.Backend.Controllers;
 public class MenuItemsController : ControllerBase {
     private readonly IMenuItemsService m_Service;
     
-    public MenuItemsController(IMenuItemsService service) =>
+    public MenuItemsController(IMenuItemsService service) {
         m_Service = service;
+    }
     
     // GET: api/MenuItems
     [HttpGet]
