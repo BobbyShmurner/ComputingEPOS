@@ -117,7 +117,7 @@
             <Grid x:Name="Grid_MenuButtonsOrderView" Margin="5">
 
             </Grid>
-            <Grid x:Name="Grid_MenuButtonsPaymentView" Margin="10" Visibility="Collapsed">
+            <Grid x:Name="Grid_MenuButtonsPaymentView" Margin="5" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1.25*"/>
                     <RowDefinition Height="*"/>
@@ -194,12 +194,12 @@
                 <TextBlock FontSize="24" Text="{c:Binding Value / 100M, ElementName=PaymentKeypad, StringFormat=£{0:n2}}" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1"/>
                 <local:Keypad x:Name="PaymentKeypad" Grid.Column="1" Grid.Row="2"/>
             </Grid>
-            <Grid x:Name="Grid_MenuButtonsFunctionsView" Margin="10" Visibility="Visible">
+            <Grid x:Name="Grid_MenuButtonsFunctionsView" Margin="5" Visibility="Visible">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1.25*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="0.75*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

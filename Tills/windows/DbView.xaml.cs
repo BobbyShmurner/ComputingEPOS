@@ -118,6 +118,7 @@ public partial class DbView : UserControl
 
         try {
             await currentGrid.SaveChanges();
+            await MainWindow.Instance.MenuView.OrderMenuManager.RefreshMenusFromDB();
         } catch (Exception e) when (e is not HttpRequestException) {
             UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Show(e.Message));
             throw;
@@ -139,7 +140,14 @@ public partial class DbView : UserControl
         });
 
         if (currentGrid == null) return;
-        await currentGrid.DeleteCurrent();
+
+        try {
+            await currentGrid.DeleteCurrent();
+            await MainWindow.Instance.MenuView.OrderMenuManager.RefreshMenusFromDB();
+        } catch (Exception e) when (e is not HttpRequestException) {
+            UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Show(e.Message));
+            throw;
+        }
 
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Hide());
 

@@ -14,7 +14,7 @@ namespace ComputingEPOS.Tills;
 public class OrderMenuManager {
     public Action<Menu?>? OnMenuChanged;
     public Action? OnShowPaymentScreen;
-    public Action OnMenusLoaded;
+    public Action? OnMenusLoaded;
 
     public MenuView Menu { get; private set; }
     public Grid Root => Menu.Grid_MenuButtons;
@@ -78,8 +78,10 @@ public class OrderMenuManager {
             UnregisterAllMenus();
 
             foreach (var menuItemModel in menuItemModels) {
-                var stock = stockModels.First(s => s.StockID == menuItemModel.StockID);
-                listItmes[menuItemModel.MenuItemID] = new OrderListItem(stock.Name ?? "UNKNOWN", stock.StockID, menuItemModel.Price);
+                Models.Stock? stock = stockModels.FirstOrDefault(s => s.StockID == menuItemModel.StockID);
+                if (stock == null) continue;
+
+                listItmes[menuItemModel.MenuItemID] = new OrderListItem(stock?.Name ?? "[UNKNOWN]", stock!.StockID, menuItemModel.Price);
             }
 
             foreach (var menuModel in menuModels) {
@@ -91,6 +93,7 @@ public class OrderMenuManager {
                 MenuButton[,] menuItems = new MenuButton[rows, columns];
 
                 foreach (var joinModel in joinModels) {
+                    if (!listItmes.ContainsKey(joinModel.MenuItemID)) continue;
                     menuItems[joinModel.Row, joinModel.Column] = new PremadeItemMenuButton(listItmes[joinModel.MenuItemID]);
                 }
 
@@ -132,7 +135,7 @@ public class OrderMenuManager {
         var chickenNuggets9 = chickenNuggets6.NewFrom("9 Chick Nuggs", 26, 1M);
         var chickenNuggets20 = chickenNuggets9.NewFrom("20 Chick Nuggs", 27, 2M);
 
-        MenuButton?[,] burgerMenuItems = {
+        MenuButton[,] burgerMenuItems = {
             { new PremadeItemMenuButton(burgerItem),              new PremadeItemMenuButton(doubleBurgerItem),              new PremadeItemMenuButton(chickenBurgerItem),             new PremadeItemMenuButton(hawaiianBurgerItem) },
             { new PremadeItemMenuButton(cheeseBurgerItem),        new PremadeItemMenuButton(doubleCheeseBurgerItem),        new PremadeItemMenuButton(chickenCheeseBurgerItem),       new PremadeItemMenuButton(tacoBurgerItem) },
             { new PremadeItemMenuButton(baconBurgerItem),         new PremadeItemMenuButton(doubleBaconBurgerItem),         new PremadeItemMenuButton(chickenBaconBurgerItem),        new PremadeItemMenuButton(sloppyBurgerItem) },
@@ -144,7 +147,7 @@ public class OrderMenuManager {
 
         // Chicken Menu
 
-        MenuButton?[,] chickenMenuItems = {
+        MenuButton[,] chickenMenuItems = {
             { new PremadeItemMenuButton(chickenBurgerItem),             new PremadeItemMenuButton(chickenNuggets4), },
             { new PremadeItemMenuButton(chickenCheeseBurgerItem),       new PremadeItemMenuButton(chickenNuggets6), },
             { new PremadeItemMenuButton(chickenBaconBurgerItem),        new PremadeItemMenuButton(chickenNuggets9), },
@@ -155,7 +158,7 @@ public class OrderMenuManager {
 
         // Drinks Menu
 
-        MenuButton?[,] drinkMenuItems = {
+        MenuButton[,] drinkMenuItems = {
             { new PremadeItemMenuButton(chickenBurgerItem),            },
             { new PremadeItemMenuButton(chickenCheeseBurgerItem),      },
             { new PremadeItemMenuButton(chickenBaconBurgerItem),       },
@@ -166,7 +169,7 @@ public class OrderMenuManager {
 
         // Sides Menu
 
-        MenuButton?[,] sidesMenuItems = {
+        MenuButton[,] sidesMenuItems = {
             { new PremadeItemMenuButton(chickenBurgerItem),            },
             { new PremadeItemMenuButton(chickenCheeseBurgerItem),      },
             { new PremadeItemMenuButton(chickenBaconBurgerItem),       },
@@ -202,7 +205,7 @@ public class OrderMenuManager {
         }
     }
 
-    public Menu CreateMenu(string name, MenuButton?[,] items, int? rows = null, int? columns = null)
+    public Menu CreateMenu(string name, MenuButton[,] items, int? rows = null, int? columns = null)
     {
         Menu menu = new(name, items, rows, columns);
         RegisterMenu(menu);

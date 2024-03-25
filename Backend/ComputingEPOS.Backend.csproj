@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>preview</LangVersion>
+    <WarningLevel>7</WarningLevel>
+    <AnalysisLevel>7</AnalysisLevel>
   </PropertyGroup>
 
   <ItemGroup>
