@@ -2,36 +2,37 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace ComputingEPOS.Tills;
 
-public class Menu_MenuItemsDbGrid : DbGrid<Menu_MenuItem> {
+public class Menu_MenuItemsDbGrid : DbGrid<Menu_MenuItemInfo> {
     public override string Title => "Customise Menus";
 
-    List<Stock> Stock = new();
+    List<Models.Stock> Stock = new();
     List<Models.Menu> Menus = new();
     List<Models.MenuItem> MenuItems = new();
 
-    protected override async Task<List<Menu_MenuItem>> CollectData() {
+    protected override async Task<List<Menu_MenuItemInfo>> CollectData() {
         Stock = await Api.Stock.GetStock();
         Menus = await Api.Menus.GetMenus();
         MenuItems = await Api.MenuItems.GetMenuItems();
 
-        return await Api.Menu_MenuItems.GetMenu_MenuItems();
+        return (await Api.Menu_MenuItems.GetMenu_MenuItems()).Select(x => new Menu_MenuItemInfo(x, Stock, Menus, MenuItems)).ToList()!;
     }
 
-    protected override Task<Menu_MenuItem> SaveChanges(Menu_MenuItem menu_MenuItem, bool createNew) {
+    protected override async Task<Menu_MenuItemInfo> SaveChanges(Menu_MenuItemInfo info, bool createNew) {
         if (!createNew)
-            return Api.Menu_MenuItems.PutMenu_MenuItem(menu_MenuItem);
+            return new Menu_MenuItemInfo(await Api.Menu_MenuItems.PutMenu_MenuItem(info), info.MenuName, info.MenuItemName);
         else
-            return Api.Menu_MenuItems.Create(menu_MenuItem)!;
+            return new Menu_MenuItemInfo((await Api.Menu_MenuItems.Create(info))!, info.MenuName, info.MenuItemName);
     }
 
-    protected override Task Delete(Menu_MenuItem menu_MenuItem) =>
-        Api.Menu_MenuItems.DeleteMenu_MenuItem(menu_MenuItem);
+    protected override Task Delete(Menu_MenuItemInfo info) =>
+        Api.Menu_MenuItems.DeleteMenu_MenuItem(info);
 
     protected override void CollectFields(List<IDbField> leftFields, List<IDbField> centerFields, List<IDbField> rightFields) {
         List<(int, string)> menuKeysAndDisplayNames = Menus.Select(m => (m.MenuID, m.Name)).ToList()!;
@@ -53,21 +54,82 @@ public class Menu_MenuItemsDbGrid : DbGrid<Menu_MenuItem> {
             return (menuItemID, displayName);
         }).ToList()!;
 
-        leftFields.Add(new FkDbField<Menu_MenuItem>("Menu", nameof(Menu_MenuItem.MenuID), menuKeysAndDisplayNames));
-        leftFields.Add(new FkDbField<Menu_MenuItem>("MenuItem", nameof(Menu_MenuItem.MenuItemID), menuItemsKeysAndDisplayNames));
-        rightFields.Add(new IntNullDbField<Menu_MenuItem>("Row", nameof(Menu_MenuItem.Row)));
-        rightFields.Add(new IntNullDbField<Menu_MenuItem>("Column", nameof(Menu_MenuItem.Column)));
+        leftFields.Add(new FkDbField<Menu_MenuItemInfo>("Menu", nameof(Menu_MenuItemInfo.MenuID), menuKeysAndDisplayNames));
+        leftFields.Add(new FkDbField<Menu_MenuItemInfo>("MenuItem", nameof(Menu_MenuItemInfo.MenuItemID), menuItemsKeysAndDisplayNames));
+        rightFields.Add(new IntNullDbField<Menu_MenuItemInfo>("Row", nameof(Menu_MenuItemInfo.Row)));
+        rightFields.Add(new IntNullDbField<Menu_MenuItemInfo>("Column", nameof(Menu_MenuItemInfo.Column)));
     }
 
     protected override List<DataGridColumnInfo> GetColumnInfo() {
         return new List<DataGridColumnInfo> {
-            new DataGridColumnInfo("ID", nameof(Menu_MenuItem.Menu_MenuItemID), width: new DataGridLength(50)),
-            new DataGridColumnInfo("Menu ID", nameof(Menu_MenuItem.MenuID), width: new DataGridLength(75)),
-            new DataGridColumnInfo("Menu Item ID", nameof(Menu_MenuItem.MenuItemID), width: new DataGridLength(100)),
-            new DataGridColumnInfo("Row", nameof(Menu_MenuItem.Row), width: new DataGridLength(60)),
-            new DataGridColumnInfo("Column", nameof(Menu_MenuItem.Column), width: new DataGridLength(60)),
-            new DataGridColumnInfo("Menu", nameof(Menu_MenuItem.Column)),
-            new DataGridColumnInfo("Menu Item", nameof(Menu_MenuItem.Column)),
+            new DataGridColumnInfo("ID", nameof(Menu_MenuItemInfo.Menu_MenuItemID), width: new DataGridLength(50)),
+            new DataGridColumnInfo("Menu ID", nameof(Menu_MenuItemInfo.MenuID), width: new DataGridLength(75)),
+            new DataGridColumnInfo("Menu Item ID", nameof(Menu_MenuItemInfo.MenuItemID), width: new DataGridLength(100)),
+            new DataGridColumnInfo("Row", nameof(Menu_MenuItemInfo.Row), width: new DataGridLength(60)),
+            new DataGridColumnInfo("Column", nameof(Menu_MenuItemInfo.Column), width: new DataGridLength(60)),
+            new DataGridColumnInfo("Menu", nameof(Menu_MenuItemInfo.MenuName)),
+            new DataGridColumnInfo("Menu Item", nameof(Menu_MenuItemInfo.MenuItemName)),
         };
     }
+}
+
+public class Menu_MenuItemInfo : ICopyable<Menu_MenuItemInfo> {
+    public Menu_MenuItem Item { get; set; }
+
+    public int Menu_MenuItemID {
+        get => Item.Menu_MenuItemID;
+        set => Item.Menu_MenuItemID = value;
+    }
+
+    public int MenuID {
+        get => Item.MenuID;
+        set => Item.MenuID = value;
+    }
+
+    public int MenuItemID {
+        get => Item.MenuItemID;
+        set => Item.MenuItemID = value;
+    }
+
+    public int Row {
+        get => Item.Row;
+        set => Item.Row = value;
+    }
+
+    public int Column {
+        get => Item.Column;
+        set => Item.Column = value;
+    }
+
+    public string MenuName { get; set; }
+    public string MenuItemName { get; set; }
+
+    public Menu_MenuItemInfo(Menu_MenuItem item, string menuName, string menuItemName) {
+        Item = item;
+        MenuName = menuName;
+        MenuItemName = menuItemName;
+    }
+
+    public Menu_MenuItemInfo() {
+        Item = new Menu_MenuItem();
+        MenuName = "";
+        MenuItemName = "";
+    }
+
+    public Menu_MenuItemInfo(Menu_MenuItem item, List<Models.Stock> Stock, List<Models.Menu> Menus, List<Models.MenuItem> MenuItems) {
+        Models.MenuItem menuItem = MenuItems.First(x => x.MenuItemID == item.MenuItemID);
+        Models.Stock stockItem = Stock.First(x => x.StockID == menuItem.StockID);
+        Models.Menu menu = Menus.First(x => x.MenuID == item.MenuID);
+
+        Item = item;
+        MenuName = menu.Name;
+        MenuItemName = stockItem.Name ?? "UNKNOWN";
+        if (menuItem.Note != null) {
+            MenuItemName += $" ({menuItem.Note})";
+        }
+    }
+
+    public static implicit operator Menu_MenuItem(Menu_MenuItemInfo menu_MenuItemInfo) => menu_MenuItemInfo.Item;
+
+    public Menu_MenuItemInfo Copy() => new Menu_MenuItemInfo(Item.Copy(), MenuName, MenuItemName);
 }

@@ -17,12 +17,12 @@ namespace ComputingEPOS.Tills;
 public class Menu {
     public string Name { get; private set; }
 
-    public MenuButton?[,] Items { get; private set; } = new MenuButton?[0, 0];
+    public MenuButton[,] Items { get; private set; } = new MenuButton[0, 0];
 
     public int Rows { get; private set; }
     public int Columns { get; private set; }
 
-    public Menu(string name, MenuButton?[,] items, int? rows = null, int? columns = null)
+    public Menu(string name, MenuButton[,] items, int? rows = null, int? columns = null)
     {
         Name = name;
         Items = items;
@@ -34,7 +34,7 @@ public class Menu {
 
     void ResizeOrdersArray()
     {
-        MenuButton?[,] newArray = new MenuButton?[Rows, Columns];
+        MenuButton[,] newArray = new MenuButton[Rows, Columns];
 
         int minRows = Math.Min(Rows, Items.GetLength(0));
         int minCols = Math.Min(Columns, Items.GetLength(1));

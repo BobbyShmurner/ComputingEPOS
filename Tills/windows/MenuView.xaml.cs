@@ -30,7 +30,12 @@ public partial class MenuView : UserControl
         InitializeComponent();
         this.DataContext = this;
 
-        OrderMenuManager = OrderMenuManager.CreateTestMenus(this);
+        OrderMenuManager = new OrderMenuManager(this);
+        Task.Run(async () => {
+            await OrderMenuManager.RefreshMenusFromDB();
+            UIDispatcher.UpdateUI();
+        });
+
         OrderManager = new(this);
     }
 
