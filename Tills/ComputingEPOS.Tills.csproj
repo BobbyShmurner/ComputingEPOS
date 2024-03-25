@@ -6,6 +6,8 @@
     <UseWPF>true</UseWPF>
     <NoWarn>CS0067</NoWarn>
 	  <LangVersion>preview</LangVersion>
+    <WarningLevel>7</WarningLevel>
+    <AnalysisLevel>7</AnalysisLevel>
   </PropertyGroup>
   <ItemGroup>
     <Resource Include="Resources\**" />
@@ -21,11 +23,5 @@
 
   <ItemGroup>
     <Folder Include="src\Interfaces\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="windows\DbView.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
 </Project>

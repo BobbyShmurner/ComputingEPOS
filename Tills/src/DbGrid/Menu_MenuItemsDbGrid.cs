@@ -63,12 +63,12 @@ public class Menu_MenuItemsDbGrid : DbGrid<Menu_MenuItemInfo> {
     protected override List<DataGridColumnInfo> GetColumnInfo() {
         return new List<DataGridColumnInfo> {
             new DataGridColumnInfo("ID", nameof(Menu_MenuItemInfo.Menu_MenuItemID), width: new DataGridLength(50)),
-            new DataGridColumnInfo("Menu ID", nameof(Menu_MenuItemInfo.MenuID), width: new DataGridLength(75)),
-            new DataGridColumnInfo("Menu Item ID", nameof(Menu_MenuItemInfo.MenuItemID), width: new DataGridLength(100)),
+            new DataGridColumnInfo("Menu Item", nameof(Menu_MenuItemInfo.MenuItemName), width: new DataGridLength(2, DataGridLengthUnitType.Star)),
+            new DataGridColumnInfo("Menu", nameof(Menu_MenuItemInfo.MenuName), width: new DataGridLength(1, DataGridLengthUnitType.Star)),
             new DataGridColumnInfo("Row", nameof(Menu_MenuItemInfo.Row), width: new DataGridLength(60)),
             new DataGridColumnInfo("Column", nameof(Menu_MenuItemInfo.Column), width: new DataGridLength(60)),
-            new DataGridColumnInfo("Menu", nameof(Menu_MenuItemInfo.MenuName)),
-            new DataGridColumnInfo("Menu Item", nameof(Menu_MenuItemInfo.MenuItemName)),
+            new DataGridColumnInfo("Menu ID", nameof(Menu_MenuItemInfo.MenuID), width: new DataGridLength(75)),
+            new DataGridColumnInfo("Menu Item ID", nameof(Menu_MenuItemInfo.MenuItemID), width: new DataGridLength(100)),
         };
     }
 }
@@ -117,14 +117,14 @@ public class Menu_MenuItemInfo : ICopyable<Menu_MenuItemInfo> {
     }
 
     public Menu_MenuItemInfo(Menu_MenuItem item, List<Models.Stock> Stock, List<Models.Menu> Menus, List<Models.MenuItem> MenuItems) {
-        Models.MenuItem menuItem = MenuItems.First(x => x.MenuItemID == item.MenuItemID);
-        Models.Stock stockItem = Stock.First(x => x.StockID == menuItem.StockID);
-        Models.Menu menu = Menus.First(x => x.MenuID == item.MenuID);
+        Models.MenuItem? menuItem = MenuItems.FirstOrDefault(x => x.MenuItemID == item.MenuItemID);
+        Models.Stock? stockItem = menuItem != null ? Stock.FirstOrDefault(x => x.StockID == menuItem.StockID) : null;
+        Models.Menu? menu = Menus.FirstOrDefault(x => x.MenuID == item.MenuID);
 
         Item = item;
-        MenuName = menu.Name;
-        MenuItemName = stockItem.Name ?? "UNKNOWN";
-        if (menuItem.Note != null) {
+        MenuName = menu?.Name ?? "[UNKNOWN]";
+        MenuItemName = stockItem?.Name ?? "[UNKNOWN]";
+        if (menuItem?.Note != null) {
             MenuItemName += $" ({menuItem.Note})";
         }
     }

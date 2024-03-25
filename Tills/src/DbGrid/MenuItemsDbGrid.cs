@@ -90,9 +90,9 @@ public class MenuItemInfo : ICopyable<MenuItemInfo> {
     }
 
     public MenuItemInfo(MenuItem menuItem, List<Stock> stock) {
-        Stock stockItem = stock.First(x => x.StockID == menuItem.StockID);
+        Stock? stockItem = stock.FirstOrDefault(x => x.StockID == menuItem.StockID);
 
         Item = menuItem;
-        StockName = stockItem.Name ?? "";
+        StockName = stockItem?.Name ?? "[UNKNOWN]";
     }
 }
