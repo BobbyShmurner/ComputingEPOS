@@ -10,11 +10,11 @@ public class Employee : ICopyable<Employee> {
 
 	[Required]
 	[RegularExpression(@"^[a-zA-Z ,.'-]+$")]
-	public string? FirstNames { get; set; } = "John";
+	public string FirstNames { get; set; } = "John";
 
 	[Required]
 	[RegularExpression(@"^[a-zA-Z,.'-]+$")]
-	public string? LastName { get; set; } = "Doe";
+	public string LastName { get; set; } = "Doe";
 
 	[Required]
 	[Range(16, 100)]
@@ -36,6 +36,9 @@ public class Employee : ICopyable<Employee> {
 
 	[Required]
 	public decimal Wage { get; set; }
+
+	[Required]
+	public string PinHash { get; set; } = string.Empty;
 
     public Employee Copy() => new Employee {
         EmployeeID = EmployeeID,
