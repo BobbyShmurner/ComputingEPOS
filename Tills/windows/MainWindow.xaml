@@ -24,7 +24,8 @@
         </Grid.RowDefinitions>
 
         <Grid x:Name="Grid_MainViewContainer">
-            <local:ConnectionScreen x:Name="ConnectionScreen" Visibility="Collapsed"/>
+            <local:ConnectionScreen x:Name="ConnectionScreen" Visibility="Visible"/>
+            <local:LoginScreen x:Name="LoginScreen" Visibility="Collapsed"/>
             <local:MenuView x:Name="MenuView" Visibility="Collapsed"/>
             <local:ReportsView x:Name="ReportsView" Visibility="Collapsed"/>
             <local:DbView x:Name="DbView" Visibility="Collapsed"/>

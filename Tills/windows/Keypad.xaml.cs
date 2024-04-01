@@ -36,7 +36,10 @@ public partial class Keypad : UserControl
         DataContext = this;
     }
 
-    public void ClearVaule() => Value = 0;
+    public void ClearValue() {
+        Value = 0;
+        Clear?.Invoke(this, EventArgs.Empty);
+    }
 
     private void Num_Click(object sender, RoutedEventArgs e) {
         string content = ((Button)sender).Content.ToString()!;
@@ -49,8 +52,6 @@ public partial class Keypad : UserControl
     private void Confirm_Click(object sender, RoutedEventArgs e) =>
         Confirm?.Invoke(this, EventArgs.Empty);
 
-    private void Clear_Click(object sender, RoutedEventArgs e) {
-        ClearVaule();
-        Clear?.Invoke(this, EventArgs.Empty);
-    }
+    private void Clear_Click(object sender, RoutedEventArgs e) =>
+        ClearValue();
 }

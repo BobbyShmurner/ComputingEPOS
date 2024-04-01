@@ -45,27 +45,12 @@ namespace ComputingEPOS.Tills {
             RootViewManager.ShowView(ConnectionScreen);
             Modal.Instance.Show("Connecting...", false);
 
-            Action? switchToMenuView = null;
-            switchToMenuView = () => {
-                MenuView.OrderMenuManager.ShowFirstMenu();
-                MenuView.OrderMenuManager.OnMenusLoaded -= switchToMenuView!;
-
-                Modal.Instance.Hide();
-                RootViewManager.ShowView(MenuView);
-            };
-
             Task.Run(async () => {
                 await ConnectionScreen.EnsureConnected(false, false);
-                await MenuView.OrderManager.NextOrder();
 
                 UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
-                    MenuView.OrderMenuManager.OnMenusLoaded += switchToMenuView;
-
-                    if (MenuView.OrderMenuManager.LoadingMenus) {
-                        Modal.Show("Loading...", false);
-                    } else {
-                        switchToMenuView();    
-                    }
+                    Modal.Instance.Hide();
+                    RootViewManager.ShowView(LoginScreen);
                 });
             });
         }

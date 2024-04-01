@@ -453,7 +453,7 @@ public class OrderManager : INotifyPropertyChanged {
 
         UIDispatcher.EnqueueOnUIThread(() => {
             Menu.PaymentKeypad.Confirm += action;
-            Menu.PaymentKeypad.ClearVaule();
+            Menu.PaymentKeypad.ClearValue();
 
             OrderMenuManager.ShowKeypadScreen();
         });
