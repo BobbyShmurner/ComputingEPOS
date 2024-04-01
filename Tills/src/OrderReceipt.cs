@@ -96,13 +96,13 @@ public class OrderReceipt {
         } else {
             List<Transaction> transactions;
 
-            if (OrderManager.Transactions.Any(t => t.Method == "Cash")) {
+            if (OrderManager.Transactions.Any(t => t.Method == PaymentMethods.Cash)) {
                 transactions = OrderManager.Transactions
-                    .Where(t => t.Method != "Cash")
+                    .Where(t => t.Method != PaymentMethods.Cash)
                     .Append(
                         new Transaction {
-                            AmountPaid = OrderManager.Transactions.Where(t => t.Method == "Cash").Sum(t => t.AmountPaid),
-                            Method = "Cash"
+                            AmountPaid = OrderManager.Transactions.Where(t => t.Method == PaymentMethods.Cash).Sum(t => t.AmountPaid),
+                            Method = PaymentMethods.Cash
                         }
                     )
                     .ToList();
@@ -112,7 +112,7 @@ public class OrderReceipt {
 
             foreach(var transaction in transactions) {
                 string amount = $" £{transaction.AmountPaid:n2}";
-                string method = $"- {transaction.Method ?? "Unknown"} Payment";
+                string method = $"- {transaction.Method} Payment";
 
                 AppendLine(method, suffix: amount);
                 AppendBlankLine();

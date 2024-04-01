@@ -21,8 +21,7 @@ public class Employee : ICopyable<Employee> {
 	public int Age { get; set; }
 
 	[Required]
-	[EnumDataType(typeof(Roles))]
-	public string? Role { get; set; } = Roles.Cashier.ToString();
+	public Roles Role { get; set; } = Roles.Cashier;
 
 	[DataType(DataType.DateTime)]
 	public DateTime DateJoined { get; set; } = DateTime.Now;
@@ -51,9 +50,9 @@ public class Employee : ICopyable<Employee> {
     };
 
     public enum Roles {
-		Cashier,
-		Kitchen,
-		Supervisor,
-		Manager,
+		Cashier = 0,
+		Kitchen = 1,
+		Supervisor = 2,
+		Manager = 3,
 	}
 }

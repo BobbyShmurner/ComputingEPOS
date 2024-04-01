@@ -15,14 +15,13 @@ public class Transaction {
 	public decimal AmountPaid { get; set; }
 
 	[Required]
-	[EnumDataType(typeof(PaymentMethods))]
-	public string? Method { get; set; }
+	public PaymentMethods Method { get; set; }
 
 	[DataType(DataType.DateTime)]
 	public DateTime Date { get; set; } = DateTime.Now;
 
 	public enum PaymentMethods {
-		Cash,
-		Card
+		Cash = 0,
+		Card = 1
 	}
 }

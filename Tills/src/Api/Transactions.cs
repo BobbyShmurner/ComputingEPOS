@@ -19,7 +19,7 @@ public static class Transactions {
         {
             OrderID = order.OrderID,
             AmountPaid = amountPaid,
-            Method = paymentMethod.ToString(),
+            Method = paymentMethod,
         };
 
         var response = await Client.PostAsync("api/Transactions", new StringContent(

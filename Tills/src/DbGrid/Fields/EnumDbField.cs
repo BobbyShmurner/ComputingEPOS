@@ -10,7 +10,7 @@ using System.Windows.Data;
 
 namespace ComputingEPOS.Tills;
 
-public class EnumDbField<T, TEnum> : BaseDbField<T, string>, INotifyPropertyChanged where TEnum : struct, Enum {
+public class EnumDbField<T, TEnum> : BaseDbField<T, TEnum>, INotifyPropertyChanged where TEnum : struct, Enum {
     public event PropertyChangedEventHandler? PropertyChanged;
     public ComboBox ComboBox { get; private set; }
     protected override FrameworkElement GetElement() => ComboBox;
@@ -31,17 +31,6 @@ public class EnumDbField<T, TEnum> : BaseDbField<T, string>, INotifyPropertyChan
         Value = Value;
     }
 
-    protected override string GetData() => Value?.ToString() ?? "";
-    protected override void SetData(string? data) {
-        if (data == null) {
-            Value = null;
-            return;
-        }
-
-        if (Enum.TryParse((string)data, true, out TEnum res)) {
-            Value = res;
-        } else {
-            Value = default!;
-        }
-    }
+    protected override TEnum GetData() => Value ?? default;
+    protected override void SetData(TEnum data) => Value = data;
 }
