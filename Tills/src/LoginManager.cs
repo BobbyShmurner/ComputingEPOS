@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ComputingEPOS.Models;
 
@@ -16,11 +17,32 @@ public class LoginManager : Singleton<LoginManager>, INotifyPropertyChanged {
 
             UIDispatcher.EnqueueOnUIThread(() => {
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentEmployee)));
+
+            	PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccessLevel)));
             	PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EmployeeName)));
             	PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EmployeeFirstName)));
-			});
+            });
         }
     }
+
+	public int AccessLevel {
+		get {
+			if (m_CurrentEmployee == null) return 0;
+
+			switch (m_CurrentEmployee.Role) {
+				case Employee.Roles.Cashier:
+					return 0;
+				case Employee.Roles.Kitchen:
+					return 0;
+				case Employee.Roles.Supervisor:
+					return 1;
+				case Employee.Roles.Manager:
+					return 2;
+			}
+
+			return 0;
+		}
+	}
 
 	public string? EmployeeName => CurrentEmployee != null ? CurrentEmployee.FirstNames + " " + CurrentEmployee.LastName : null;
 	public string? EmployeeFirstName => CurrentEmployee?.FirstNames?.Split(' ')?[0];

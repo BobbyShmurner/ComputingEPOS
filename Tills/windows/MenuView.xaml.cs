@@ -24,6 +24,7 @@ public partial class MenuView : UserControl
 
     public OrderManager OrderManager { get; private set; }
     public OrderMenuManager OrderMenuManager { get; private set; }
+    public LoginManager LoginManager => MainWindow.Instance.LoginScreen.Manager;
 
     public MenuView()
     {

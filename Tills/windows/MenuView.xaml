@@ -39,8 +39,8 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <Button Click="ReportsButton_Click">Reports</Button>
-                    <Button Click="FunctionsButton_Click">Functions</Button>
+                    <Button Click="ReportsButton_Click" Visibility="{c:Binding 'LoginManager.AccessLevel >= 1'}">Reports</Button>
+                    <Button Click="FunctionsButton_Click" Visibility="{c:Binding 'LoginManager.AccessLevel >= 1'}">Functions</Button>
                     <Button Click="LogoutButton_Click">Logout</Button>
                 </StackPanel>
             </Grid>
@@ -224,11 +224,11 @@
                     <TextBlock>Open<LineBreak/>Drawer</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="0" Click="ForceCloseAllChecks_Click">
+                <Button Grid.Row="2" Grid.Column="0" Click="ForceCloseAllChecks_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 2'}">
                     <TextBlock>Force Close<LineBreak/>All Checks</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="1" Click="ManageDBButton_Click">
+                <Button Grid.Row="2" Grid.Column="1" Click="ManageDBButton_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 2'}">
                     <TextBlock>Manage<LineBreak/>Database</TextBlock>
                 </Button>
 
