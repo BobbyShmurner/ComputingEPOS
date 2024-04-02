@@ -15,8 +15,12 @@ namespace ComputingEPOS.Tills.Api;
 public static class Orders {
     public static async Task<Order?> Create()
     {
+        if (LoginManager.Instance.CurrentEmployee == null) {
+            throw new InvalidOperationException("No employee logged in!");
+        }
+        
         var item = new Order {
-            EmployeeID = 1,
+            EmployeeID = LoginManager.Instance.CurrentEmployee.EmployeeID,
         };
 
         var response = await Client.PostAsync("api/Orders", new StringContent(

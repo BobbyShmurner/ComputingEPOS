@@ -51,7 +51,7 @@
                             <Setter Property="BorderBrush" Value="Gray"/>
                         </Style>
                     </StackPanel.Resources>
-                    <Label>Bobby</Label>
+                    <Label Content="{Binding Manager.EmployeeFirstName, ElementName=LoginScreen}" Visibility="{c:Binding 'Manager.CurrentEmployee != null', ElementName=LoginScreen}"/>
                     <Label >Till 1</Label>
                     <Label Content="{Binding Time.CurrentTime}" ContentStringFormat="hh:mm tt"/>
                 </StackPanel>

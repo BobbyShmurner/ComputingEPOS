@@ -175,8 +175,12 @@ public partial class MenuView : UserControl
         UIDispatcher.UpdateUI();
     });
 
+    private void LogoutButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        await LoginManager.Instance.Logout();
+        UIDispatcher.UpdateUI();
+    });
+
     private void UpsizeButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
     private void DownsizeButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
-    private void LogoutButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
     private void NotImplementedButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
 }

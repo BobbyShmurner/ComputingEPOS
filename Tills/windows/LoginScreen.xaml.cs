@@ -23,6 +23,7 @@ namespace ComputingEPOS.Tills;
 /// </summary>
 public partial class LoginScreen : UserControl {
     public static LoginScreen Instance => MainWindow.Instance.LoginScreen;
+    public LoginManager Manager => LoginManager.Instance;
 
     public static readonly DependencyProperty PinPassTextDependencyProperty = DependencyProperty.Register(
         nameof(PinPassText), typeof(string), typeof(LoginScreen), new FrameworkPropertyMetadata(default(string))
@@ -59,7 +60,10 @@ public partial class LoginScreen : UserControl {
             return;
         }
 
-        Modal.Instance.ShowNotImplementedModal();
+        UIDispatcher.EnqueueUIAction(async () => {
+            await LoginManager.Instance.Login(pin);
+            UIDispatcher.UpdateUI();
+        });
     }
 
     private void Keypad_Clear(object? sender, EventArgs e) {

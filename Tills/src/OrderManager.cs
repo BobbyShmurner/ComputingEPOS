@@ -111,8 +111,7 @@ public class OrderManager : INotifyPropertyChanged {
         }
     }
 
-    // TODO: Remove this
-    public string Cashier => "Bobby";
+    public string Cashier => LoginManager.Instance.EmployeeFirstName ?? "Unknown";
 
     public string OpenCheckCountStr => OpenChecks == null
         ? "Fetching..."
@@ -238,6 +237,9 @@ public class OrderManager : INotifyPropertyChanged {
             Trace.WriteLine(ex.Message);
             throw;
         }
+
+        await DeleteAllItems(false);
+        CurrentOrder = null;
     }
 
     public async Task CloseAllPaidChecks(bool closeEmpty = false) {

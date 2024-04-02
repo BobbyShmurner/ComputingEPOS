@@ -24,6 +24,20 @@ public static class Employees {
         }
     }
 
+    public static async Task<Employee?> GetEmployeeFromPin(string pin) {
+        var response = await Client.GetAsync($"api/Employees/FromPin?pin={pin}");
+
+        try {
+            response.EnsureSuccessStatusCode();
+            return (await response.Content.ReadFromJsonAsync<Employee>())!;
+        } catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+            return null;
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to get Employee from pin!", response);
+            throw;
+        }
+    }
+
     public static async Task<Employee?> Create(Employee item) {
         var response = await Client.PostAsync("api/Employees", new StringContent(
             JsonSerializer.Serialize(item),
