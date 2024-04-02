@@ -50,6 +50,7 @@ public class Employee : ICopyable<Employee> {
         Email = Email,
         Mobile = Mobile,
 		Wage = Wage,
+		PinHash = PinHash,
     };
 
     public enum Roles {
