@@ -117,22 +117,24 @@ public partial class ReportsView : UserControl
         });
     }
 
-    public void PrintCurrentReport() {
+    public async Task PrintCurrentReport() {
         if (CurrentGrid == null) {
-            Modal.Instance.Show("No report selected");
+            UIDispatcher.EnqueueOnUIThread(() => Modal.Instance.Show("No report selected"));
             return;
         }
 
-        PrintManager.PrintString($"This is a {CurrentGrid.Title} Report :)", $"{CurrentGrid.Title} Report");
+        TimeInterval interval = UIDispatcher.DispatchOnUIThread(() => Interval);
+        await CurrentGrid.PrintGrid(interval);
     }
 
     private void BackButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => MainWindow.Instance.RootViewManager.ShowView(MainWindow.Instance.MenuView))
     );
 
-    private void PrintButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
-        UIDispatcher.EnqueueAndUpdateOnUIThread(PrintCurrentReport)
-    );
+    private void PrintButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        await PrintCurrentReport();
+        UIDispatcher.UpdateUI();
+    });
 
     private void DG_Scroll(object sender, MouseWheelEventArgs e) {
         var args = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta) {

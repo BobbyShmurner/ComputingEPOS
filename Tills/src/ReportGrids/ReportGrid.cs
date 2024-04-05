@@ -77,25 +77,42 @@ public struct DataGridColumnInfo {
 }
 
 public abstract class ReportGrid<T> : IReportGrid where T : class {
-    public ObservableCollection<T>? Data { get; private set; }
     public List<DataGridColumnInfo>? ColumnInfo { get; private set; }
+    public ObservableCollection<T>? Data { get; private set; }
+    public T? TotalData { get; private set; }
     public abstract string Title { get; }
 
     public Type Type => typeof(T);
 
-    public async Task ShowGrid(DataGrid grid, TotalGrid totalGrid, TimeInterval timeFrame) {
-        (var data, var totalData) = await CollectData(timeFrame);
+    async Task CollectData_Internal(TimeInterval timeFrame) {
+        (var data, TotalData) = await CollectData(timeFrame);
         Data = new ObservableCollection<T>(data);
 
         ColumnInfo = GetColumnInfo(timeFrame);
+    }
+
+    public async Task PrintGrid(TimeInterval timeFrame) {
+        await CollectData_Internal(timeFrame);
+        List<T> rows = Data!.ToList();
+
+        string[][] totalRows = TotalGrid.GenerateRowData(TotalData!, ColumnInfo!);
+
+        DataGridPrinter<T> printer = new(rows, ColumnInfo!, title: Title);
+        foreach (var row in totalRows) printer.AppendArbitraryRow(row);
+
+        printer.Print();
+    }
+
+    public async Task ShowGrid(DataGrid grid, TotalGrid totalGrid, TimeInterval timeFrame) {
+        await CollectData_Internal(timeFrame);
 
         UIDispatcher.EnqueueOnUIThread(() => {
             grid.ItemsSource = Data;
             grid.Columns.Clear();
 
-            totalGrid.SetTotal<T>(totalData, ColumnInfo);
+            totalGrid.SetTotal(TotalData!, ColumnInfo!);
 
-            foreach (var columnInfo in ColumnInfo) {
+            foreach (var columnInfo in ColumnInfo!) {
                 var dataColumn = new DataGridTextColumn {
                     Header = columnInfo.Header,
                     Binding = new Binding(columnInfo.Binding) { StringFormat = columnInfo.Format},

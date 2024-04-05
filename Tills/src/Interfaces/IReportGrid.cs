@@ -14,4 +14,5 @@ public interface IReportGrid {
     public string Title { get; }
 
     public Task ShowGrid(DataGrid grid, TotalGrid totalGrid, TimeInterval timeFrame);
+    public Task PrintGrid(TimeInterval timeFrame);
 }

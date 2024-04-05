@@ -16,13 +16,22 @@ public class TotalGrid {
         Grid = grid;
     }
 
-    public void SetTotal<T>(T totalData, List<DataGridColumnInfo> info) where T : class {
+    public static string[][] GenerateRowData<T>(T totalData, List<DataGridColumnInfo> info) where T : class {
         int columnCount = info.Count;
 
-        var totalSource = new string[2][];
+        string[][] totalRows = [new string[columnCount], new string[columnCount]];
 
-        totalSource[0] = new string[columnCount];
-        totalSource[1] = new string[columnCount];
+        for (int i = 0; i < columnCount; i++) {
+            var columnInfo = info[i];
+            totalRows[1][i] = string.Format(columnInfo.Format, totalData.GetType().GetProperty(columnInfo.Binding)?.GetValue(totalData) ?? "");
+        }
+
+        return totalRows;
+    }
+
+    public void SetTotal<T>(T totalData, List<DataGridColumnInfo> info) where T : class {
+        int columnCount = info.Count;
+        string[][] totalRows = GenerateRowData(totalData, info);
 
         Grid.Columns.Clear();
 
@@ -35,11 +44,9 @@ public class TotalGrid {
                 Width = columnInfo.Width,
             };
 
-            totalSource[1][i] = string.Format(columnInfo.Format, totalData.GetType().GetProperty(columnInfo.Binding)?.GetValue(totalData) ?? "");
-
             Grid.Columns.Add(dataColumn);
         }
 
-        Grid.ItemsSource = totalSource;
+        Grid.ItemsSource = totalRows;
     }
 }
