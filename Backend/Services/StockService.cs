@@ -89,6 +89,8 @@ public class StockService : IStockService {
 			foreach (var item in orderItems) {
 				quantitySold += item.Quantity;
 				gross += item.Subtotal;
+
+				Console.WriteLine($"Unknown Stock (ID: {item.StockID}) (Quantity: {item.Quantity}) (Subtotal: {item.Subtotal}), (OrderItemID: {item.OrderItemID}), (OrderID: {item.OrderID})");
 			}
 
 			reports.Add(new PmixReport {
