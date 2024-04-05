@@ -296,8 +296,12 @@ public class OrderManager : INotifyPropertyChanged {
         return view;
     }
 
-    public async Task<OrderListItemView?> MakeSelectedCombo() =>
-        Selected != null && Selected.ComboHandler != null ? await Selected.ComboHandler.Combo(this) : null;
+    public async Task<OrderListItemView?> MakeSelectedCombo() {
+        OrderListItemView? newItem = Selected != null && Selected.ComboHandler != null ? await Selected.ComboHandler.Combo(this) : null;
+        SelectItem(newItem);
+
+        return newItem;
+    }
 
     public async Task<OrderListItemView> ReplaceOrderItem(OrderListItemView toReplace, OrderListItem replaceWith) {
         int index = toReplace.Index;
@@ -373,8 +377,12 @@ public class OrderManager : INotifyPropertyChanged {
     public bool CanUpsizeItem(OrderListItemView view) => !view.Item.Text.StartsWith("Large");
     public bool CanDownsizeItem(OrderListItemView view) => !view.Item.Text.StartsWith("Small");
 
-    public async Task<OrderListItemView?> ResizeSelectedItem(bool upsize) =>
-        Selected != null && Selected.ResizeHandler != null ? await Selected.ResizeHandler.Resize(this, upsize) : null;
+    public async Task<OrderListItemView?> ResizeSelectedItem(bool upsize) {
+        OrderListItemView? newItem = Selected != null && Selected.ResizeHandler != null ? await Selected.ResizeHandler.Resize(this, upsize) : null;
+        SelectItem(newItem);
+        
+        return newItem;
+    }
 
     public async Task ForceCloseAllChecks() {
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => {
