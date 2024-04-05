@@ -37,8 +37,7 @@ public class Employee : ICopyable<Employee> {
 	[Required]
 	public decimal Wage { get; set; }
 
-	[Required]
-	public string PinHash { get; set; } = string.Empty;
+	public string? PinHash { get; set; }
 
     public Employee Copy() => new Employee {
         EmployeeID = EmployeeID,

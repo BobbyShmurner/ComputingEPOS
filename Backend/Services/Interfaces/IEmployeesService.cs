@@ -14,7 +14,7 @@ public interface IEmployeesService {
 
     public Task<ActionResult<Employee>> PutEmployee(Employee employee);
 
-	public Task<ActionResult<Employee>> PostEmployee(Employee employee, string pin, IHashService hashService);
+	public Task<ActionResult<Employee>> PostEmployee(Employee employee, string? pin, IHashService hashService);
 	public Task<ActionResult<Employee>> UpdatePin(int id, string accessPin, string newPin, IHashService hashService);
 
 	public Task<IActionResult> DeleteEmployee(int id);

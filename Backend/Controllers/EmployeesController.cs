@@ -75,7 +75,7 @@ public class EmployeesController : ControllerBase {
     // POST: api/Employees?pin=1234
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<Employee>> PostEmployee(Employee employee, [Required] string pin)  {
+    public async Task<ActionResult<Employee>> PostEmployee(Employee employee, string? pin)  {
         ActionResult<Employee> newEmployeeRes = await m_Service.PostEmployee(employee, pin, m_HashService);
         if (newEmployeeRes.Result != null) return newEmployeeRes.Result;
         Employee newEmployee = newEmployeeRes.Value!;

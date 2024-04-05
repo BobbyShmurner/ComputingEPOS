@@ -25,9 +25,9 @@ public class EmployeesService : IEmployeesService {
 	}
 
 	public ActionResult<Employee> GetEmployeeFromPin(string pin, IHashService hashService) {
-		foreach (var e in _context.Employees) {
+		foreach (var e in _context.Employees.Where(e => e.PinHash != null)) {
 			byte[] hash = GeneratePinHash(e, pin, hashService);
-			if (hash.SequenceEqual(Convert.FromBase64String(e.PinHash))) return e;
+			if (hash.SequenceEqual(Convert.FromBase64String(e.PinHash!))) return e;
 		};
 
 		return new NotFoundResult();
@@ -42,6 +42,7 @@ public class EmployeesService : IEmployeesService {
 	}
 
 	bool IsPinCorrect(Employee employee, string pin, IHashService hashService) {
+		if (employee.PinHash == null) return false;
 		byte[] hash = GeneratePinHash(employee, pin, hashService);
 		return hash.SequenceEqual(Convert.FromBase64String(employee.PinHash));
 	}
@@ -65,10 +66,12 @@ public class EmployeesService : IEmployeesService {
 		return employee;
 	}
 
-	public async Task<ActionResult<Employee>> PostEmployee(Employee employee, string pin, IHashService hashService) {
-		ActionResult<Employee> employeeRes = SetPinHash(employee, pin, hashService);
-		if (employeeRes.Result != null) return employeeRes.Result;
-		employee = employeeRes.Value!;
+	public async Task<ActionResult<Employee>> PostEmployee(Employee employee, string? pin, IHashService hashService) {
+		if (pin != null) {
+			ActionResult<Employee> employeeRes = SetPinHash(employee, pin, hashService);
+			if (employeeRes.Result != null) return employeeRes.Result;
+			employee = employeeRes.Value!;
+		}
 
 		_context.Employees.Add(employee);
 		await _context.SaveChangesAsync();
@@ -119,18 +122,18 @@ public class EmployeesService : IEmployeesService {
 		await _context.Employees.AnyAsync(e => e.EmployeeID == id);
 
 	public bool PinExist(string pin, IHashService hashService) {
-		foreach (var e in _context.Employees) {
+		foreach (var e in _context.Employees.Where(e => e.PinHash != null)) {
 			byte[] hash = GeneratePinHash(e, pin, hashService);
-			if (hash.SequenceEqual(Convert.FromBase64String(e.PinHash))) return true;
+			if (hash.SequenceEqual(Convert.FromBase64String(e.PinHash!))) return true;
 		};
 
 		return false;
 	}
 
 	public bool IsManagerPin(string pin, IHashService hashService) {
-		foreach (var e in _context.Employees.Where(e => e.Role == Employee.Roles.Manager)) {
+		foreach (var e in _context.Employees.Where(e => e.Role == Employee.Roles.Manager && e.PinHash != null)) {
 			byte[] hash = GeneratePinHash(e, pin, hashService);
-			if (hash.SequenceEqual(Convert.FromBase64String(e.PinHash))) return true;
+			if (hash.SequenceEqual(Convert.FromBase64String(e.PinHash!))) return true;
 		};
 
 		return false;
