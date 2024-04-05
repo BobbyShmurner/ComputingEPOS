@@ -25,6 +25,12 @@ public enum CheckoutType
     TakeAway
 }
 
+public enum ItemSize {
+    Small,
+    Regular,
+    Large
+}
+
 public static class CheckoutTypeExtensions
 {
     public static string ToPrettyString(this CheckoutType checkoutType)
@@ -50,11 +56,11 @@ public class OrderManager : INotifyPropertyChanged {
 
     public bool IsItemSelected => Selected != null;
 
-    public bool CanDeleteSelected => Selected?.DeletionTarget != null;
-    public bool CanComboSelected => Selected?.ComboHandler != null;
-    public bool CanDownsizeSelected => IsItemSelected;
     public bool CanModifySelected => IsItemSelected;
-    public bool CanUpsizeSelected => IsItemSelected;
+    public bool CanComboSelected => Selected?.ComboHandler != null;
+    public bool CanDeleteSelected => Selected?.DeletionTarget != null;
+    public bool CanUpsizeSelected => IsItemSelected && CanUpsizeItem(Selected!);
+    public bool CanDownsizeSelected => IsItemSelected && CanDownsizeItem(Selected!);
 
     public List<OrderListItemView> AllItems => RootItems.SelectMany(item => item.AllChildren.Prepend(item)).ToList();
 
@@ -86,15 +92,16 @@ public class OrderManager : INotifyPropertyChanged {
     decimal m_Total = 0;
     public decimal Total {
         get => m_Total;
-        set {
-            m_Total = value;
+    }
 
-            UIDispatcher.EnqueueOnUIThread(() => {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Total)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SubTotal)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Tax)));
-            });
-        }
+    public void RefreshTotal() {
+        m_Total = AllItems.Sum(item => item.Price ?? 0);
+
+        UIDispatcher.EnqueueOnUIThread(() => {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Total)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SubTotal)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Tax)));
+        });
     }
 
     decimal m_AmountPaid = 0;
@@ -269,9 +276,9 @@ public class OrderManager : INotifyPropertyChanged {
 
         OrderListItemView view = new OrderListItemView(this, Menu, item, parent, index);
         Views[item] = view;
-
-        if (item.Price.HasValue) Total += item.Price.Value;
         if (parent == null) RootItems.Insert(index ?? RootItems.Count, view);
+
+        RefreshTotal();
 
         try {
             foreach (var child in view.Item.Children)
@@ -299,7 +306,11 @@ public class OrderManager : INotifyPropertyChanged {
         await RemoveOrderItem(toReplace, true);
 
         try {
-            return await AddOrderItem(replaceWith, parent, index);
+            var newItem = await AddOrderItem(replaceWith, parent, index);
+            toReplace.ComboHandler?.OnReplaced(toReplace, newItem);
+            toReplace.ResizeHandler?.OnReplaced(toReplace, newItem);
+
+            return newItem;
         } catch {
             await AddOrderItem(toReplace.Item, parent, index);
             throw;
@@ -338,7 +349,7 @@ public class OrderManager : INotifyPropertyChanged {
         }
 
         if (view.Parent == null) RootItems.Remove(view);
-        if (view.Price.HasValue) Total -= view.Price.Value;
+        RefreshTotal();
 
         while (view.Children.Count > 0)
             await RemoveOrderItem(view.Children[0], removeFromDB);
@@ -358,6 +369,12 @@ public class OrderManager : INotifyPropertyChanged {
 
         if (fireEvent) OnSelectionChanged?.Invoke(null);
     }
+
+    public bool CanUpsizeItem(OrderListItemView view) => !view.Item.Text.StartsWith("Large");
+    public bool CanDownsizeItem(OrderListItemView view) => !view.Item.Text.StartsWith("Small");
+
+    public async Task<OrderListItemView?> ResizeSelectedItem(bool upsize) =>
+        Selected != null && Selected.ResizeHandler != null ? await Selected.ResizeHandler.Resize(this, upsize) : null;
 
     public async Task ForceCloseAllChecks() {
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => {

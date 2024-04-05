@@ -186,7 +186,15 @@ public partial class MenuView : UserControl
         UIDispatcher.UpdateUI();
     });
 
-    private void UpsizeButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
-    private void DownsizeButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
+    private void UpsizeButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        try { await OrderManager.ResizeSelectedItem(upsize: true); }
+        finally { UIDispatcher.UpdateUI(); }
+    });
+
+    private void DownsizeButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        try { await OrderManager.ResizeSelectedItem(upsize: false); }
+        finally { UIDispatcher.UpdateUI(); }
+    });
+
     private void NotImplementedButton_Click(object sender, RoutedEventArgs e) => Modal.Instance.ShowNotImplementedModal();
 }

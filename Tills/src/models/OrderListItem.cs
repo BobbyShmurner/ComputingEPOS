@@ -66,4 +66,6 @@ public class OrderListItem {
         OrderItem = OrderItem,
         StockID = StockID,
     };
+
+    public void RenameText(string newText) => m_Text = newText;
 }

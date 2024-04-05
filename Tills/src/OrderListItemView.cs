@@ -14,6 +14,8 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 public class OrderListItemView {
+    public Action<OrderListItemView>? OnReplaced;
+
     const int INDENT_AMOUNT = 10;
     const int BASE_INDENT = 5;
     const int PRICE_GAP = 5;
@@ -55,6 +57,7 @@ public class OrderListItemView {
     public OrderManager Manager { get; private set; }
 
     public IComboHandler? ComboHandler;
+    public IResizeHandler? ResizeHandler;
     public OrderListItemView? DeletionTarget;
 
     string m_Text = "";
@@ -123,17 +126,21 @@ public class OrderListItemView {
         Manager = manager;
 
         Item = item;
+        Text = Item.Text;
+        Price = Item.Price;
+
         DeletionTarget = this;
-        ComboHandler = new ComboHandler(this);
+        ComboHandler ??= new ComboHandler(this);
+        ResizeHandler ??= new ResizeHandler(this);
 
         if (Parent != null) {
             Parent.Children.Insert(index ?? Parent.Children.Count, this);
         }
 
-        UIDispatcher.EnqueueOnUIThread(() =>
-        {
-            border = new Border();
-            border.BorderBrush = Brushes.DimGray;
+        UIDispatcher.EnqueueOnUIThread(() => {
+            border = new Border {
+                BorderBrush = Brushes.DimGray
+            };
             DockPanel.SetDock(border, Dock.Top);
 
             stackPanel = new StackPanel();
@@ -152,11 +159,12 @@ public class OrderListItemView {
             textBlock = new TextBlock {
                 Padding = new Thickness(Indent, 0, BASE_INDENT, 0)
             };
-            dockPanel.Children.Add(this.textBlock);
+            dockPanel.Children.Add(textBlock);
 
-            Text = Item.Text;
-            Price = Item.Price;
-        
+            // Refresh The dependecny props now that the UI has been created
+            Text = Text;
+            Price = Price;
+
             if (Parent != null) Parent.stackPanel!.Children.Insert(index != null ? index.Value + 1 : Parent.stackPanel.Children.Count, border);
             else Menu.DP_OrderItems.Children.Insert(index ?? (Menu.DP_OrderItems.Children.Count - 1), border);
         });
