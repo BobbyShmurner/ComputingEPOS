@@ -29,7 +29,7 @@ public class StockService : IStockService {
         if (stockRes.Result != null) return stockRes.Result;
         Stock stock = stockRes.Value!;
 
-		ActionResult<List<PmixReport>> reportsRes = await GetStockPmix_Internal(new List<Stock> { stock }, from, to, ordersService, orderItemsService);
+		ActionResult<List<PmixReport>> reportsRes = await GetStockPmix_Internal(new List<Stock> { stock }, from, to, ordersService, orderItemsService, includeRemainingAsUnknown: false);
         if (reportsRes.Result != null) return reportsRes.Result;
 
         return reportsRes.Value!.First();
@@ -41,10 +41,10 @@ public class StockService : IStockService {
         if (allStockRes.Result != null) return allStockRes.Result;
         List<Stock> allStock = allStockRes.Value!;
 
-		return await GetStockPmix_Internal(allStock, from, to, ordersService, orderItemsService);
+		return await GetStockPmix_Internal(allStock, from, to, ordersService, orderItemsService, includeRemainingAsUnknown: true);
     }
 
-    async Task<ActionResult<List<PmixReport>>> GetStockPmix_Internal(List<Stock> stocks, DateTime? from, DateTime? to, IOrdersService ordersService, IOrderItemsService orderItemsService) {
+    async Task<ActionResult<List<PmixReport>>> GetStockPmix_Internal(List<Stock> stocks, DateTime? from, DateTime? to, IOrdersService ordersService, IOrderItemsService orderItemsService, bool includeRemainingAsUnknown) {
 		from ??= DateTime.MinValue;
 		to ??= DateTime.Now;
 
@@ -65,10 +65,13 @@ public class StockService : IStockService {
             float quantitySold = 0f;
             decimal gross = 0m;
 
-            foreach (var item in orderItems.Where(item => item.StockID == stock.StockID)) {
+			var items = orderItems.Where(item => item.StockID == stock.StockID);
+            foreach (var item in items) {
                 quantitySold += item.Quantity;
                 gross += item.Subtotal;
             }
+
+			orderItems = orderItems.Except(items).ToList();
 
             reports.Add(new PmixReport {
                 Stock = stock,
@@ -78,6 +81,24 @@ public class StockService : IStockService {
                 Gross = gross,
             });
         }
+
+		if (includeRemainingAsUnknown && orderItems.Count > 0) {
+			float quantitySold = 0f;
+			decimal gross = 0m;
+
+			foreach (var item in orderItems) {
+				quantitySold += item.Quantity;
+				gross += item.Subtotal;
+			}
+
+			reports.Add(new PmixReport {
+				Stock = new Stock { Name = "[UNKNOWN]", StockID = -1, Quantity = 0 },
+				From = from.Value,
+				To = to.Value,
+				QuantitySold = quantitySold,
+				Gross = gross,
+			});
+		}
 
 		return reports;
 	}
