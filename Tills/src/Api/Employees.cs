@@ -54,6 +54,21 @@ public static class Employees {
         }
     }
 
+    public static async Task<Employee> UpdatePin(Employee employee, string accessPin, string newPin) {
+        var response = await Client.PostAsync($"api/Employees/{employee.EmployeeID}/UpdatePin?accessPin={accessPin}&newPin={newPin}", null);
+
+        try {
+            response.EnsureSuccessStatusCode();
+            return (await response.Content.ReadFromJsonAsync<Employee>())!;
+        } catch (HttpRequestException ex) when (ex.StatusCode != null) {
+            await Modal.Instance.ShowError($"Failed to Update Employee Pin!", response);
+            throw;
+        } catch (Exception e) {
+            UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Show($"Failed to Update Employee Pin!\n\n{e.Message}"));
+            throw;
+        }
+    }
+
     public static async Task<Employee> PutEmployee(Employee employee) {
         var response = await Client.PutAsync($"api/Employees/{employee.EmployeeID}", new StringContent(
             JsonSerializer.Serialize(employee),

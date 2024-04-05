@@ -83,7 +83,7 @@ public class EmployeesController : ControllerBase {
         return CreatedAtAction(nameof(GetEmployee), new { id = newEmployee.EmployeeID }, newEmployee);
     }
 
-    // POST: api/Employees/5/UpdatePin?currentPin=1234&newPin=5678
+    // POST: api/Employees/5/UpdatePin?accessPin=1234&newPin=5678
     [HttpPost("{id}/UpdatePin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

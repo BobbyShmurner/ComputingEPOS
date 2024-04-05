@@ -29,6 +29,7 @@
             <local:MenuView x:Name="MenuView" Visibility="Collapsed"/>
             <local:ReportsView x:Name="ReportsView" Visibility="Collapsed"/>
             <local:DbView x:Name="DbView" Visibility="Collapsed"/>
+            <local:ChangePinScreen x:Name="ChangePinScreen" Visibility="Collapsed"/>
         </Grid>
         <local:Modal x:Name="Modal"/>
         <Border Grid.ColumnSpan="2" Grid.Row="3" Background="LightGray" BorderBrush="DimGray" BorderThickness="0,1,0,0">

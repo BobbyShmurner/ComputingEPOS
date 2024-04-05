@@ -52,7 +52,12 @@ public partial class Modal : UserControl
 
     public async Task ShowError(string error, HttpResponseMessage response, bool hideOnClick = true)
     {
-        var content = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        Dictionary<string, object>? content = null;
+
+        try {
+            content = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        } catch { }
+
         string? reason = null;
 
         if (content != null) {
@@ -62,6 +67,10 @@ public partial class Modal : UserControl
             else if (content.ContainsKey("title")) {
                 reason = content["title"].ToString();
             }
+        } else {
+            try {
+                reason = await response.Content.ReadFromJsonAsync<string>();
+            } catch { }
         }
 
         StringBuilder sb = new(error);

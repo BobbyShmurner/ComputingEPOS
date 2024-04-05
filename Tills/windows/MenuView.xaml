@@ -208,7 +208,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 
-                <Button Grid.Row="1" Grid.Column="0" Click="NotImplementedButton_Click">
+                <Button Grid.Row="1" Grid.Column="0" Click="ChangePinButton_Click">
                     <TextBlock>Change<LineBreak/>Pin</TextBlock>
                 </Button>
                 

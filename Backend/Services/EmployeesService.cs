@@ -60,7 +60,7 @@ public class EmployeesService : IEmployeesService {
 	}
 
 	ActionResult<Employee> SetPinHash(Employee employee, string pin, IHashService hashService) {
-		if (PinExist(pin, hashService)) return new BadRequestObjectResult("Pin already exists");
+		if (PinExist(pin, hashService)) return new BadRequestObjectResult(new {detail = "Pin already exists!"});
 		employee.PinHash = Convert.ToBase64String(GeneratePinHash(employee, pin, hashService));
 		return employee;
 	}

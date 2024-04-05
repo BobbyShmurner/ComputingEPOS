@@ -176,6 +176,11 @@ public partial class MenuView : UserControl
         UIDispatcher.UpdateUI();
     });
 
+    private void ChangePinButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
+        await ChangePinScreen.Instance.Show();
+        UIDispatcher.UpdateUI();
+    });
+
     private void LogoutButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {
         await LoginManager.Instance.Logout();
         UIDispatcher.UpdateUI();
