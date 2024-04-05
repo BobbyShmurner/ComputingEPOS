@@ -40,7 +40,7 @@
                     </StackPanel.Resources>
 
                     <Button Click="ReportsButton_Click" Visibility="{c:Binding 'LoginManager.AccessLevel >= 1'}">Reports</Button>
-                    <Button Click="FunctionsButton_Click" Visibility="{c:Binding 'LoginManager.AccessLevel >= 1'}">Functions</Button>
+                    <Button Click="FunctionsButton_Click">Functions</Button>
                     <Button Click="LogoutButton_Click">Logout</Button>
                 </StackPanel>
             </Grid>
@@ -207,37 +207,37 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-
+                
                 <Button Grid.Row="1" Grid.Column="0" Click="NotImplementedButton_Click">
-                    <TextBlock>Recall<LineBreak/>Check</TextBlock>
+                    <TextBlock>Change<LineBreak/>Pin</TextBlock>
                 </Button>
-
-                <Button Grid.Row="1" Grid.Column="1" Click="NotImplementedButton_Click">
-                    <TextBlock>Issue<LineBreak/>Refund</TextBlock>
-                </Button>
-
-                <Button Grid.Row="1" Grid.Column="2" Click="PrintReceiptButton_Click">
+                
+                <Button Grid.Row="1" Grid.Column="1" Click="PrintReceiptButton_Click">
                     <TextBlock>Print<LineBreak/>Receipt</TextBlock>
                 </Button>
-
-                <Button Grid.Row="1" Grid.Column="3" Click="NotImplementedButton_Click">
+                
+                <Button Grid.Row="1" Grid.Column="2" Click="NotImplementedButton_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 1'}">
                     <TextBlock>Open<LineBreak/>Drawer</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="0" Click="ForceCloseAllChecks_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 2'}">
-                    <TextBlock>Force Close<LineBreak/>All Checks</TextBlock>
+                <Button Grid.Row="1" Grid.Column="3" Click="NotImplementedButton_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 1'}">
+                    <TextBlock>Issue<LineBreak/>Refund</TextBlock>
                 </Button>
-
-                <Button Grid.Row="2" Grid.Column="1" Click="ManageDBButton_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 2'}">
-                    <TextBlock>Manage<LineBreak/>Database</TextBlock>
-                </Button>
-
-                <Button Grid.Row="2" Grid.Column="2" Click="PowerOffButton_Click">
+                
+                <Button Grid.Row="2" Grid.Column="0" Click="PowerOffButton_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 1'}">
                     <TextBlock>Power Off</TextBlock>
                 </Button>
 
-                <Button Grid.Row="2" Grid.Column="3" Click="RebootButton_Click">
+                <Button Grid.Row="2" Grid.Column="1" Click="RebootButton_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 1'}">
                     <TextBlock>Reboot</TextBlock>
+                </Button>
+
+                <Button Grid.Row="2" Grid.Column="2" Click="ForceCloseAllChecks_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 2'}">
+                    <TextBlock>Force Close<LineBreak/>All Checks</TextBlock>
+                </Button>
+
+                <Button Grid.Row="2" Grid.Column="3" Click="ManageDBButton_Click" IsEnabled="{c:Binding 'LoginManager.AccessLevel >= 2'}">
+                    <TextBlock>Manage<LineBreak/>Database</TextBlock>
                 </Button>
             </Grid>
         </Grid>
