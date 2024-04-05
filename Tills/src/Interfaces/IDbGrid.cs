@@ -14,6 +14,7 @@ public interface IDbGrid {
     public string Title { get; }
 
     public void HideGrid();
+    public void PrintGrid();
     public Task ShowGrid(DataGrid grid, DataGrid addGrid, StackPanel leftPanel, StackPanel centerPanel, StackPanel rightPanel, bool resetSelection);
     public Task SaveChanges();
     public Task DeleteCurrent();

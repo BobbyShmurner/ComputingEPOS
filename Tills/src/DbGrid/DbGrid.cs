@@ -123,6 +123,13 @@ public abstract class DbGrid<T> : IDbGrid where T : class, ICopyable<T>, new() {
         });
     }
 
+    public void PrintGrid() {
+        if (Data == null) throw new InvalidOperationException("Data is null");
+
+        DataGridPrinter<T> printer = new(Data.ToList(), ColumnInfo!, title: Title, pageWidth: 1250);
+        printer.Print();
+    }
+
     void OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
         DataGrid dataGrid = (DataGrid)sender;
 

@@ -119,7 +119,7 @@ public partial class ReportsView : UserControl
 
     public async Task PrintCurrentReport() {
         if (CurrentGrid == null) {
-            UIDispatcher.EnqueueOnUIThread(() => Modal.Instance.Show("No report selected"));
+            UIDispatcher.EnqueueOnUIThread(() => Modal.Instance.Show("No report selected!"));
             return;
         }
 

@@ -88,13 +88,13 @@ public partial class DbView : UserControl
         });
     }
 
-    public void PrintCurrentReport() {
+    public void PrintCurrentGrid() {
         if (CurrentGrid == null) {
-            Modal.Instance.Show("No report selected");
+            UIDispatcher.EnqueueOnUIThread(() => Modal.Instance.Show("No data grid selected!"));
             return;
         }
 
-        PrintManager.PrintString($"This is a {CurrentGrid.Title} Report :)", $"{CurrentGrid.Title} Report");
+        CurrentGrid.PrintGrid();
     }
 
     private void BackButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
@@ -102,7 +102,7 @@ public partial class DbView : UserControl
     );
 
     private void PrintButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(() =>
-        UIDispatcher.EnqueueAndUpdateOnUIThread(PrintCurrentReport)
+        UIDispatcher.EnqueueAndUpdateOnUIThread(PrintCurrentGrid)
     );
 
     private void SaveButton_Click(object sender, RoutedEventArgs e) => UIDispatcher.EnqueueUIAction(async () => {

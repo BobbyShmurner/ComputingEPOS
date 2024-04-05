@@ -10,16 +10,19 @@ public class DataGridPrinter<T> {
     public StringBuilder Sb { get; private set; } = new StringBuilder();
 	public List<T> RowData { get; private set; }
 	public List<DataGridColumnInfo> ColumnInfo { get; private set; }
+	public double? PageWidth { get; private set; }
+
 	public string? Title { get; private set; }
 	public string ReportTitle => Title != null ? $"{Title} Report" : "Report";
 
 	public List<string> ColumnHeaders { get; private set; }= new();
 	public List<string[]> RowStrs { get; private set; } = new();
 
-	public DataGridPrinter(List<T> rows, List<DataGridColumnInfo> columns, string? title = null) {
+	public DataGridPrinter(List<T> rows, List<DataGridColumnInfo> columns, string? title = null, double? pageWidth = null) {
 		Title = title;
 		RowData = rows;
 		ColumnInfo = columns;
+		PageWidth = pageWidth;
 
 		GenerateStringData();
 	}
@@ -99,7 +102,7 @@ public class DataGridPrinter<T> {
 
 	public void Print() {
 		string report = ToString();
-		PrintManager.PrintString(report, ReportTitle, 16, new("Consolas"), orientation: PageOrientation.Landscape);
+		PrintManager.PrintString(report, ReportTitle, 16, new("Consolas"), orientation: PageOrientation.Landscape, pageWidth: PageWidth);
 	}
 
 	string Center(string text, int width) {
