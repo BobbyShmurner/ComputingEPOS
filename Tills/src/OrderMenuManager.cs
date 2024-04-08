@@ -74,14 +74,14 @@ public class OrderMenuManager {
         List<Models.Stock> stockModels = await Api.Stock.GetStock();
 
         UIDispatcher.EnqueueOnUIThread(() => {
-            Dictionary<int, OrderListItem> listItmes = new();
+            Dictionary<int, OrderListItem> listItems = new();
             UnregisterAllMenus();
 
             foreach (var menuItemModel in menuItemModels) {
                 Models.Stock? stock = stockModels.FirstOrDefault(s => s.StockID == menuItemModel.StockID);
                 if (stock == null) continue;
 
-                listItmes[menuItemModel.MenuItemID] = new OrderListItem(stock?.Name ?? "[UNKNOWN]", stock!.StockID, menuItemModel.Price);
+                listItems[menuItemModel.MenuItemID] = new OrderListItem(stock?.Name ?? "[UNKNOWN]", stock!.StockID, menuItemModel.Price);
             }
 
             foreach (var menuModel in menuModels) {
@@ -93,8 +93,8 @@ public class OrderMenuManager {
                 MenuButton[,] menuItems = new MenuButton[rows, columns];
 
                 foreach (var joinModel in joinModels) {
-                    if (!listItmes.ContainsKey(joinModel.MenuItemID)) continue;
-                    menuItems[joinModel.Row, joinModel.Column] = new PremadeItemMenuButton(listItmes[joinModel.MenuItemID]);
+                    if (!listItems.ContainsKey(joinModel.MenuItemID)) continue;
+                    menuItems[joinModel.Row, joinModel.Column] = new PremadeItemMenuButton(listItems[joinModel.MenuItemID]);
                 }
 
                 Menu menu = new(menuModel.Name, menuItems, menuModel.Rows, menuModel.Columns);
