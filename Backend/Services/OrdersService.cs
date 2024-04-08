@@ -286,7 +286,13 @@ public class OrdersService : IOrdersService {
         if (orderResult.Result != null) return orderResult.Result!;
         Order order = orderResult.Value!;
 
-        if (order.Date.Date == DateTime.Today) return order.OrderNum.HasValue && order.OrderNum.Value != 99 ? order.OrderNum.Value + 1 : 1;
-        else return 1;
+        if (order.Date.Date == DateTime.Today) {
+            if (order.OrderNum.HasValue && order.OrderNum.Value != 99)
+                return order.OrderNum.Value + 1;
+            else
+                return 1;
+        } else {
+            return 1;
+        }
     }
 }

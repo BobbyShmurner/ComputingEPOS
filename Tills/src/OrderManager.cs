@@ -171,6 +171,7 @@ public class OrderManager : INotifyPropertyChanged {
     public decimal SubTotal => Total * 0.8M;
     public decimal Tax => Total * 0.2M;
     public decimal Outstanding => Total - AmountPaid;
+    
     public List<Transaction> Transactions = new List<Transaction>();
 
     public string OutstandingStr => FetchingAmountPaid
