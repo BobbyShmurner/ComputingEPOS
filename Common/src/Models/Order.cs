@@ -4,7 +4,6 @@ using ComputingEPOS.Common.Attributes;
 
 namespace ComputingEPOS.Common.Models;
 
-
 [Table("Orders")]
 public class Order {
 	const int DAY_IN_SECONDS = 24 * 60 * 60;
