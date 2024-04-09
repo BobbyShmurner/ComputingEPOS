@@ -209,7 +209,7 @@ public class OrdersService : IOrdersService {
 
     public async Task<IActionResult> ForceCloseAllChecks() {
         bool success = true;
-        await _context.Orders.ForEachAsync(async x => {
+        await _context.Orders.Where(x => !x.IsClosed).ForEachAsync(async x => {
             if ((await ForceCloseCheck(x.OrderID)).Result != null) success = false;
         });
         
