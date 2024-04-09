@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ComputingEPOS.Models;
+namespace ComputingEPOS.Common.Models;
 
 [Table("Transactions")]
 public class Transaction {

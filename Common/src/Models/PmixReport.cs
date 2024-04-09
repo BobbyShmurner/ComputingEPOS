@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ComputingEPOS.Models;
+namespace ComputingEPOS.Common.Models;
 
 public class PmixReport {
 	public Stock Stock { get; set; } = new Stock();

@@ -9,7 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-using ComputingEPOS.Models;
+using ComputingEPOS.Common.Models;
 
 namespace ComputingEPOS.Tills;
 

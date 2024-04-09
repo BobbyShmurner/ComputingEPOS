@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Models\ComputingEPOS.Models.csproj" />
+    <ProjectReference Include="..\Common\ComputingEPOS.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
 
+namespace ComputingEPOS.Backend.Services;
+
 public class HashService : IHashService {
 	private const int HashSize = 20;
 	private const int HashIter = 10000;

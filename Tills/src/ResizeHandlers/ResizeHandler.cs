@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using ComputingEPOS.Common;
+
 namespace ComputingEPOS.Tills;
 
 public class ResizeHandler(OrderListItemView itemView) : IResizeHandler {

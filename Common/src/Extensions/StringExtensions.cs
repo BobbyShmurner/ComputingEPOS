@@ -1,4 +1,4 @@
-namespace ComputingEPOS.Tills;
+namespace ComputingEPOS.Common;
 
 public static class StringExtensions {
 	public static string TrimStart(this string str, string trimString) {

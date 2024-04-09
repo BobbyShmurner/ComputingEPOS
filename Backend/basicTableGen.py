@@ -2,7 +2,7 @@ import os
 
 SERVICE_INTERFACE_TEMPLATE = [
 	"using Microsoft.AspNetCore.Mvc;",
-	"using ComputingEPOS.Models;",
+	"using ComputingEPOS.Common;",
 	"",
 	"namespace ComputingEPOS.Backend.Services;",
 	"",
@@ -28,7 +28,7 @@ SERVICE_TEMPLATE = [
 	"using Microsoft.AspNetCore.Http;",
 	"using Microsoft.AspNetCore.Mvc;",
 	"using Microsoft.EntityFrameworkCore;",
-	"using ComputingEPOS.Models;",
+	"using ComputingEPOS.Common;",
 	"using Microsoft.AspNetCore.Mvc.ModelBinding;",
 	"",
 	"namespace ComputingEPOS.Backend.Services;",
@@ -88,7 +88,7 @@ CONTROLLER_TEMPLATE = [
 	"using Microsoft.AspNetCore.Http;",
 	"using Microsoft.AspNetCore.Mvc;",
 	"using Microsoft.EntityFrameworkCore;",
-	"using ComputingEPOS.Models;",
+	"using ComputingEPOS.Common;",
 	"using ComputingEPOS.Backend.Services;",
 	"using System.ComponentModel.DataAnnotations;",
 	"",

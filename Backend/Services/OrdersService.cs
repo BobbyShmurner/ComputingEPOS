@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ComputingEPOS.Models;
-using ComputingEPOS.Backend.Results;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Text.Json;
+
+using ComputingEPOS.Common;
+using ComputingEPOS.Common.Models;
+using ComputingEPOS.Backend.Results;
 
 namespace ComputingEPOS.Backend.Services;
 

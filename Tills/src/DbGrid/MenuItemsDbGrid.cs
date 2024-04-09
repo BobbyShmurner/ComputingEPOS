@@ -1,13 +1,15 @@
-﻿using ComputingEPOS.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
+using ComputingEPOS.Common;
+using ComputingEPOS.Common.Models;
+using MenuItem = ComputingEPOS.Common.Models.MenuItem;
+
 namespace ComputingEPOS.Tills;
-using MenuItem = ComputingEPOS.Models.MenuItem;
 
 public class MenuItemsDbGrid : DbGrid<MenuItemInfo> {
     public override string Title => "Menu Items";
