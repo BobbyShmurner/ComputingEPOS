@@ -90,6 +90,7 @@ public class ComboHandler : IComboHandler {
 
         var itemClone = MainItemView.Item.Clone();
         IsCombo = false;
+        
         await manager.ReplaceOrderItem(RootItemView, itemClone);
 
         if (ogSize != null) await ResetSizeToOg(ogSize.Value, manager);

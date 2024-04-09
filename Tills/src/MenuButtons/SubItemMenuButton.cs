@@ -13,7 +13,7 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 
-public class SubItemMenuButton : PremadeItemMenuButton {
+public class SubItemMenuButton : MenuItemMenuButton {
     public SubItemMenuButton(OrderListItem item, string? displayText = null) : base(item, displayText) { }
 
     protected override Button PostCreateButton(Button button, MenuView menu) {

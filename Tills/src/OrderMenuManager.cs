@@ -93,8 +93,8 @@ public class OrderMenuManager {
                 MenuButton[,] menuItems = new MenuButton[rows, columns];
 
                 foreach (var joinModel in joinModels) {
-                    if (!listItems.ContainsKey(joinModel.MenuItemID)) continue;
-                    menuItems[joinModel.Row, joinModel.Column] = new PremadeItemMenuButton(listItems[joinModel.MenuItemID]);
+                    if (!listItmes.ContainsKey(joinModel.MenuItemID)) continue;
+                    menuItems[joinModel.Row, joinModel.Column] = new MenuItemMenuButton(listItmes[joinModel.MenuItemID]);
                 }
 
                 Menu menu = new(menuModel.Name, menuItems, menuModel.Rows, menuModel.Columns);
@@ -136,10 +136,10 @@ public class OrderMenuManager {
         var chickenNuggets20 = chickenNuggets9.NewFrom("20 Chick Nuggs", 27, 2M);
 
         MenuButton[,] burgerMenuItems = {
-            { new PremadeItemMenuButton(burgerItem),              new PremadeItemMenuButton(doubleBurgerItem),              new PremadeItemMenuButton(chickenBurgerItem),             new PremadeItemMenuButton(hawaiianBurgerItem) },
-            { new PremadeItemMenuButton(cheeseBurgerItem),        new PremadeItemMenuButton(doubleCheeseBurgerItem),        new PremadeItemMenuButton(chickenCheeseBurgerItem),       new PremadeItemMenuButton(tacoBurgerItem) },
-            { new PremadeItemMenuButton(baconBurgerItem),         new PremadeItemMenuButton(doubleBaconBurgerItem),         new PremadeItemMenuButton(chickenBaconBurgerItem),        new PremadeItemMenuButton(sloppyBurgerItem) },
-            { new PremadeItemMenuButton(baconCheeseBurgerItem),   new PremadeItemMenuButton(doubleBaconCheeseBurgerItem),   new PremadeItemMenuButton(chickenBaconCheeseBurgerItem),  new PremadeItemMenuButton(slawBurgerItem) },
+            { new MenuItemMenuButton(burgerItem),              new MenuItemMenuButton(doubleBurgerItem),              new MenuItemMenuButton(chickenBurgerItem),             new MenuItemMenuButton(hawaiianBurgerItem) },
+            { new MenuItemMenuButton(cheeseBurgerItem),        new MenuItemMenuButton(doubleCheeseBurgerItem),        new MenuItemMenuButton(chickenCheeseBurgerItem),       new MenuItemMenuButton(tacoBurgerItem) },
+            { new MenuItemMenuButton(baconBurgerItem),         new MenuItemMenuButton(doubleBaconBurgerItem),         new MenuItemMenuButton(chickenBaconBurgerItem),        new MenuItemMenuButton(sloppyBurgerItem) },
+            { new MenuItemMenuButton(baconCheeseBurgerItem),   new MenuItemMenuButton(doubleBaconCheeseBurgerItem),   new MenuItemMenuButton(chickenBaconCheeseBurgerItem),  new MenuItemMenuButton(slawBurgerItem) },
         };
 
         Menu burgerMenu = new("Burgers", burgerMenuItems, 4, 4);
@@ -148,10 +148,10 @@ public class OrderMenuManager {
         // Chicken Menu
 
         MenuButton[,] chickenMenuItems = {
-            { new PremadeItemMenuButton(chickenBurgerItem),             new PremadeItemMenuButton(chickenNuggets4), },
-            { new PremadeItemMenuButton(chickenCheeseBurgerItem),       new PremadeItemMenuButton(chickenNuggets6), },
-            { new PremadeItemMenuButton(chickenBaconBurgerItem),        new PremadeItemMenuButton(chickenNuggets9), },
-            { new PremadeItemMenuButton(chickenBaconCheeseBurgerItem),  new PremadeItemMenuButton(chickenNuggets20), },
+            { new MenuItemMenuButton(chickenBurgerItem),             new MenuItemMenuButton(chickenNuggets4), },
+            { new MenuItemMenuButton(chickenCheeseBurgerItem),       new MenuItemMenuButton(chickenNuggets6), },
+            { new MenuItemMenuButton(chickenBaconBurgerItem),        new MenuItemMenuButton(chickenNuggets9), },
+            { new MenuItemMenuButton(chickenBaconCheeseBurgerItem),  new MenuItemMenuButton(chickenNuggets20), },
         };
 
         menuManager.CreateMenu("Chicken", chickenMenuItems, 4, 4);
@@ -159,10 +159,10 @@ public class OrderMenuManager {
         // Drinks Menu
 
         MenuButton[,] drinkMenuItems = {
-            { new PremadeItemMenuButton(chickenBurgerItem),            },
-            { new PremadeItemMenuButton(chickenCheeseBurgerItem),      },
-            { new PremadeItemMenuButton(chickenBaconBurgerItem),       },
-            { new PremadeItemMenuButton(chickenBaconCheeseBurgerItem), },
+            { new MenuItemMenuButton(chickenBurgerItem),            },
+            { new MenuItemMenuButton(chickenCheeseBurgerItem),      },
+            { new MenuItemMenuButton(chickenBaconBurgerItem),       },
+            { new MenuItemMenuButton(chickenBaconCheeseBurgerItem), },
         };
 
         menuManager.CreateMenu("Drinks", drinkMenuItems, 4, 4);
@@ -170,10 +170,10 @@ public class OrderMenuManager {
         // Sides Menu
 
         MenuButton[,] sidesMenuItems = {
-            { new PremadeItemMenuButton(chickenBurgerItem),            },
-            { new PremadeItemMenuButton(chickenCheeseBurgerItem),      },
-            { new PremadeItemMenuButton(chickenBaconBurgerItem),       },
-            { new PremadeItemMenuButton(chickenBaconCheeseBurgerItem), },
+            { new MenuItemMenuButton(chickenBurgerItem),            },
+            { new MenuItemMenuButton(chickenCheeseBurgerItem),      },
+            { new MenuItemMenuButton(chickenBaconBurgerItem),       },
+            { new MenuItemMenuButton(chickenBaconCheeseBurgerItem), },
         };
 
         menuManager.CreateMenu("Sides", sidesMenuItems, 4, 4);
@@ -293,8 +293,7 @@ public class OrderMenuManager {
         UIDispatcher.EnqueueOnUIThread(() => MenuViewManager.ShowView(KeypadView));
     }
 
-    void SetItemButton(int row, int column, MenuButton item)
-    {
+    void SetItemButton(int row, int column, MenuButton item) {
         if (row >= Rows) throw new IndexOutOfRangeException();
         if (column >= Columns) throw new IndexOutOfRangeException();
 
