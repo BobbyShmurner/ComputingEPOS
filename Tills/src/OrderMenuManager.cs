@@ -93,8 +93,8 @@ public class OrderMenuManager {
                 MenuButton[,] menuItems = new MenuButton[rows, columns];
 
                 foreach (var joinModel in joinModels) {
-                    if (!listItmes.ContainsKey(joinModel.MenuItemID)) continue;
-                    menuItems[joinModel.Row, joinModel.Column] = new MenuItemMenuButton(listItmes[joinModel.MenuItemID]);
+                    if (!listItems.ContainsKey(joinModel.MenuItemID)) continue;
+                    menuItems[joinModel.Row, joinModel.Column] = new MenuItemMenuButton(listItems[joinModel.MenuItemID]);
                 }
 
                 Menu menu = new(menuModel.Name, menuItems, menuModel.Rows, menuModel.Columns);
