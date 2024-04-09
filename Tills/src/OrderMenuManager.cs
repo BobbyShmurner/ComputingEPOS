@@ -205,27 +205,26 @@ public class OrderMenuManager {
         }
     }
 
-    public Menu CreateMenu(string name, MenuButton[,] items, int? rows = null, int? columns = null)
-    {
+    public Menu CreateMenu(string name, MenuButton[,] items, int? rows = null, int? columns = null) {
         Menu menu = new(name, items, rows, columns);
         RegisterMenu(menu);
 
         return menu;
     }
 
-    public void RegisterMenu(Menu menu) 
-    {
+    public void RegisterMenu(Menu menu) {
         if (RegisteredMenus.Contains(menu)) return;
         RegisteredMenus.Add(menu);
 
-        TextBlock textBlock = new TextBlock();
-        textBlock.Text = menu.Name;
+        TextBlock textBlock = new TextBlock() {
+            Text = menu.Name
+        };
 
         Button button = new() {
             Content = textBlock
         };
-        button.Click += (_, _) =>
-        {
+
+        button.Click += (_, _) => {
             ShowMenu(menu);
             UIDispatcher.UpdateUI();
         };
@@ -274,16 +273,14 @@ public class OrderMenuManager {
     public void ShowFirstMenu() =>
         ShowMenu(RegisteredMenus.FirstOrDefault());
 
-    public void ShowPaymentScreen()
-    {
+    public void ShowPaymentScreen() {
         UIDispatcher.EnqueueOnUIThread(() => {
             MenuViewManager.ShowView(PaymentView);
             OnShowPaymentScreen?.Invoke();
         });
     }
 
-    public void ShowFunctionsScreen()
-    {
+    public void ShowFunctionsScreen() {
         UIDispatcher.EnqueueOnUIThread(() => {
             MenuViewManager.ShowView(FunctionsView);
         });

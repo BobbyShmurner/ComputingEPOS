@@ -18,15 +18,16 @@ namespace ComputingEPOS.Tills;
 /// <summary>
 /// Interaction logic for Keypad.xaml
 /// </summary>
-public partial class Keypad : UserControl
-{
+public partial class Keypad : UserControl {
     public event EventHandler<int>? NumPressed;
     public event EventHandler? Confirm;
     public event EventHandler? Clear;
 
-    public static readonly DependencyProperty ValueProperty = DependencyProperty.RegisterAttached("Value", typeof(int), typeof(Keypad), new FrameworkPropertyMetadata(0));
-    public int Value
-    {
+    public static readonly DependencyProperty ValueProperty = DependencyProperty.RegisterAttached(
+        "Value", typeof(int), typeof(Keypad), new FrameworkPropertyMetadata(0)
+    );
+
+    public int Value {
         get => (int)GetValue(ValueProperty);
         set => SetValue(ValueProperty, value);
     }

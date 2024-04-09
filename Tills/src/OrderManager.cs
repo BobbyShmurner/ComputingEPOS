@@ -215,7 +215,7 @@ public class OrderManager : INotifyPropertyChanged {
     }
 
     public async Task NextOrder() {
-        await DeleteAllItems(false);
+        await DeleteAllItems(removeFromDB: false);
 
         while (true) {
             try {
