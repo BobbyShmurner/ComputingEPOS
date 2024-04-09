@@ -13,12 +13,6 @@ public class ResizeHandler(OrderListItemView itemView) : IResizeHandler {
     }
 
     public async Task<OrderListItemView> Resize(OrderManager manager, bool upsize) {
-        // if (itemView.Parent != null && (itemView.Parent.ComboHandler?.IsCombo ?? false)) {
-        //     itemView = itemView.Parent;
-        //     return await Resize(manager, upsize);
-        // }
-
-
         if (!(itemView.ComboHandler?.IsCombo ?? false)) {
             return await ResizeItem(manager, itemView, upsize);
         }
@@ -45,18 +39,15 @@ public class ResizeHandler(OrderListItemView itemView) : IResizeHandler {
 
     string GetNewName(string name, ItemSize newSize) {
         string trimmedName = name.TrimStart("Small ").TrimStart("Large ");
+        
         switch (newSize) {
             case ItemSize.Small:
-                trimmedName = $"Small {trimmedName}";
-                break;
+                return $"Small {trimmedName}";
             case ItemSize.Large:
-                trimmedName = $"Large {trimmedName}";
-                break;
+                return $"Large {trimmedName}";
             default:
-                break;
+                return trimmedName;
         }
-
-        return trimmedName;
     }
 
     decimal GetPriceDelta(ItemSize size, bool upsize) =>

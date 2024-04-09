@@ -13,7 +13,6 @@ using System.Windows.Media;
 
 namespace ComputingEPOS.Tills;
 
-
 public abstract class MenuButton
 {
     public string DisplayText { get; protected set; }

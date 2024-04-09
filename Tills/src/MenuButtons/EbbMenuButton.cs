@@ -13,7 +13,7 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 
-public class EbbMenuButton : PremadeItemMenuButton
+public class EbbMenuButton : MenuItemMenuButton
 {
     public double FontSize { get; private set; }
 

@@ -13,17 +13,15 @@ using System.Windows.Media;
 namespace ComputingEPOS.Tills;
 
 
-public class PremadeItemMenuButton : MenuButton
-{
+public class MenuItemMenuButton : MenuButton {
     public OrderListItem Item { get; protected set; }
 
-    public PremadeItemMenuButton(OrderListItem item, string? displayText = null)
+    public MenuItemMenuButton(OrderListItem item, string? displayText = null)
         : base(displayText ?? item.Text) {
         Item = item;
     }
 
-    protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu)
-    {
+    protected override void OnClick(object sender, RoutedEventArgs e, MenuView menu) {
         UIDispatcher.EnqueueUIAction(async () => {
             var view = await menu.OrderManager.AddOrderItem(Item);
             UIDispatcher.UpdateUI();

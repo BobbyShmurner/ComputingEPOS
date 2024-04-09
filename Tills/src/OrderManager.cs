@@ -19,8 +19,7 @@ using static ComputingEPOS.Models.Transaction;
 
 namespace ComputingEPOS.Tills;
 
-public enum CheckoutType
-{
+public enum CheckoutType {
     SitIn,
     TakeAway
 }
@@ -31,12 +30,9 @@ public enum ItemSize {
     Large
 }
 
-public static class CheckoutTypeExtensions
-{
-    public static string ToPrettyString(this CheckoutType checkoutType)
-    {
-        switch (checkoutType)
-        {
+public static class CheckoutTypeExtensions {
+    public static string ToPrettyString(this CheckoutType checkoutType) {
+        switch (checkoutType) {
             case CheckoutType.SitIn: return "Sit In";
             case CheckoutType.TakeAway: return "Take Away";
             default: return checkoutType.ToString();
@@ -171,7 +167,7 @@ public class OrderManager : INotifyPropertyChanged {
     public decimal SubTotal => Total * 0.8M;
     public decimal Tax => Total * 0.2M;
     public decimal Outstanding => Total - AmountPaid;
-    
+
     public List<Transaction> Transactions = new List<Transaction>();
 
     public string OutstandingStr => FetchingAmountPaid
