@@ -164,11 +164,11 @@ class StandalonePicture:
 
 if __name__ == "__main__":
 	def on_release(key):
-		if key == Key.pause:
+		if key == Key.num_lock:
 			return False
 
 	while True:
-		print("Press Pause Break To Start Editing")
+		print("Press Num Lock To Start Editing")
 
 		with Listener(on_release=on_release) as listener:
 			listener.join()

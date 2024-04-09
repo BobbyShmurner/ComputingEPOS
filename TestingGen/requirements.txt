@@ -2,4 +2,5 @@ opencv-python
 python-docx
 pywin32
 Pillow
+pynput
 numpy
