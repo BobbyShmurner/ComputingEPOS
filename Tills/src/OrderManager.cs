@@ -315,6 +315,7 @@ public class OrderManager : INotifyPropertyChanged {
 
             return newItem;
         } catch {
+            // Add the original item back if the new one fails to add
             await AddOrderItem(toReplace.Item, parent, index);
             throw;
         }
