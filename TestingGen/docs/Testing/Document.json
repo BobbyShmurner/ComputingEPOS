@@ -956,6 +956,189 @@
                         {
                             "type": "Paragraph",
                             "text": "The software crashed after repeatidly pressing the 9 button."
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "The reasoning for this appears to be caused by an integer overflow. If the value entered onto the keypad becomes too big, the interger will overflow, causing a crash"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 52,
+                            "rects": []
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "A simple fix would be to use a string to strore the entered value, instead of an integer:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 53,
+                            "rects": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "TestList",
+            "title": "Database Management",
+            "description": "A crutial piece of this software is the ability for the Manager to be able to perform CRUD opperations on the database. These tests will focus on ensuring all CRUD opperations work as expected, and no data becomes corrupted or invalidated.",
+            "tests": [
+                {
+                    "type": "Test",
+                    "title": "Changing an Employee's Name",
+                    "passed": false,
+                    "description": "While uncommon, there are situations where an employee may wish to change their name (E.g. after marriage). In such cases, Employees should be allowed to change their names on the database system.",
+                    "expected_output": "After changing an employee's name, their new name should appear at the bottom of the till software when logged in.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "For this test, we will be changing \"Ian Fern\"'s name to \"Ian Smith\"."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 55,
+                            "rects": [],
+                            "shade": [
+                                1,
+                                77,
+                                1152,
+                                111
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "After changing Ian's name, I was unable to loggin with their pin. At first I assumed I had forgotten their pin, but after testing again with a new pin, the same issue occured"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 56,
+                            "rects": []
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "I believe this is due to the Pin Hasing Algorithm creating the Salt from the Employee's name:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 57,
+                            "rects": [
+                                [
+                                    38,
+                                    25,
+                                    471,
+                                    42
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "Once an employee's name has been updated, passing the correct pin through the hasing algorithm will result in a different hash than the one stored in the database, because the input salt was different."
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "Possible solutions include storing the salt in the database along with the employee, updating the employee's pin hash if their name changes, or change how the salt is generated. A simple solution would be to use the employee's EmployeeID as the salt, as this will never change."
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Sorting Data By Column",
+                    "passed": false,
+                    "description": "Like most software that displays some form of spreadsheet, users can sort rows by values in a specific column.",
+                    "expected_output": "When clicking on a column header, the rows should be sorted by the values in the respective column",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "For this test, I will be sorting the Stock by Quantity. Currently, it is sorted by StockID:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 58,
+                            "rects": [
+                                [
+                                    15,
+                                    16,
+                                    116,
+                                    450
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "While the rows were correctly sorted, there is now a discrepancy between the selected row, and the values displayed in the Update Fields:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 59,
+                            "rects": [
+                                [
+                                    8,
+                                    157,
+                                    1113,
+                                    202
+                                ],
+                                [
+                                    21,
+                                    542,
+                                    1142,
+                                    610
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "This is almost certainly due to \"Data\" Field not also being sorted by the Data Grid when the rows are resorted:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 60,
+                            "rects": []
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "This seems to be a flaw with the WPF DataGrid. A possible solution would be to sort the list manualy when the data grid is sorted."
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "After taking a look at the documentation for the DataGrid, I found the \"OnSorting\" event that fires when a grid is resorted:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 61,
+                            "rects": [],
+                            "shade": [
+                                0,
+                                111,
+                                557,
+                                154
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "According to the documentation, a data grid simply calls the default sorting method on the column. When this event fires, our custom grid could also call the default sorting method on the column."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 62,
+                            "rects": [
+                                [
+                                    8,
+                                    593,
+                                    821,
+                                    722
+                                ]
+                            ],
+                            "shade": [
+                                9,
+                                594,
+                                820,
+                                719
+                            ]
                         }
                     ]
                 }
