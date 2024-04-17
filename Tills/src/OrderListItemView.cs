@@ -23,8 +23,8 @@ public class OrderListItemView {
     public MenuView Menu { get; private set; }
     public List<OrderListItemView> Children { get; private set; } = new();
     public OrderListItemView? Parent { get; private set; }
-    public OrderListItemView? RootParent
-    {  get {
+    public OrderListItemView? RootParent {
+        get {
             if (Parent == null) return null;
             if (Manager.RootItems.Contains(Parent)) return Parent;
             return Parent.RootParent;
@@ -35,10 +35,8 @@ public class OrderListItemView {
         Children.SelectMany(c => c.AllChildren.Prepend(c))
         .ToList();
 
-    public int Index
-    {
-        get
-        {
+    public int Index {
+        get {
             if (Parent == null) {
                 int? index = null;
 
@@ -87,22 +85,17 @@ public class OrderListItemView {
     public bool Selected
     {
         get => m_Selected;
-        set
-        {
+        set {
             m_Selected = value;
 
-            UIDispatcher.EnqueueOnUIThread(() =>
-            {
+            UIDispatcher.EnqueueOnUIThread(() =>  {
                 if (border == null || stackPanel == null) return;
                 
-                if (m_Selected)
-                {
+                if (m_Selected) {
                     border.Background = Brushes.LightGray;
                     border.BorderThickness = new Thickness(0, 1, 0, 1);
                     stackPanel.Margin = new Thickness(0, -1, 0, -1);
-                }
-                else
-                {
+                } else {
                     border.Background = Brushes.Transparent;
                     border.BorderThickness = new Thickness(0);
                     stackPanel.Margin = new Thickness(0);
@@ -170,8 +163,7 @@ public class OrderListItemView {
         });
     }
 
-    void OnMouseDown(object sender, MouseButtonEventArgs e)
-    {
+    void OnMouseDown(object sender, MouseButtonEventArgs e) {
         if (!Selected) Manager.SelectItem(this);
         else Manager.DeselectItem();
 
@@ -188,8 +180,7 @@ public class OrderListItemView {
         });
     }
 
-    public void RecursivlyHideBorder()
-    {
+    public void RecursivlyHideBorder() {
         Selected = false;
         Children.ForEach(c => c.RecursivlyHideBorder());
     }

@@ -35,8 +35,7 @@ public class SalesReportGrid : ReportGrid<SalesReportData> {
     }
 
     protected override List<DataGridColumnInfo> GetColumnInfo(TimeInterval interval) {
-        return new List<DataGridColumnInfo>
-        {
+        return new List<DataGridColumnInfo> {
             new("Date", nameof(SalesReportData.DateString)),
             new("Net", nameof(SalesReportData.Net), "£{0:n2}"),
             new("Gross", nameof(SalesReportData.Gross), "£{0:n2}"),
