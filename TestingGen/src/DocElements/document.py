@@ -54,22 +54,29 @@ class Document(IDocElement):
 		return cls(elements, font, font_size)
 	
 	def serialize_to_disk(self):
-		path = self.context.get_content_path("Document.json")
-		os.makedirs(os.path.dirname(path), exist_ok=True)
+		while True:
+			try:
+				path = self.context.get_content_path("Document.json")
+				os.makedirs(os.path.dirname(path), exist_ok=True)
 
-		back = ""
-		if os.path.exists(path):
-			with open(path, "r+") as file:
-				back = file.read()
+				back = ""
+				if os.path.exists(path):
+					with open(path, "r+") as file:
+						back = file.read()
 
-		try:
-			with open(path, "w+") as file:
-				file.write(json.dumps(self.serialize(), indent=4))
-		except:
-			with open(path, "w+") as file:
-				file.write(back)
+				try:
+					with open(path, "w+") as file:
+						file.write(json.dumps(self.serialize(), indent=4))
+				except:
+					with open(path, "w+") as file:
+						file.write(back)
 
-			raise	
+					raise
+
+				break
+			except Exception as e:
+				print(e)
+				print("\nException occured during saving, retrying...")
 
 	@classmethod
 	def deserialize_from_disk(cls) -> 'Document':

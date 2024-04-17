@@ -79,7 +79,7 @@ class TestList(IDocElement):
 			return instance
 	
 	def edit(self):
-		with PathTree("Test List"):
+		with PathTree(str(self)):
 			PathTree.cls()
 			status = "Please select an option to edit:"
 

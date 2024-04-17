@@ -26,7 +26,7 @@ def main():
 		doc = Document.wizard(assign_context = True)
 
 	cls()
-
+	
 	print("Saving To Disk...")
 	doc.serialize_to_disk()
 
