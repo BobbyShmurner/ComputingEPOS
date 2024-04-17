@@ -40,4 +40,13 @@ class Context:
 		"""Returns the absolute path of the content"""
 
 		return os.path.join(self.project_path, content_path)
+	
+	def assign_document(self, doc):
+		self.doc = doc
+
+	def save_document(self):
+		try:
+			self.doc.serialize_to_disk()
+		except Exception as e:
+			pass
 		

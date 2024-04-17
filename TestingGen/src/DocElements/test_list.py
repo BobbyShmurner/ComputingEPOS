@@ -18,6 +18,8 @@ class TestList(IDocElement):
 		self.title = title
 		self.description = description
 		self.tests = tests
+
+		super().save_document()
 		
 
 	def serialize(self) -> dict:
@@ -67,8 +69,14 @@ class TestList(IDocElement):
 			description = answers[1].strip()
 			tests = []
 
+			instance = cls(title, description, tests)
+
 			ElementWizard.add_wizard(tests, ["Test"], status="Add a test?", cancel_option="Back")
-			return cls(title, description, tests)
+
+			instance.tests = tests
+			instance.save_document()
+			
+			return instance
 	
 	def edit(self):
 		with PathTree("Test List"):

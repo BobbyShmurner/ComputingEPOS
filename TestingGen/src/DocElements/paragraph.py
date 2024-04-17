@@ -16,6 +16,8 @@ class Paragraph(IDocElement):
 		self.font = font
 		self.font_size = font_size
 		self.font_color = font_color
+
+		super().save_document()
 		
 
 	def serialize(self) -> dict:

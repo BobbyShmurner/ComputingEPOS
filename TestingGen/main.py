@@ -4,6 +4,8 @@ import os
 from src.DocElements.document import Document
 from src.context import Context
 
+from src.cancelable_input import CancelableInput
+
 def cls():
 	os.system("cls")
 
@@ -17,9 +19,11 @@ def main():
 
 	if os.path.exists(os.path.join(path, "Document.json")):
 		doc = Document.deserialize_from_disk()
+		Context._instance.assign_document(doc)
+		
 		doc.edit()
 	else:
-		doc = Document.wizard()
+		doc = Document.wizard(assign_context = True)
 
 	cls()
 

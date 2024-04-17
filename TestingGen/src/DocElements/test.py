@@ -9,6 +9,7 @@ from docx.shared import RGBColor
 from docx.document import Document as DocumentType
 
 from src.cancelable_input import CancelableInput
+from src.context import Context
 
 class Test(IDocElement):
 	allowed_elements = ["Paragraph", "Picture", "Screenshot"]
@@ -22,6 +23,8 @@ class Test(IDocElement):
 		self.expected_output = expected_output
 		self.prefix_elements = prefix_elements
 		self.suffix_elements = suffix_elements
+
+		super().save_document()
 
 	def serialize(self) -> dict:
 		data = {
@@ -127,16 +130,23 @@ class Test(IDocElement):
 			prefix_elements = [] if answers[3].strip().lower() == "y" else None
 			suffix_elements = [] if answers[4].strip().lower() == "y" else None
 
+			instance = cls(title, passed, description, expected_output, prefix_elements, suffix_elements)
+
 			if prefix_elements != None:
 				ElementWizard.add_wizard(prefix_elements, cls.allowed_elements, status="Please select a prefix element to add:", cancel_option="Back", path_name="Add Prefix")
+				instance.prefix_elements = prefix_elements
+				instance.save_document()
 
 			if suffix_elements != None:
 				ElementWizard.add_wizard(suffix_elements, cls.allowed_elements, status="Please select a suffix element to add:", cancel_option="Back", path_name="Add Suffix")
+				instance.suffix_elements = suffix_elements
+				instance.save_document()
 
 			PathTree.cls()
 			passed = CancelableInput.input("Passed (y/n): ").strip().lower() == "y"
+			instance.passed = passed
 
-			return cls(title, passed, description, expected_output, prefix_elements, suffix_elements)
+			return instance
 	
 	def edit(self):
 		with PathTree("Test"):

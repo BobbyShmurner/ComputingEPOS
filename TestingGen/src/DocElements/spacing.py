@@ -11,6 +11,8 @@ class Spacing(IDocElement):
 		super().__init__()
 
 		self.lines = lines
+
+		super().save_document()
 		
 
 	def serialize(self) -> dict:

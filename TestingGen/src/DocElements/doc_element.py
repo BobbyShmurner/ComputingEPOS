@@ -10,6 +10,10 @@ class IDocElement:
 
 	def __init__(self) -> None:
 		self.context = Context._instance
+
+	@staticmethod
+	def save_document():
+		Context._instance.save_document()
 		
 	@classmethod
 	def register_type(cls):

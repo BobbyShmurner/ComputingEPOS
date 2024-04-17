@@ -33,6 +33,8 @@ class Picture(IDocElement):
 		self.rects = rects
 		self.shade = shade
 
+		super().save_document()
+
 	def serialize(self) -> dict:
 		data = {
 			"type": self.get_type(),

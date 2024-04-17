@@ -112,10 +112,11 @@ class Document(IDocElement):
 		doc.save(path)
 
 	@classmethod
-	def wizard(cls) -> Optional['Document']:
+	def wizard(cls, assign_context: bool) -> Optional['Document']:
 		PathTree.cls()
 
 		doc = cls()
+		if assign_context: Context._instance.assign_document(doc)
 		doc.edit()
 
 		return doc
