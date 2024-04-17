@@ -1,5 +1,4 @@
-﻿using ComputingEPOS.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -15,7 +14,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Resources;
 using System.Windows.Threading;
-using static ComputingEPOS.Models.Transaction;
+
+using ComputingEPOS.Common;
+using ComputingEPOS.Common.Models;
+using static ComputingEPOS.Common.Models.Transaction;
 
 namespace ComputingEPOS.Tills;
 
@@ -313,6 +315,7 @@ public class OrderManager : INotifyPropertyChanged {
 
             return newItem;
         } catch {
+            // Add the original item back if the new one fails to add
             await AddOrderItem(toReplace.Item, parent, index);
             throw;
         }

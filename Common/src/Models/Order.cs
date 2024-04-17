@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using ComputingEPOS.Attributes;
+using ComputingEPOS.Common.Attributes;
 
-namespace ComputingEPOS.Models;
-
+namespace ComputingEPOS.Common.Models;
 
 [Table("Orders")]
 public class Order {

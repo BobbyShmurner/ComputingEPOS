@@ -7,11 +7,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-using ComputingEPOS.Models;
+using ComputingEPOS.Common;
 
 namespace ComputingEPOS.Tills.Api;
 
-using Menu = ComputingEPOS.Models.Menu;
+using Menu = ComputingEPOS.Common.Models.Menu;
 
 public static class Menus {
     public static async Task<List<Menu>> GetMenus(bool? visible = null)

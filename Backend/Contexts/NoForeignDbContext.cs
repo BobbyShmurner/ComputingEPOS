@@ -1,7 +1,7 @@
-using ComputingEPOS.Models;
+using ComputingEPOS.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace ComputingEPOS.Models;
+namespace ComputingEPOS.Common;
 
 public class NoForeignDbContext : BaseDbContext  {
     const string CONNECTION_STR = "Filename=data/main.db;foreign keys=false;";

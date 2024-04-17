@@ -9,6 +9,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
+using ComputingEPOS.Common.Models;
+using Models = ComputingEPOS.Common.Models;
 namespace ComputingEPOS.Tills;
 
 public class OrderMenuManager {

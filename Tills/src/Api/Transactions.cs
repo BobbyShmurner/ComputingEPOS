@@ -7,8 +7,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-using ComputingEPOS.Models;
-using static ComputingEPOS.Models.Transaction;
+using ComputingEPOS.Common.Models;
+using static ComputingEPOS.Common.Models.Transaction;
 
 namespace ComputingEPOS.Tills.Api;
 

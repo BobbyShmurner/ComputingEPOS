@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Data;
 
+using ComputingEPOS.Common;
+
 namespace ComputingEPOS.Tills;
 
 public abstract class DbGrid<T> : IDbGrid where T : class, ICopyable<T>, new() {

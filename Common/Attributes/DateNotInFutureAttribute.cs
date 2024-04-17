@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ComputingEPOS.Attributes;
+namespace ComputingEPOS.Common.Attributes;
 
 public class DateNotInFutureAttribute : CompareToBaseAttribute {
     public override ComparisonOperator ComparisonOperator => ComparisonOperator.LessThanOrEqual;

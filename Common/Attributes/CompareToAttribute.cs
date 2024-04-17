@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace ComputingEPOS.Attributes;
+namespace ComputingEPOS.Common.Attributes;
 
 public class CompareToAttribute : CompareToBaseAttribute {
     public CompareToAttribute(string propertyToCompare, ComparisonOperator comparisonOperator) {
