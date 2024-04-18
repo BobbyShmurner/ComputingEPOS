@@ -27,6 +27,10 @@ namespace ComputingEPOS.Tills {
         public TimeDisplay Time { get; private set; }
         public ViewManager RootViewManager { get; private set; }
 
+        public static readonly DependencyProperty TillNumberDependecyProperty = DependencyProperty.Register(
+            "TillNumber", typeof(int), typeof(MainWindow), new PropertyMetadata(App.Options.TillNumber)
+        );
+
         #pragma warning disable CS8618
         public static MainWindow Instance;
         #pragma warning restore CS8618

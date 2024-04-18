@@ -1,1 +1,1 @@
-dotnet run --project "$PSScriptRoot/Tills/ComputingEPOS.Tills.csproj"
+Invoke-Expression "dotnet run --project `"$PSScriptRoot/Tills/ComputingEPOS.Tills.csproj`" -- $args"
