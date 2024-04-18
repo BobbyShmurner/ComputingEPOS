@@ -109,13 +109,13 @@ class Test(IDocElement):
 		with PathTree("Test"):
 			PathTree.cls()
 
-			answers = CancelableInput.input_chain([
+			answers = CancelableInput.input_chain(
 				"Test Title: ",
 				"Description: ",
 				"Expected Output: ",
 				"Add prefix element? (y/n): ",
 				"Add suffix element? (y/n): ",
-			])
+			)
 
 			if not answers: return None
 

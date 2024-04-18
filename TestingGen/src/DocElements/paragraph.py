@@ -3,10 +3,12 @@ from typing import Optional
 from src.cancelable_input import CancelableInput
 from src.path_tree import PathTree
 from .doc_element import IDocElement
-
 from docx.document import Document as DocumentType
 from docx.shared import RGBColor
+from docx.oxml.ns import qn
 from docx.shared import Pt
+
+from lxml.etree import Element
 
 class Paragraph(IDocElement):
 	def __init__(self, text: str, font: str = None, font_size: Optional[int] = None, font_color: Optional[list[int]] = None):
@@ -47,7 +49,8 @@ class Paragraph(IDocElement):
 		return cls(text, font, font_size, font_color)
 	
 	def doc_gen(self, doc: DocumentType):
-		run = doc.add_paragraph().add_run(self.text)
+		p = doc.add_paragraph()
+		run = p.add_run(self.text)
 
 		if self.font:
 			run.font.name = self.font
@@ -57,6 +60,8 @@ class Paragraph(IDocElement):
 
 		if self.font_color:
 			run.font.color.rgb = RGBColor(*self.font_color)
+
+		# run._element.insert(0, Element(qn("w:lastRenderedPageBreak")))
 		
 
 	@classmethod
@@ -65,7 +70,7 @@ class Paragraph(IDocElement):
 			PathTree.cls()
 
 			out = CancelableInput.input("Enter paragraph text: ")
-			if not out:
+			if out == None:
 				return None
 
 			return Paragraph(out)

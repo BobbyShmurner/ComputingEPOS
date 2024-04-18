@@ -15,17 +15,18 @@ class CancelableInput:
 
 	@classmethod
 	def input(cls, prompt: Optional[str], ans: Optional[str] = None) -> Optional[str]:
-		keys = []
+		if ans != None:
+			keys = []
 
-		for c in str(ans):
-			evt = win32console.PyINPUT_RECORDType(win32console.KEY_EVENT)
-			evt.Char = c
-			evt.RepeatCount = 1
-			evt.KeyDown = True
+			for c in str(ans):
+				evt = win32console.PyINPUT_RECORDType(win32console.KEY_EVENT)
+				evt.Char = c
+				evt.RepeatCount = 1
+				evt.KeyDown = True
 
-			keys.append(evt)
+				keys.append(evt)
 
-		cls.__stdin.WriteConsoleInput(keys)
+			cls.__stdin.WriteConsoleInput(keys)
 
 		try:
 			return input(prompt)
@@ -174,7 +175,7 @@ class CancelableInput:
 # 						pass
 
 	@staticmethod
-	def input_chain(prompts: list[str]) -> Optional[list[str]]:
+	def input_chain(*prompts: list[str]) -> Optional[list[str]]:
 		answers = ["" for _ in prompts]
 		i = 0
 

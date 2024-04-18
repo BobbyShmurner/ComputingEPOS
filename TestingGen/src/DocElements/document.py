@@ -12,7 +12,7 @@ from .doc_element import IDocElement
 from src.DocElements import Picture, Paragraph
 
 import docx
-from docx.shared import Pt, RGBColor
+from docx.shared import Pt, Mm
 from docx.document import Document as DocumentType
 
 class Document(IDocElement):
@@ -29,7 +29,6 @@ class Document(IDocElement):
 	def serialize(self) -> dict:
 		data = {
 			"type": self.get_type(),
-			"elements": [e.serialize() for e in self.elements]
 		}
 
 		if self.font:
@@ -38,18 +37,20 @@ class Document(IDocElement):
 		if self.font_size:
 			data["font_size"] = self.font_size
 
+		data["elements"] = [e.serialize() for e in self.elements]
+
 		return data
 
 	@classmethod
 	def deserialize(cls, data) -> 'Document':
 		elements_data = data["elements"]
 		elements = []
-		
-		for data in elements_data:
-			elements.append(IDocElement.deserialize(data))
 
 		font = data["font"] if "font" in data else None
 		font_size = data["font_size"] if "font_size" in data else None
+		
+		for data in elements_data:
+			elements.append(IDocElement.deserialize(data))
 
 		return cls(elements, font, font_size)
 	
@@ -89,7 +90,18 @@ class Document(IDocElement):
 	
 	def doc_gen(self, path: str = "out.docx"):
 		doc: DocumentType = docx.Document()	
-		doc.sections[0].left_margin = doc.sections[0].page_width * 0.1
+		
+		# A4 Page Setup (Copied from Word)
+		section = doc.sections[0]
+		section.page_height = Mm(297)
+		section.page_width = Mm(210)
+		section.left_margin = Mm(25.4)
+		section.right_margin = Mm(25.4)
+		section.top_margin = Mm(25.4)
+		section.bottom_margin = Mm(25.4)
+		section.header_distance = Mm(12.5)
+		section.footer_distance = Mm(12.5)
+		section.gutter = Mm(0)
 
 		doc.styles['Normal'].font.name = self.font if self.font else "Arial"
 
@@ -98,7 +110,14 @@ class Document(IDocElement):
 
 		for element in self.elements:
 			element.doc_gen(doc)
+
+		with open("out.xml", 'w+') as file:
+			file.write(doc.element.xml)
 			
+		for e in doc.element.body:
+			print(e)
+
+		input()
 		didPrint = False
 
 		while True:
