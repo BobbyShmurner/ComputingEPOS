@@ -32,7 +32,7 @@ def main():
 
 		for r in runs_with_rpbs:
 			# r._element.getparent().insert(0, r._element)
-   			widget.doc_gen(doc, r)
+			widget.doc_gen(doc, r)
 
 		with open(sys.argv[2] + "_new.xml", 'w+') as file:
 			file.write(doc.element.xml)
