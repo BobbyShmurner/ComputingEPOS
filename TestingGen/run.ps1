@@ -1,6 +1,12 @@
 param (
-	[Switch] $Debug
+	[Switch] $Debug,
+	[String] $Covers 
 )
+
+if ($Xml) {
+	Start-Process python -ArgumentList "$PSScriptRoot/main.py --covers $Xml" -NoNewWindow -Wait
+	exit(0)
+}
 
 $path = "$PSScriptRoot/main.py $PSScriptRoot/docs/Testing"
 if ($Debug) {

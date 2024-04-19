@@ -13,6 +13,7 @@ from io import BytesIO
 from typing import Optional
 from PIL import Image, ImageGrab
 from docx.document import Document as DocumentType
+from docx.text.run import Run
 
 from typing import TYPE_CHECKING
 
@@ -22,6 +23,9 @@ if TYPE_CHECKING:
 from src.cancelable_input import CancelableInput
 from src.element_wizard import ElementWizard
 from src.path_tree import PathTree
+
+from docx.text.paragraph import Paragraph
+from docx.text.run import Run
 
 from .doc_element import IDocElement
 from ..context import Context
@@ -49,20 +53,31 @@ class Widget(IDocElement):
 
 		return cls(name)
 	
-	def doc_gen(self, doc: DocumentType):
+	def doc_gen(self, doc: DocumentType, run: Optional[Run] = None):
 		try:
 			widget_doc: DocumentType = docx.Document(self.widget_path())
 
 			with open(self.widget_path() + ".xml", 'w+') as file:
 				file.write(widget_doc.element.body.xml)
 
-			doc.add_paragraph().add_run().add_break(docx.enum.text.WD_BREAK.LINE)
+
+			if run == None:
+				current_para = doc.paragraphs[-1] if len(doc.paragraphs) > 0 else doc.add_paragraph()
+				run = current_para.runs[-1] if len(current_para.runs) > 0 else current_para.add_run()
+			else:
+				current_para = Paragraph(run.element.getparent(), doc)
+			prev_para = current_para.insert_paragraph_before()
+
+			for r in current_para.runs:
+				if r.element == run.element:
+					break
+
+				prev_para._element.append(r._element)
 
 			for element in widget_doc.element.body:
 				element: BaseOxmlElement = element
-				if element.tag.endswith("sectPr"): continue
 
-				doc.element.body.insert(-1, element)
+				current_para._element.insert_element_before(element)
 		except Exception as e:
 			print("Error when generating document widget!\n\n")
 			input(e)

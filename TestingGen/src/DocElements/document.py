@@ -9,7 +9,7 @@ from src.context import Context
 from src.element_wizard import ElementWizard
 from src.path_tree import PathTree
 from .doc_element import IDocElement
-from src.DocElements import Picture, Paragraph
+from src.DocElements import Widget
 
 import docx
 from docx.shared import Pt, Mm
@@ -114,10 +114,6 @@ class Document(IDocElement):
 		with open("out.xml", 'w+') as file:
 			file.write(doc.element.xml)
 			
-		for e in doc.element.body:
-			print(e)
-
-		input()
 		didPrint = False
 
 		while True:

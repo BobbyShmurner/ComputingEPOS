@@ -3,10 +3,6 @@
     "font": "Aptos",
     "elements": [
         {
-            "type": "Widget",
-            "name": "Cover"
-        },
-        {
             "type": "TestList",
             "title": "Orders",
             "description": "The following tests will test the functionality of Order entities in the database.",
