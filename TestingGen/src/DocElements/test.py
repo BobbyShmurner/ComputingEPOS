@@ -130,7 +130,7 @@ class Test(IDocElement):
 			prefix_elements = [] if answers[3].strip().lower() == "y" else None
 			suffix_elements = [] if answers[4].strip().lower() == "y" else None
 
-			instance = cls(title, passed, description, expected_output, prefix_elements, suffix_elements)
+			instance = cls(title, True, description, expected_output, prefix_elements, suffix_elements)
 
 			if prefix_elements != None:
 				ElementWizard.add_wizard(prefix_elements, cls.allowed_elements, status="Please select a prefix element to add:", cancel_option="Back", path_name="Add Prefix")
