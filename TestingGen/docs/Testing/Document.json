@@ -915,6 +915,13 @@
                             ]
                         }
                     ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Upsizing a Meal",
+                    "passed": true,
+                    "description": "Bobby's Burgers offer both large and small variations of their meals. This test will be testing the upsizing functionality.",
+                    "expected_output": "Expected Output: Once the Upsize button is pressed, the selected meal will become a \"Large\" meal, where the prefix \"Large\" will be added to all items (Except the main burger item), and the prices will be updated"
                 }
             ]
         },
