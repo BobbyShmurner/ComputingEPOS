@@ -1120,6 +1120,319 @@
             "tests": [
                 {
                     "type": "Test",
+                    "title": "Preset Cash Amounts",
+                    "passed": true,
+                    "description": "Because cash comes in specific common values, such as \u00a31 coins and \u00a35 notes, it is rather useful to have buttons available that relate to these common cash amounts. As such, 5 common cash presets are present in the payment screen.",
+                    "expected_output": "When the \"\u00a35\" is pressed, a \u00a35 cash transaction should be created, and the \"Outstanding\" value should change to \u00a30.99",
+                    "prefix_elements": [
+                        {
+                            "type": "Picture",
+                            "index": 71,
+                            "rects": [
+                                [
+                                    717,
+                                    289,
+                                    871,
+                                    447
+                                ],
+                                [
+                                    671,
+                                    215,
+                                    914,
+                                    262
+                                ]
+                            ],
+                            "shade": [
+                                407,
+                                96,
+                                1178,
+                                727
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The total correctly updated and the transaction has been created in the database."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 72,
+                            "rects": [
+                                [
+                                    669,
+                                    218,
+                                    912,
+                                    259
+                                ]
+                            ],
+                            "shade": [
+                                403,
+                                90,
+                                1178,
+                                728
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 73,
+                            "rects": [
+                                [
+                                    4,
+                                    473,
+                                    566,
+                                    502
+                                ]
+                            ],
+                            "shade": [
+                                5,
+                                474,
+                                570,
+                                514
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Giving Correct Change",
+                    "passed": true,
+                    "description": "When paying by cash, it is very rare that a customer will pay with the exact amount of cash needed. As such, the cahsier must be informed of how much change to give once an order has been fully paid for.",
+                    "expected_output": "Once the order is paid for, a new order should be created and a model should pop-up displaying how much change to give.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is the same order from before. Once the \u00a32 button is pressed, Order #2 should begin and a model should show saying \"\u00a31.01\" in change should be given."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 74,
+                            "rects": [
+                                [
+                                    673,
+                                    221,
+                                    913,
+                                    262
+                                ],
+                                [
+                                    562,
+                                    290,
+                                    718,
+                                    447
+                                ],
+                                [
+                                    13,
+                                    26,
+                                    114,
+                                    65
+                                ]
+                            ],
+                            "shade": [
+                                1,
+                                2,
+                                1183,
+                                726
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The modal correctly displays the change needed, and Order #2 begins:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 75,
+                            "rects": [
+                                [
+                                    10,
+                                    25,
+                                    118,
+                                    64
+                                ],
+                                [
+                                    480,
+                                    378,
+                                    702,
+                                    440
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "The transaction for the change is also created in the database:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 76,
+                            "rects": [
+                                [
+                                    9,
+                                    466,
+                                    569,
+                                    493
+                                ]
+                            ],
+                            "shade": [
+                                2,
+                                414,
+                                669,
+                                512
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Payment Keypad",
+                    "passed": true,
+                    "description": "At times it is more convinient, or sometimes neccessary, to enter in specific amounts that customers wish to pay. For example, if a customer wishes to pay \u00a310.20 in cash for a \u00a310.09 order. Or maybe a customer wishes to pay a specific amount by card, and then the remainder in cash. In these situations, the cahsier will be required to enter a specific amount on a keypad.",
+                    "expected_output": "Once the \"Cash\" and \"Chip Pin\" buttons are pressed, a keypad should allow the cashier to enter in a specific amount, and only pay that amount.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is an order that I wish to pay \u00a33.50 in cash, and the remaining \u00a32.49 using card. Using the \"Cash\" and \"Chip Pin\" buttons respectivly, I should be allowed to pay for the order by entering a specific amount on a keypad"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 77,
+                            "rects": [
+                                [
+                                    667,
+                                    182,
+                                    918,
+                                    258
+                                ],
+                                [
+                                    413,
+                                    445,
+                                    717,
+                                    598
+                                ]
+                            ],
+                            "shade": [
+                                405,
+                                90,
+                                1182,
+                                725
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "When clicking on the \"Cash\" button, I am brought to the keypad screen and am able to enter in the cash amount of \u00a33.50"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 78,
+                            "rects": [
+                                [
+                                    687,
+                                    101,
+                                    886,
+                                    181
+                                ]
+                            ],
+                            "shade": [
+                                401,
+                                89,
+                                1196,
+                                726
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "Once pressing \"OK\", I am brough back to the Payment screen, where I can see that \u00a33.50 has correctly been subtracted from the outstanding amount due:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 79,
+                            "rects": [
+                                [
+                                    667,
+                                    181,
+                                    917,
+                                    256
+                                ],
+                                [
+                                    562,
+                                    446,
+                                    715,
+                                    599
+                                ]
+                            ],
+                            "shade": [
+                                402,
+                                88,
+                                1179,
+                                725
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "Once clicking \"Chip Pin\", I am once again brought back to the keypad screen, where I can now enter the remaing \u00a32.49:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 80,
+                            "rects": [
+                                [
+                                    697,
+                                    102,
+                                    885,
+                                    178
+                                ]
+                            ],
+                            "shade": [
+                                404,
+                                88,
+                                1205,
+                                724
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "Once I press \"OK\", I am now brough to the Menu Screen, because a new order has begun. There is also no Change pop-up as there is no change to be given:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 81,
+                            "rects": [
+                                [
+                                    11,
+                                    20,
+                                    121,
+                                    67
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "The transactions can also be found in the database:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 82,
+                            "rects": [
+                                [
+                                    6,
+                                    440,
+                                    568,
+                                    496
+                                ]
+                            ],
+                            "shade": [
+                                7,
+                                442,
+                                619,
+                                498
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
                     "title": "Payment Keypad - Max Value",
                     "passed": false,
                     "description": "There should be a limit to how much you can type into the payment keypad. In this test, I will repeatidly press the 9 button on the keypad until there is some form of feedback",
@@ -1170,6 +1483,68 @@
                             "type": "Picture",
                             "index": 53,
                             "rects": []
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Pay Remaining",
+                    "passed": true,
+                    "description": "If a customer has the exact amount required to pay for an order, there are buttons available to make this more convinient that having to type the exact amount into the keypad. This is especially useful when dealing with card payments.",
+                    "expected_output": "When the \"Cash Remaining\" button is pressed, the exact amount remaing for the order should be paid for in cash, and no \"Change\" modal should pop-up as there is no change needed to be given.",
+                    "prefix_elements": [
+                        {
+                            "type": "Picture",
+                            "index": 83,
+                            "rects": [
+                                [
+                                    717,
+                                    444,
+                                    870,
+                                    602
+                                ],
+                                [
+                                    609,
+                                    136,
+                                    974,
+                                    257
+                                ]
+                            ],
+                            "shade": [
+                                403,
+                                89,
+                                1200,
+                                724
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The next order correctly begins without a change pop-up, and the cash transaction is created in the database:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 84,
+                            "rects": [
+                                [
+                                    4,
+                                    13,
+                                    124,
+                                    72
+                                ]
+                            ]
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 85,
+                            "rects": [],
+                            "shade": [
+                                0,
+                                473,
+                                975,
+                                797
+                            ]
                         }
                     ]
                 }
