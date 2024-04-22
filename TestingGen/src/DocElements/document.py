@@ -105,8 +105,11 @@ class Document(IDocElement):
 
 		doc.styles['Normal'].font.name = self.font if self.font else "Arial"
 
+		font_size = Pt(12)
 		if self.font_size:
-			doc.styles['Normal'].font.size = Pt(self.font_size)
+			font_size = Pt(self.font_size)
+		
+		doc.styles['Normal'].font.size = font_size
 
 		for element in self.elements:
 			element.doc_gen(doc)

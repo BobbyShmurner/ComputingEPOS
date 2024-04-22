@@ -93,12 +93,14 @@ class Test(IDocElement):
 		passed_paragraph = doc.add_paragraph()
 		passed_run_pre = passed_paragraph.add_run("Result: ")
 		passed_run_pre.font.color.rgb = passed_col
+		passed_run_pre.font.size = Pt(14)
 		passed_run_pre.font.bold = True
 
 		passed_run = passed_paragraph.add_run("PASSED" if self.passed else "FAILED")
 		passed_run.font.color.rgb = passed_col
-		passed_run.font.bold = True
 		passed_run.font.underline = True
+		passed_run.font.size = Pt(14)
+		passed_run.font.bold = True
 
 		if self.suffix_elements:
 			for e in self.suffix_elements:
