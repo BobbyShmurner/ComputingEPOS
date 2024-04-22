@@ -3,6 +3,14 @@
     "font": "Aptos",
     "elements": [
         {
+            "type": "Paragraph",
+            "text": "To ensure that the software both functions as intended, while also meeting the user requirements, extensive testing must be carried out on each an every module of the software."
+        },
+        {
+            "type": "Paragraph",
+            "text": "This chapter will make use of both valid and invalid data to test that the function both works as expected, and doesn't fail or crash when invalid data is entered."
+        },
+        {
             "type": "TestList",
             "title": "Orders",
             "description": "The following tests will test the functionality of Order entities in the database.",
