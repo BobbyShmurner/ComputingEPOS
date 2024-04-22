@@ -921,7 +921,195 @@
                     "title": "Upsizing a Meal",
                     "passed": true,
                     "description": "Bobby's Burgers offer both large and small variations of their meals. This test will be testing the upsizing functionality.",
-                    "expected_output": "Expected Output: Once the Upsize button is pressed, the selected meal will become a \"Large\" meal, where the prefix \"Large\" will be added to all items (Except the main burger item), and the prices will be updated"
+                    "expected_output": "Expected Output: Once the Upsize button is pressed, the selected meal will become a \"Large\" meal, where the prefix \"Large\" will be added to all items (Except the main burger item), and the prices will be updated",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "When the Upsize button is pressed, the \"Burger Meal\" should become a \"Large Burger Meal\", the \"Coke\" should become a \"Large Coke\", and the \"Fries\" should become a \"Large Fries\""
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 63,
+                            "rects": [
+                                [
+                                    7,
+                                    152,
+                                    389,
+                                    23
+                                ],
+                                [
+                                    698,
+                                    647,
+                                    750,
+                                    730
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The items where successfully upsized to large items, and the price changed to reflect this. The \"Upsize\" button has also been disabled to indicate that \"Large\" is the large size."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 64,
+                            "rects": [
+                                [
+                                    5,
+                                    21,
+                                    390,
+                                    146
+                                ],
+                                [
+                                    696,
+                                    644,
+                                    749,
+                                    722
+                                ],
+                                [
+                                    6,
+                                    595,
+                                    388,
+                                    717
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Downsize Meal",
+                    "passed": true,
+                    "description": "Bobby's Burgers also offer a small varient of their meal. This test will test the functionality of downsizing an item.",
+                    "expected_output": "The meal should become a \"Small\" meal",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is the same burger meal from the previous test. When the downsize button is pressed, the \"Burger Meal\" should become a \"Small Burger Meal\" and the price should be lowered."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 65,
+                            "rects": [
+                                [
+                                    6,
+                                    17,
+                                    388,
+                                    145
+                                ],
+                                [
+                                    750,
+                                    644,
+                                    799,
+                                    722
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "The \"Burger Meal\" has successfully be downsized to a \"Small Burger Meal\", as well as the sub items, and the price has been lowered to reflect this. The downsize button has also been disabled to reflect that \"Small\" meals are the smallest size avaliable."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 66,
+                            "rects": [
+                                [
+                                    2,
+                                    16,
+                                    386,
+                                    143
+                                ],
+                                [
+                                    3,
+                                    591,
+                                    386,
+                                    715
+                                ],
+                                [
+                                    748,
+                                    646,
+                                    794,
+                                    721
+                                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Test",
+                    "title": "Resizing individual items",
+                    "passed": false,
+                    "description": "As well as resizing meals, customers may wish to resize just a specific item.",
+                    "expected_output": "The selected side item should be resized correctly.",
+                    "prefix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "Below is a \"Small Fires\". When the Upsize button is pressed, the fries should become a \"Regular Fries\" and the price should be updated to reflect this."
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 67,
+                            "rects": [
+                                [
+                                    5,
+                                    15,
+                                    393,
+                                    50
+                                ],
+                                [
+                                    698,
+                                    646,
+                                    750,
+                                    724
+                                ]
+                            ]
+                        }
+                    ],
+                    "suffix_elements": [
+                        {
+                            "type": "Paragraph",
+                            "text": "While the Fries did upsize correctly based on the resizing logic, there is an inconsistancy between the upsized \"Small Fires\" and the ordinary \"Regular Fries\":"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 68,
+                            "rects": []
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "This trend also continious when upsizing the fries to large. Below, the same two fries have been upsized, and the 3rd set of \"Large Fries\" are the true large fries:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 69,
+                            "rects": []
+                        },
+                        {
+                            "type": "Paragraph",
+                            "text": "A solution to this problem would be to add two new columns to the \"MenuItems\" table, both being foregin keys to other Menu Items:"
+                        },
+                        {
+                            "type": "Picture",
+                            "index": 70,
+                            "rects": [
+                                [
+                                    23,
+                                    286,
+                                    456,
+                                    332
+                                ]
+                            ],
+                            "shade": [
+                                23,
+                                166,
+                                620,
+                                335
+                            ]
+                        }
+                    ]
                 }
             ]
         },
