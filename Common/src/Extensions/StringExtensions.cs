@@ -1,6 +1,11 @@
 namespace ComputingEPOS.Common;
 
 public static class StringExtensions {
+	/// <summary>
+	/// Trims the specified string from the start of the string.
+	/// </summary>
+	/// <param name="trimString">The string to trim from the start</param>
+	/// <returns>The trimmed string</returns>
 	public static string TrimStart(this string str, string trimString) {
 		if (string.IsNullOrEmpty(trimString)) return str;
 
@@ -12,6 +17,11 @@ public static class StringExtensions {
 		return result;
 	}
 
+	/// <summary>
+	/// Trims the specified string from the end of the string.
+	/// </summary>
+	/// <param name="trimString">The string to trim from the end</param>
+	/// <returns>The trimmed string</returns>
 	public static string TrimEnd(this string str, string trimString) {
 		if (string.IsNullOrEmpty(trimString)) return str;
 

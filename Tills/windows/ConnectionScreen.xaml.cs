@@ -32,6 +32,10 @@ public partial class ConnectionScreen : UserControl {
         InitializeComponent();
     }
 
+    /// <summary>
+    /// Freezes execution until connected to the server.
+    /// </summary>
+    /// <returns></returns>
     public async Task EnsureConnected(bool setViewOnDown = true, bool setViewOnUp = true) {
         if (ConnectionUp) return;
         
@@ -41,6 +45,9 @@ public partial class ConnectionScreen : UserControl {
         }
     }
 
+    /// <summary>
+    /// Shows the last screen displayed before switching to the connection screen.
+    /// </summary>
     public void ShowPreviousScreen() {
         UIDispatcher.DispatchOnUIThread(() => {
             MainWindow.Instance.Modal.Hide();
@@ -48,6 +55,9 @@ public partial class ConnectionScreen : UserControl {
         });
     }
 
+    /// <summary>
+    /// Ping the server. Sets the connection down if the ping fails.
+    /// </summary>
     public async Task Ping(bool setViewOnDown = true, bool setViewOnUp = true) {
         try {
             Trace.WriteLine("Ping!");
@@ -66,6 +76,10 @@ public partial class ConnectionScreen : UserControl {
         }
     }
 
+    /// <summary>
+    /// Signifies that the tills cannot communicate with the server.
+    /// </summary>
+    /// <param name="updateView"></param>
     public void SetConnectionDown(bool updateView) {
         ConnectionUp = false;
         if (!updateView) return;
@@ -81,6 +95,10 @@ public partial class ConnectionScreen : UserControl {
         });
     }
 
+    /// <summary>
+    /// Signifies that the tills have regained connection to the server.
+    /// </summary>
+    /// <param name="updateView"></param>
     void SetConnectionUp(bool updateView) {
         ConnectionUp = true;
 

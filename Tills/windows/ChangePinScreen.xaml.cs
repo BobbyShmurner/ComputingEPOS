@@ -62,6 +62,10 @@ public partial class ChangePinScreen : UserControl {
     public string SelectedEmployeeName => SeletcedEmployee == null ? "None" : $"{SeletcedEmployee.FirstNames} {SeletcedEmployee.LastName}";
 
     string m_PinPass = string.Empty;
+
+    /// <summary>
+    /// The pin that's currently being entered on the keypad.
+    /// </summary>
     public string PinPass {
         get => m_PinPass;
         set {
@@ -70,10 +74,17 @@ public partial class ChangePinScreen : UserControl {
         }
     }
 
+    /// <summary>
+    /// The display text of the current pin being entered.
+    /// Should be all asterisks
+    /// </summary>
     public string PinPassText {
         get => (string)GetValue(PinPassTextDependencyProperty);
     }
 
+    /// <summary>
+    /// The current status text displayed on the screen.
+    /// </summary>
     public string StatusText {
         get => (string)GetValue(StatusTextProperty);
         set => SetValue(StatusTextProperty, value);
@@ -94,6 +105,9 @@ public partial class ChangePinScreen : UserControl {
         };
     }
 
+    /// <summary>
+    /// Should be run every time a pin need to be entered.
+    /// </summary>
     void ResetInternalState() {
         SeletcedEmployee = LoginManager.Instance.CurrentEmployee;
         Keypad.ClearValue();
@@ -130,6 +144,12 @@ public partial class ChangePinScreen : UserControl {
         UIDispatcher.EnqueueUIAction(async () => await ChangePin(SeletcedEmployee, currentPin, newPin));
     }
 
+    /// <summary>
+    /// Assign a new pin to an employee.
+    /// </summary>
+    /// <param name="employee">The Employee to change the pin for.</param>
+    /// <param name="currentPin">The current pin of the employee. Can also be the Manager's Pin.</param>
+    /// <param name="newPin">The new pin for the employee.</param>
     async Task ChangePin(Employee employee, string currentPin, string newPin) {
         try {
             UIDispatcher.EnqueueAndUpdateOnUIThread(() => Modal.Instance.Show("Changing Pin...", false));
@@ -145,6 +165,9 @@ public partial class ChangePinScreen : UserControl {
         }
     }
 
+    /// <summary>
+    /// Create the employee buttons for the manager view.
+    /// </summary>
     async Task PopulateEmployeeButtons() {
         List<Employee> employees = await Api.Employees.GetEmployees();
 
@@ -173,6 +196,9 @@ public partial class ChangePinScreen : UserControl {
     void Back() =>
         UIDispatcher.EnqueueAndUpdateOnUIThread(() => MainWindow.Instance.RootViewManager.ShowView(MainWindow.Instance.MenuView));
 
+    /// <summary>
+    /// Display the Change Pin Screen
+    /// </summary>
     public async Task Show() {
         bool isManager = false;
 
