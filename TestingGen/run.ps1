@@ -3,8 +3,8 @@ param (
 	[String] $Covers 
 )
 
-if ($Xml) {
-	Start-Process python -ArgumentList "$PSScriptRoot/main.py --covers $Xml" -NoNewWindow -Wait
+if ($Covers) {
+	Start-Process python -ArgumentList "$PSScriptRoot/main.py --covers $Covers" -NoNewWindow -Wait
 	exit(0)
 }
 
